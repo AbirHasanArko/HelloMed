@@ -5,7 +5,7 @@
 
   [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
   [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
-  [![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
+  [![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
   [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 </div>
 
@@ -50,7 +50,7 @@ HelloMed is built on a robust, modern technology stack ensuring scalability and 
 ### Backend
 - **Framework:** Laravel 11.x
 - **Language:** PHP 8.2+
-- **Database:** SQLite (Zero-configuration, lightweight, perfect for rapid deployment)
+- **Database:** MySQL (Relational, robust, standard for production environments)
 - **Security:** Laravel Sanctum (for any future API needs), built-in CSRF & XSS protection.
 
 ### Frontend
@@ -71,13 +71,13 @@ The platform follows a classic **Monolithic MVC (Model-View-Controller)** archit
 2. **Controllers & Form Requests:**
    - Controllers are kept "skinny" by offloading validation to dedicated Form Request classes.
 3. **Database Relationships:**
-   - Deeply relational SQLite schema utilizing Eloquent ORM. 
+   - Deeply relational MySQL schema utilizing Eloquent ORM. 
    - Notable relations: `User hasOne DoctorProfile`, `Appointment belongsTo Patient & Doctor`, `Article belongsTo Category & Author`.
 4. **State Management & UI:**
    - Blade components and global layouts handle the UI state.
    - Dynamic UI elements (like the Featured Doctors filter) use auto-submitting forms for SSR filtering.
 5. **Idempotent Migrations:**
-   - Schema updates (like adding `is_featured` columns) use `Schema::hasColumn` checks to ensure migrations can be re-run safely in SQLite environments.
+   - Schema updates (like adding `is_featured` columns) use `Schema::hasColumn` checks to ensure migrations can be re-run safely in MySQL environments.
 
 ---
 
@@ -144,9 +144,8 @@ Follow these steps to run HelloMed locally on your machine.
    ```
 
 5. **Database Configuration**
-   By default, HelloMed uses SQLite. Ensure a `database.sqlite` file exists in the `database` folder.
+   HelloMed uses MySQL. Create a database named `hellomed` in your MySQL server (e.g., via XAMPP phpMyAdmin) and ensure your `.env` has the correct `DB_CONNECTION=mysql` settings.
    ```bash
-   touch database/database.sqlite
    php artisan migrate --seed
    ```
    *(Note: The seeder populates the database with departments, professional male doctors, articles, and medicines).*
