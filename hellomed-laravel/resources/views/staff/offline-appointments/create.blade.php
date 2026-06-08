@@ -41,7 +41,47 @@
 
             <hr style="border:0; border-top:1px solid var(--border); margin: 32px 0;">
 
-            <h2 style="font-size: 1.5rem; margin-bottom: 16px;">2. Appointment Details</h2>
+            <h2 style="font-size: 1.5rem; margin-bottom: 16px;">2. Patient Medical Profile (Optional)</h2>
+            <p class="muted">Staff can enter medical details for the patient.</p>
+            <div class="grid cols-2" style="margin-bottom: 24px;">
+                <div>
+                    <label>Date of birth</label>
+                    <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" max="{{ date('Y-m-d') }}">
+                </div>
+                <div>
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="">Select gender</option>
+                        <option value="Male" @selected(old('gender') === 'Male')>Male</option>
+                        <option value="Female" @selected(old('gender') === 'Female')>Female</option>
+                        <option value="Other" @selected(old('gender') === 'Other')>Other</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Height (e.g. 175 cm)</label>
+                    <input type="text" name="height" value="{{ old('height') }}" placeholder="175 cm">
+                </div>
+                <div>
+                    <label>Weight (e.g. 70 kg)</label>
+                    <input type="text" name="weight" value="{{ old('weight') }}" placeholder="70 kg">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Known allergies</label>
+                    <input type="text" name="allergies" value="{{ old('allergies') }}" placeholder="penicillin, ibuprofen">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Known conditions</label>
+                    <textarea name="known_conditions" rows="2">{{ old('known_conditions') }}</textarea>
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Medical notes</label>
+                    <textarea name="medical_notes" rows="2">{{ old('medical_notes') }}</textarea>
+                </div>
+            </div>
+
+            <hr style="border:0; border-top:1px solid var(--border); margin: 32px 0;">
+
+            <h2 style="font-size: 1.5rem; margin-bottom: 16px;">3. Appointment Details</h2>
             <div class="grid cols-2" style="margin-bottom: 24px;">
                 <div style="grid-column: span 2;">
                     <label>Select Doctor</label>

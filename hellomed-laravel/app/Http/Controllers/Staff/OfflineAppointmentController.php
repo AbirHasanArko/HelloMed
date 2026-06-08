@@ -36,6 +36,13 @@ class OfflineAppointmentController extends Controller
             'scheduled_date' => 'required|date|after_or_equal:today',
             'scheduled_time' => 'required|date_format:H:i',
             'reason' => 'required|string|max:1000',
+            'date_of_birth' => 'nullable|date|before:today',
+            'gender' => 'nullable|string|max:50',
+            'height' => 'nullable|string|max:50',
+            'weight' => 'nullable|string|max:50',
+            'allergies' => 'nullable|string|max:3000',
+            'known_conditions' => 'nullable|string|max:3000',
+            'medical_notes' => 'nullable|string|max:5000',
         ]);
 
         return DB::transaction(function () use ($request, $validated) {
@@ -51,6 +58,24 @@ class OfflineAppointmentController extends Controller
                     'password' => Hash::make('password123'),
                     'role' => 'patient',
                 ]);
+            }
+
+            // Update or create patient profile
+            $profileData = array_filter([
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'height' => $validated['height'] ?? null,
+                'weight' => $validated['weight'] ?? null,
+                'allergies' => $validated['allergies'] ?? null,
+                'known_conditions' => $validated['known_conditions'] ?? null,
+                'medical_notes' => $validated['medical_notes'] ?? null,
+            ]);
+
+            if (!empty($profileData)) {
+                $user->patientProfile()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    $profileData
+                );
             }
 
             // Validate slot
