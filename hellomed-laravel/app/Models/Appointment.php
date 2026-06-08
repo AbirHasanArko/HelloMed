@@ -21,6 +21,7 @@ class Appointment extends Model
         'patient_phone',
         'service_mode',
         'scheduled_for',
+        'scheduled_end',
         'status',
         'payment_method',
         'payment_status',
@@ -38,9 +39,23 @@ class Appointment extends Model
 
     protected $casts = [
         'scheduled_for' => 'datetime',
+        'scheduled_end' => 'datetime',
         'prescription_written_at' => 'datetime',
         'prescription_follow_up_date' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Appointment $appointment): void {
+            if ($appointment->isDirty('scheduled_for') && $appointment->scheduled_for) {
+                $doctor = $appointment->doctor ?? Doctor::find($appointment->doctor_id);
+                if ($doctor) {
+                    $slotMinutes = $doctor->slot_minutes ?: 30;
+                    $appointment->scheduled_end = $appointment->scheduled_for->copy()->addMinutes($slotMinutes);
+                }
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {

@@ -18,7 +18,15 @@ class AppointmentController extends Controller
 {
     public function create(Doctor $doctor)
     {
-        return view('appointments.create', compact('doctor'));
+        $upcomingAppointments = Appointment::query()
+            ->where('doctor_id', $doctor->id)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('scheduled_for', '>=', now())
+            ->where('scheduled_for', '<', now()->addDays(14))
+            ->orderBy('scheduled_for')
+            ->get(['scheduled_for', 'scheduled_end']);
+
+        return view('appointments.create', compact('doctor', 'upcomingAppointments'));
     }
 
     public function store(StoreAppointmentRequest $request)

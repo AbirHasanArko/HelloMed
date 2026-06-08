@@ -10,12 +10,32 @@
                     <h1 style="font-size:1.8rem;">{{ $doctor->name }}</h1>
                     <p style="font-size:15px;">{{ $doctor->department?->name }} · {{ $doctor->specialty }}</p>
                     <p>Choose online or offline care and send an appointment request.</p>
-                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1" opacity="0.3" style="margin-top:16px;">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
+                    
+                    <div style="margin-top: 24px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+                        <h3 style="margin-bottom: 12px; font-size: 16px;">Doctor's Schedule</h3>
+                        @if($doctor->online_available)
+                            <p style="margin-bottom: 8px; font-size: 14px;"><strong>Online:</strong> {{ implode(', ', $doctor->online_available_days ?: $doctor->available_days ?: []) }} ({{ $doctor->online_available_from ?: $doctor->available_from ?: 'Anytime' }} - {{ $doctor->online_available_to ?: $doctor->available_to ?: 'Anytime' }})</p>
+                        @endif
+                        @if($doctor->offline_available)
+                            <p style="margin-bottom: 8px; font-size: 14px;"><strong>Offline:</strong> {{ implode(', ', $doctor->offline_available_days ?: $doctor->available_days ?: []) }} ({{ $doctor->offline_available_from ?: $doctor->available_from ?: 'Anytime' }} - {{ $doctor->offline_available_to ?: $doctor->available_to ?: 'Anytime' }})</p>
+                        @endif
+                        <p style="font-size: 14px;"><strong>Slot Duration:</strong> {{ $doctor->slot_minutes ?: 30 }} mins</p>
+                    </div>
+
+                    @if($upcomingAppointments->isNotEmpty())
+                        <div style="margin-top: 16px; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                            <h3 style="margin-bottom: 12px; font-size: 14px; display:flex; align-items:center; gap:6px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Recently Booked Slots (Next 14 Days)
+                            </h3>
+                            <ul style="font-size: 13px; padding-left: 16px;">
+                                @foreach($upcomingAppointments as $apt)
+                                    <li>{{ $apt->scheduled_for->format('M d, Y h:i A') }} - {{ $apt->scheduled_end?->format('h:i A') }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                 </div>
             </div>
             <div class="card">

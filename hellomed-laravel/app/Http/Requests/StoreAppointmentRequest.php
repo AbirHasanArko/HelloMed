@@ -35,51 +35,20 @@ class StoreAppointmentRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $validator): void {
-            $doctor = Doctor::query()->find($this->integer('doctor_id'));
-
-            if (! $doctor) {
-                return;
-            }
-
-            if ($this->input('service_mode') === 'online' && ! $doctor->online_available) {
-                $validator->errors()->add('service_mode', 'The selected doctor does not offer online consultations.');
-            }
-
-            if ($this->input('service_mode') === 'offline' && ! $doctor->offline_available) {
-                $validator->errors()->add('service_mode', 'The selected doctor does not offer offline consultations.');
-            }
-
-            $scheduledFor = Carbon::parse($this->input('scheduled_for'));
-            $dayName = strtolower($scheduledFor->format('l'));
-            $scheduledTime = $scheduledFor->format('H:i:s');
-
-            $isOnline = $this->input('service_mode') === 'online';
-            $availableDays = $isOnline
-                ? ($doctor->online_available_days ?: $doctor->available_days)
-                : ($doctor->offline_available_days ?: $doctor->available_days);
-            $availableFrom = $isOnline
-                ? ($doctor->online_available_from ?: $doctor->available_from)
-                : ($doctor->offline_available_from ?: $doctor->available_from);
-            $availableTo = $isOnline
-                ? ($doctor->online_available_to ?: $doctor->available_to)
-                : ($doctor->offline_available_to ?: $doctor->available_to);
-
-            if (is_array($availableDays) && $availableDays !== [] && ! in_array($dayName, array_map('strtolower', $availableDays), true)) {
-                $validator->errors()->add('scheduled_for', 'The selected doctor is not available on the chosen day.');
-            }
-
-            if ($availableFrom && $availableTo) {
-                if ($scheduledTime < $availableFrom || $scheduledTime > $availableTo) {
-                    $validator->errors()->add('scheduled_for', 'The selected time is outside the doctor availability window.');
+            $service = app(\App\Services\AppointmentSlotService::class);
+            try {
+                $service->checkAvailability(
+                    $this->integer('doctor_id'),
+                    $this->input('scheduled_for'),
+                    $this->input('service_mode'),
+                    $this->user()?->id
+                );
+            } catch (\Illuminate\Validation\ValidationException $e) {
+                foreach ($e->errors() as $key => $messages) {
+                    foreach ($messages as $message) {
+                        $validator->errors()->add($key, $message);
+                    }
                 }
-            }
-
-            if (Appointment::query()
-                ->where('doctor_id', $doctor->id)
-                ->where('scheduled_for', $scheduledFor)
-                ->whereIn('status', ['pending', 'confirmed'])
-                ->exists()) {
-                $validator->errors()->add('scheduled_for', 'The selected time slot is already booked.');
             }
         });
     }
