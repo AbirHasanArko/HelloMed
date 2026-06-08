@@ -6,7 +6,7 @@
   [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
   [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
   [![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
-  [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+  [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](LICENSE)
 </div>
 
 <br/>
@@ -349,6 +349,12 @@ php artisan optimize:clear
 ```bash
 php artisan migrate:fresh --seed
 ```
+
+## License
+
+Copyright (c) 2026 Abir Hasan Arko. All rights reserved.
+
+This source code and all associated files are proprietary and confidential. Please see the [LICENSE](LICENSE) file for more details.
 
 ---
 ---
