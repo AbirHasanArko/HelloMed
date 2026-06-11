@@ -292,8 +292,12 @@
             @csrf
             <div class="grid cols-2" style="gap: 16px; align-items: end;">
                 <label>
-                    Test Name
-                    <input type="text" name="test_name" placeholder="e.g. CBC, Blood Glucose" required>
+                    Select Lab Tests (Hold Ctrl/Cmd to select multiple)
+                    <select name="test_names[]" multiple required style="height: 120px;">
+                        @foreach($availableTests as $test)
+                            <option value="{{ $test->name }}">{{ $test->name }} (BDT {{ $test->fee_bdt }})</option>
+                        @endforeach
+                    </select>
                 </label>
                 <label>
                     Notes (Optional)

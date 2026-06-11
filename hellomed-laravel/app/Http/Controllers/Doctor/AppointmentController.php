@@ -21,6 +21,7 @@ class AppointmentController extends Controller
 
         return view('doctor.appointment-show', [
             'appointment' => $appointment->load(['user.patientProfile', 'chatMessages.user', 'prescriptionItems.medicine', 'labTests']),
+            'availableTests' => \App\Models\AvailableTest::where('is_active', true)->orderBy('name')->get(),
             'medicines' => Medicine::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'power', 'amount']),
             'medicinesForJs' => Medicine::query()
                 ->where('is_active', true)
@@ -252,19 +253,22 @@ class AppointmentController extends Controller
         abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
 
         $validated = $request->validate([
-            'test_name' => ['required', 'string', 'max:255'],
+            'test_names' => ['required', 'array'],
+            'test_names.*' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $appointment->labTests()->create([
-            'test_name' => $validated['test_name'],
-            'notes' => $validated['notes'],
-            'status' => 'pending',
-        ]);
+        foreach ($validated['test_names'] as $testName) {
+            $appointment->labTests()->create([
+                'test_name' => $testName,
+                'notes' => $validated['notes'],
+                'status' => 'pending',
+            ]);
 
-        AuditLogger::log('appointment.lab_test_requested', $appointment, [], [
-            'test_name' => $validated['test_name'],
-        ]);
+            AuditLogger::log('appointment.lab_test_requested', $appointment, [], [
+                'test_name' => $testName,
+            ]);
+        }
 
         return back()->with('status', 'Lab test requested successfully.');
     }
