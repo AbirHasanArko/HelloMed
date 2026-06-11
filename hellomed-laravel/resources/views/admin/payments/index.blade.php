@@ -20,7 +20,12 @@
                     @foreach ($payments as $payment)
                         <tr>
                             <td>#{{ $payment->appointment_id }} · {{ $payment->appointment?->doctor?->name }}</td>
-                            <td>{{ $payment->user?->name ?? 'Guest' }}</td>
+                            <td>
+                                <div><strong>{{ $payment->appointment?->patient_name ?? $payment->user?->name ?? 'Guest' }}</strong></div>
+                                @if($payment->appointment?->patient_phone)
+                                    <div class="muted" style="font-size: 13px; margin-top: 2px;">{{ $payment->appointment->patient_phone }}</div>
+                                @endif
+                            </td>
                             <td>{{ $payment->method }}</td>
                             <td>BDT {{ number_format((float) $payment->amount, 2) }}</td>
                             <td>{{ $payment->status }}</td>

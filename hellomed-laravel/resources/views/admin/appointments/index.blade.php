@@ -20,6 +20,7 @@
                         <tr>
                             <td>
                                 <strong>{{ $appointment->patient_name }}</strong>
+                                <div class="muted" style="font-size: 13px; margin-top: 2px; margin-bottom: 4px;">{{ $appointment->patient_phone }}</div>
                                 @if ($appointment->user?->patientProfile)
                                     @php $p = $appointment->user->patientProfile; @endphp
                                     <div class="muted" style="font-size: 12px; margin-top: 4px; line-height: 1.4;">

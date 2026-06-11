@@ -20,7 +20,12 @@
                 @foreach ($orders as $order)
                     <tr>
                         <td>{{ $order->order_number }}</td>
-                        <td>{{ $order->user?->name }}</td>
+                        <td>
+                            <strong>{{ $order->user?->name ?? 'Guest' }}</strong>
+                            @if($order->phone)
+                                <div class="muted" style="font-size: 13px; margin-top: 2px;">{{ $order->phone }}</div>
+                            @endif
+                        </td>
                         <td>BDT {{ number_format((float) $order->total_amount, 2) }}</td>
                         <td>{{ ucfirst($order->status) }}</td>
                         <td>{{ ucfirst($order->payment_status) }}</td>
