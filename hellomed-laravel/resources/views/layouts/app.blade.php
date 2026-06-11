@@ -795,6 +795,7 @@
                 </a>
                 <a href="{{ route('home') }}">Home</a>
                 <a href="{{ route('departments.index') }}">Care</a>
+                <a href="{{ route('available-tests.index') }}">Lab Tests</a>
                 <a href="{{ route('qna.index') }}">Q&amp;A</a>
                 <a href="{{ route('about') }}">About</a>
                 <a href="{{ route('medicines.index') }}">Medicine shop</a>

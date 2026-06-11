@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminDoctorController;
 use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\AvailableTestController as AdminAvailableTestController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Frontend\ArticleController;
 use App\Http\Controllers\Frontend\ArticleCommentController;
 use App\Http\Controllers\Frontend\ContactController;
 use App\Http\Controllers\Frontend\DepartmentController;
+use App\Http\Controllers\Frontend\AvailableTestController as FrontendAvailableTestController;
 use App\Http\Controllers\Frontend\DoctorReviewController;
 use App\Http\Controllers\Frontend\DoctorController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -43,6 +45,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/{department:slug}', [DepartmentController::class, 'show'])->name('departments.show');
+Route::get('/lab-tests', [FrontendAvailableTestController::class, 'index'])->name('available-tests.index');
+Route::get('/lab-tests/{availableTest:slug}', [FrontendAvailableTestController::class, 'show'])->name('available-tests.show');
 Route::get('/doctors', [DoctorController::class, 'index'])->name('doctors.index');
 Route::get('/doctors/{doctor:slug}', [DoctorController::class, 'show'])->name('doctors.show');
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
@@ -200,6 +204,9 @@ Route::prefix('admin')
         Route::get('/departments/{department}/edit', [AdminDepartmentController::class, 'edit'])->name('departments.edit');
         Route::put('/departments/{department}', [AdminDepartmentController::class, 'update'])->name('departments.update');
         Route::delete('/departments/{department}', [AdminDepartmentController::class, 'destroy'])->name('departments.destroy');
+
+        Route::resource('available-tests', AdminAvailableTestController::class)->except(['show']);
+
         Route::get('/articles', [AdminArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/create', [AdminArticleController::class, 'create'])->name('articles.create');
         Route::post('/articles', [AdminArticleController::class, 'store'])->name('articles.store');
