@@ -14,10 +14,28 @@ class PatientProfile extends Model
         'user_id',
         'allergies',
         'medical_notes',
+        'date_of_birth',
+        'gender',
+        'height',
+        'weight',
+        'known_conditions',
+    ];
+
+    protected $casts = [
+        'date_of_birth' => 'date',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function isIncomplete(): bool
+    {
+        return empty($this->date_of_birth)
+            || empty($this->gender)
+            || empty($this->height)
+            || empty($this->weight)
+            || empty($this->known_conditions);
     }
 }

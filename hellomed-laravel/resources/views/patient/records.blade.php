@@ -5,22 +5,7 @@
     <h1>My health records</h1>
     <p>Unified timeline of your appointments, prescriptions, and medicine orders.</p>
 
-    <div class="card" style="margin-bottom: 16px;">
-        <h3>Safety profile</h3>
-        <form method="POST" action="{{ route('patient.profile.update') }}">
-            @csrf
-            @method('PATCH')
-            <label>
-                Known allergies (comma separated)
-                <input type="text" name="allergies" value="{{ old('allergies', $profile?->allergies) }}" placeholder="penicillin, ibuprofen">
-            </label>
-            <label>
-                Medical notes
-                <textarea name="medical_notes">{{ old('medical_notes', $profile?->medical_notes) }}</textarea>
-            </label>
-            <button class="button" type="submit">Save profile</button>
-        </form>
-    </div>
+
 
     <div class="grid cols-2">
         <div class="card">

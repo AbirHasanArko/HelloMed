@@ -7,22 +7,7 @@
         <div class="meta-row" style="margin-bottom: 12px;">
             <a class="ghost-button" href="{{ route('patient.records') }}">Open full health records</a>
         </div>
-        <div class="card" style="margin-bottom: 16px;">
-            <h3>Safety profile</h3>
-            <form method="POST" action="{{ route('patient.profile.update') }}">
-                @csrf
-                @method('PATCH')
-                <label>
-                    Known allergies (comma separated)
-                    <input type="text" name="allergies" value="{{ old('allergies', $profile?->allergies) }}" placeholder="penicillin, ibuprofen">
-                </label>
-                <label>
-                    Medical notes
-                    <textarea name="medical_notes">{{ old('medical_notes', $profile?->medical_notes) }}</textarea>
-                </label>
-                <button class="button" type="submit">Save profile</button>
-            </form>
-        </div>
+
         <div class="card">
             <table class="table">
                 <thead>

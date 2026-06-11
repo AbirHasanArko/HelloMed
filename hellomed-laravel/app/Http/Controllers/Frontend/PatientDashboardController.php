@@ -84,6 +84,16 @@ class PatientDashboardController extends Controller
         return back()->with('status', 'Appointment rescheduled successfully.');
     }
 
+    public function profile(): View
+    {
+        $user = request()->user();
+        abort_unless($user && $user->role === 'patient', 403);
+
+        return view('patient.profile', [
+            'profile' => $user->patientProfile,
+        ]);
+    }
+
     public function updateProfile(Request $request): RedirectResponse
     {
         abort_unless($request->user()?->role === 'patient', 403);
@@ -91,6 +101,11 @@ class PatientDashboardController extends Controller
         $validated = $request->validate([
             'allergies' => ['nullable', 'string', 'max:3000'],
             'medical_notes' => ['nullable', 'string', 'max:5000'],
+            'date_of_birth' => ['nullable', 'date', 'before:today'],
+            'gender' => ['nullable', 'string', 'max:50'],
+            'height' => ['nullable', 'string', 'max:50'],
+            'weight' => ['nullable', 'string', 'max:50'],
+            'known_conditions' => ['nullable', 'string', 'max:3000'],
         ]);
 
         $request->user()->patientProfile()->updateOrCreate(
@@ -98,6 +113,11 @@ class PatientDashboardController extends Controller
             [
                 'allergies' => $validated['allergies'] ?? null,
                 'medical_notes' => $validated['medical_notes'] ?? null,
+                'date_of_birth' => $validated['date_of_birth'] ?? null,
+                'gender' => $validated['gender'] ?? null,
+                'height' => $validated['height'] ?? null,
+                'weight' => $validated['weight'] ?? null,
+                'known_conditions' => $validated['known_conditions'] ?? null,
             ]
         );
 
