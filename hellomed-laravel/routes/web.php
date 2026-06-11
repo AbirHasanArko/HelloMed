@@ -86,6 +86,9 @@ Route::get('/my/appointments/{appointment}/buy-all-medicines', [PrescriptionCart
 Route::patch('/my/appointments/{appointment}', [PatientDashboardController::class, 'update'])
     ->middleware('auth')
     ->name('patient.appointments.update');
+Route::get('/my/profile', [PatientDashboardController::class, 'profile'])
+    ->middleware('auth')
+    ->name('patient.profile');
 Route::patch('/my/profile', [PatientDashboardController::class, 'updateProfile'])
     ->middleware('auth')
     ->name('patient.profile.update');
@@ -170,6 +173,7 @@ Route::prefix('doctor')
         Route::get('/appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('/appointments/{appointment}/meeting-link', [DoctorAppointmentController::class, 'updateMeetingLink'])->name('appointments.meeting-link.update');
         Route::patch('/appointments/{appointment}/prescription', [DoctorAppointmentController::class, 'updatePrescription'])->name('appointments.prescription.update');
+        Route::patch('/appointments/{appointment}/patient-profile', [DoctorAppointmentController::class, 'updatePatientProfile'])->name('appointments.patient-profile.update');
     });
 
 Route::prefix('admin')
@@ -179,6 +183,8 @@ Route::prefix('admin')
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/appointments', [AdminAppointmentController::class, 'index'])->name('appointments.index');
         Route::patch('/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('appointments.update');
+        Route::get('/patients/{user}/profile/edit', [\App\Http\Controllers\Admin\AdminPatientProfileController::class, 'edit'])->name('patients.profile.edit');
+        Route::patch('/patients/{user}/profile', [\App\Http\Controllers\Admin\AdminPatientProfileController::class, 'update'])->name('patients.profile.update');
         Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');
         Route::get('/departments/create', [AdminDepartmentController::class, 'create'])->name('departments.create');
         Route::post('/departments', [AdminDepartmentController::class, 'store'])->name('departments.store');
