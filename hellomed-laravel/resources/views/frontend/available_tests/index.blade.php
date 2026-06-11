@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<section class="section fade-in fade-in-delay-2">
+<section class="section">
     <div class="grid cols-3">
         @forelse ($tests as $test)
             <a class="card" href="{{ route('available-tests.show', $test) }}" style="display: flex; flex-direction: column;">
