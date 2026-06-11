@@ -115,10 +115,33 @@
                 Additional advice
                 <textarea name="prescription_advice">{{ old('prescription_advice', $appointment->prescription_advice) }}</textarea>
             </label>
-            <label>
-                Follow-up date
-                <input type="date" name="prescription_follow_up_date" value="{{ old('prescription_follow_up_date', optional($appointment->prescription_follow_up_date)->format('Y-m-d')) }}">
-            </label>
+            <div class="grid cols-2" style="gap: 16px;">
+                <label>
+                    Follow-up date
+                    <input type="date" id="follow-up-date" name="prescription_follow_up_date" value="{{ old('prescription_follow_up_date', optional($appointment->prescription_follow_up_date)->format('Y-m-d')) }}">
+                </label>
+                <label id="follow-up-fee-container" style="display: {{ old('prescription_follow_up_date', $appointment->prescription_follow_up_date) ? 'block' : 'none' }};">
+                    Follow-up fee (Optional, leave blank for standard fee)
+                    <input type="number" step="0.01" min="0" name="prescription_follow_up_fee" value="{{ old('prescription_follow_up_fee', $appointment->prescription_follow_up_fee) }}" placeholder="e.g. 0 for free">
+                </label>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const dateInput = document.getElementById('follow-up-date');
+                    const feeContainer = document.getElementById('follow-up-fee-container');
+                    if(dateInput && feeContainer) {
+                        dateInput.addEventListener('change', () => {
+                            if(dateInput.value) {
+                                feeContainer.style.display = 'block';
+                            } else {
+                                feeContainer.style.display = 'none';
+                                feeContainer.querySelector('input').value = '';
+                            }
+                        });
+                    }
+                });
+            </script>
             <button class="button" type="submit">Save prescription</button>
         </form>
     </div>

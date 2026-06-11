@@ -67,6 +67,13 @@
                         @endif
                         @if ($appointment->prescription_follow_up_date)
                             <p><strong>Follow-up date:</strong> {{ $appointment->prescription_follow_up_date?->format('M d, Y') }}</p>
+                            @if ($appointment->prescription_follow_up_date >= today())
+                                <p style="margin-top: 12px;">
+                                    <a class="button" href="{{ route('appointments.create', $appointment->doctor) }}?follow_up_for={{ $appointment->id }}" style="background-color: var(--primary); padding: 8px 16px; font-size: 14px;">
+                                        📅 Book Follow-up Appointment
+                                    </a>
+                                </p>
+                            @endif
                         @endif
                         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
                             <a class="button" style="padding: 10px 20px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" href="{{ route('patient.appointments.prescription-pdf', $appointment) }}">

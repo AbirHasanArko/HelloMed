@@ -84,10 +84,11 @@ class AppointmentController extends Controller
         $validated = $request->validate([
             'prescription_diagnosis' => ['required', 'string', 'max:2000'],
             'prescription_medicines' => ['nullable', 'string', 'max:4000'],
-            'prescription_advice' => ['nullable', 'string', 'max:3000'],
+            'prescription_advice' => ['nullable', 'string', 'max:5000'],
             'prescription_follow_up_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'prescription_follow_up_fee' => ['nullable', 'numeric', 'min:0'],
             'prescription_items' => ['nullable', 'array'],
-            'prescription_items.*.medicine_id' => ['nullable', 'integer', 'exists:medicines,id'],
+            'prescription_items.*.medicine_id' => ['nullable', 'exists:medicines,id'],
             'prescription_items.*.medicine_name' => ['nullable', 'string', 'max:255'],
             'prescription_items.*.amount' => ['nullable', 'string', 'max:120'],
             'prescription_items.*.dosage' => ['nullable', 'string', 'max:120'],
@@ -174,6 +175,7 @@ class AppointmentController extends Controller
             'prescription_medicines',
             'prescription_advice',
             'prescription_follow_up_date',
+            'prescription_follow_up_fee',
             'status',
         ]);
 
@@ -185,6 +187,7 @@ class AppointmentController extends Controller
                 'prescription_advice' => $validated['prescription_advice'],
                 'prescription_safety_notes' => $safetyNotes !== '' ? $safetyNotes : null,
                 'prescription_follow_up_date' => $validated['prescription_follow_up_date'] ?? null,
+                'prescription_follow_up_fee' => isset($validated['prescription_follow_up_date']) ? ($validated['prescription_follow_up_fee'] ?? null) : null,
                 'prescription_written_at' => now(),
             ]);
 

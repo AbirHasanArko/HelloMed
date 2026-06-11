@@ -44,6 +44,9 @@
                     @csrf
                     <input type="hidden" name="doctor_id" value="{{ $doctor->id }}">
                     <input type="hidden" name="department_id" value="{{ $doctor->department_id }}">
+                    @if(isset($followUpParentId))
+                        <input type="hidden" name="follow_up_for" value="{{ $followUpParentId }}">
+                    @endif
 
                     <label>
                         Patient name
@@ -66,8 +69,16 @@
                     </label>
                     <label>
                         Preferred time
-                        <input type="datetime-local" name="scheduled_for" value="{{ old('scheduled_for') }}" required>
+                        <input type="datetime-local" name="scheduled_for" value="{{ old('scheduled_for', isset($followUpDate) ? $followUpDate.'T09:00' : '') }}" required>
                     </label>
+
+                    @if(isset($followUpFee))
+                        <div class="notice" style="margin-bottom: 16px; background-color: var(--surface-raised); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <strong>Special Follow-up Fee:</strong> BDT {{ number_format($followUpFee, 2) }}
+                            <p class="muted" style="margin-top: 4px; font-size: 13px;">This discounted fee is applied because you are booking a follow-up appointment as requested by your doctor.</p>
+                        </div>
+                    @endif
+
                     <label>
                         Optional payment method
                         <select name="payment_method">

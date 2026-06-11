@@ -37,6 +37,7 @@ class Appointment extends Model
         'prescription_advice',
         'prescription_safety_notes',
         'prescription_follow_up_date',
+        'prescription_follow_up_fee',
         'prescription_written_at',
     ];
 
@@ -45,6 +46,7 @@ class Appointment extends Model
         'scheduled_end' => 'datetime',
         'prescription_written_at' => 'datetime',
         'prescription_follow_up_date' => 'date',
+        'prescription_follow_up_fee' => 'decimal:2',
     ];
 
     protected static function booted(): void

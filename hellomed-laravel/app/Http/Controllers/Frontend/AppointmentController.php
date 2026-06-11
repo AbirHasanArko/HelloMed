@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class AppointmentController extends Controller
 {
-    public function create(Doctor $doctor)
+    public function create(\Illuminate\Http\Request $request, Doctor $doctor)
     {
         $upcomingAppointments = Appointment::query()
             ->where('doctor_id', $doctor->id)
@@ -26,7 +26,24 @@ class AppointmentController extends Controller
             ->orderBy('scheduled_for')
             ->get(['scheduled_for', 'scheduled_end']);
 
-        return view('appointments.create', compact('doctor', 'upcomingAppointments'));
+        $followUpFee = null;
+        $followUpDate = null;
+        $followUpParentId = null;
+
+        if ($request->has('follow_up_for') && $request->user()) {
+            $parent = Appointment::query()
+                ->where('user_id', $request->user()->id)
+                ->where('doctor_id', $doctor->id)
+                ->find($request->input('follow_up_for'));
+
+            if ($parent && $parent->prescription_follow_up_date) {
+                $followUpFee = $parent->prescription_follow_up_fee;
+                $followUpDate = $parent->prescription_follow_up_date->format('Y-m-d');
+                $followUpParentId = $parent->id;
+            }
+        }
+
+        return view('appointments.create', compact('doctor', 'upcomingAppointments', 'followUpFee', 'followUpDate', 'followUpParentId'));
     }
 
     public function store(StoreAppointmentRequest $request)
@@ -67,6 +84,17 @@ class AppointmentController extends Controller
                 $amount = $request->input('service_mode') === 'online'
                     ? ($appointment->doctor->online_fee ?? $appointment->doctor->consultation_fee)
                     : ($appointment->doctor->offline_fee ?? $appointment->doctor->consultation_fee);
+
+                if ($request->has('follow_up_for') && $request->user()) {
+                    $parent = Appointment::query()
+                        ->where('user_id', $request->user()->id)
+                        ->where('doctor_id', $doctor->id)
+                        ->find($request->input('follow_up_for'));
+                    
+                    if ($parent && $parent->prescription_follow_up_date && $parent->prescription_follow_up_fee !== null) {
+                        $amount = $parent->prescription_follow_up_fee;
+                    }
+                }
 
                 Payment::query()->create([
                     'appointment_id' => $appointment->id,
