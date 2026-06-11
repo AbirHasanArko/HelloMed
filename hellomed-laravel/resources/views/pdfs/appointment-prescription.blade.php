@@ -211,7 +211,7 @@
         <table class="brand-row">
             <tr>
                 <td style="width:70px;">
-                    <img src="data:image/svg+xml;base64,{{ base64_encode(file_get_contents(public_path('logo.svg'))) }}" style="width:56px; height:56px; border-radius:14px; object-fit:cover;" alt="Logo" />
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logo.png'))) }}" style="width:56px; height:56px; border-radius:14px; object-fit:cover;" alt="Logo" />
                 </td>
                 <td>
                     <div class="brand-title">HelloMed Hospital</div>
