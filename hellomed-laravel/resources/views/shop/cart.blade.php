@@ -57,11 +57,50 @@
                 @csrf
                 <label>
                     Delivery address
-                    <textarea name="delivery_address" required>{{ old('delivery_address') }}</textarea>
+                    <div style="display:flex; gap:8px; align-items:flex-start;">
+                        <textarea name="delivery_address" id="delivery_address" style="flex:1;" required>{{ old('delivery_address', auth()->user()->patientProfile->address ?? '') }}</textarea>
+                        <button type="button" class="ghost-button" id="btn-use-location" style="white-space:nowrap; padding:10px;">📍 Use My Location</button>
+                    </div>
                 </label>
+                <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
+                <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
+                
+                <script>
+                    document.getElementById('btn-use-location').addEventListener('click', function() {
+                        const btn = this;
+                        const addressField = document.getElementById('delivery_address');
+                        
+                        if (!navigator.geolocation) {
+                            alert('Geolocation is not supported by your browser.');
+                            return;
+                        }
+                        
+                        btn.innerText = '📍 Locating...';
+                        navigator.geolocation.getCurrentPosition(
+                            function(position) {
+                                document.getElementById('latitude').value = position.coords.latitude;
+                                document.getElementById('longitude').value = position.coords.longitude;
+                                
+                                if (!addressField.value.trim()) {
+                                    addressField.value = `Coordinates: ${position.coords.latitude}, ${position.coords.longitude}`;
+                                } else if (!addressField.value.includes('(GPS Location Attached)')) {
+                                    addressField.value += '\n(GPS Location Attached)';
+                                }
+                                
+                                btn.innerText = '✅ Location Added';
+                                btn.style.color = 'var(--success-text)';
+                            },
+                            function(error) {
+                                alert('Unable to retrieve your location.');
+                                btn.innerText = '📍 Use My Location';
+                            }
+                        );
+                    });
+                </script>
+
                 <label>
                     Phone
-                    <input type="text" name="phone" value="{{ old('phone') }}" required>
+                    <input type="text" name="phone" value="{{ old('phone', auth()->user()->phone ?? '') }}" required>
                 </label>
                 <label>
                     Payment method

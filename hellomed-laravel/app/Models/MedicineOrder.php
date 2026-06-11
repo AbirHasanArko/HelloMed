@@ -27,6 +27,8 @@ class MedicineOrder extends Model
         'payment_callback_token',
         'payment_reference',
         'delivery_address',
+        'latitude',
+        'longitude',
         'phone',
         'notes',
         'prescription_path',

@@ -41,6 +41,11 @@
                             @if($order->phone)
                                 <div class="muted" style="font-size: 13px; margin-top: 2px;">{{ $order->phone }}</div>
                             @endif
+                            @if($order->latitude && $order->longitude)
+                                <div style="margin-top: 4px; font-size: 12px;">
+                                    <a href="https://maps.google.com/?q={{ $order->latitude }},{{ $order->longitude }}" target="_blank" style="color:var(--primary); text-decoration:underline;">📍 View on Map</a>
+                                </div>
+                            @endif
                         </td>
                         <td>BDT {{ number_format((float) $order->total_amount, 2) }}</td>
                         <td>{{ ucfirst($order->status) }}</td>

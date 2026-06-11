@@ -85,6 +85,8 @@ class MedicineCartController extends Controller
         $validated = $request->validate([
             'delivery_address' => ['required', 'string', 'max:1000'],
             'phone' => ['required', 'string', 'max:30'],
+            'latitude' => ['nullable', 'numeric'],
+            'longitude' => ['nullable', 'numeric'],
             'payment_method' => ['required', 'in:cash-on-delivery,bkash,nagad'],
             'notes' => ['nullable', 'string', 'max:1000'],
             'prescription' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:4096'],
@@ -93,6 +95,16 @@ class MedicineCartController extends Controller
         $cart = $request->session()->get('medicine_cart', []);
         if ($cart === []) {
             return back()->withErrors(['cart' => 'Cart is empty.']);
+        }
+
+        // Save autofill data to user profile
+        $user = $request->user();
+        if ($user) {
+            $user->update(['phone' => $validated['phone']]);
+            $user->patientProfile()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['address' => $validated['delivery_address']]
+            );
         }
 
         $medicineIds = array_keys($cart);
@@ -154,6 +166,8 @@ class MedicineCartController extends Controller
                 'sender_number' => in_array($validated['payment_method'], ['bkash', 'nagad']) ? $request->input('sender_number') : null,
                 'transaction_id' => in_array($validated['payment_method'], ['bkash', 'nagad']) ? $request->input('transaction_id') : null,
                 'delivery_address' => $validated['delivery_address'],
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
                 'phone' => $validated['phone'],
                 'notes' => $validated['notes'] ?? null,
                 'prescription_path' => $prescriptionPath,

@@ -18,6 +18,9 @@
         <div>Order: {{ $order->order_number }}</div>
         <div>Customer: {{ $order->user?->name ?? $order->customer_name }}</div>
         <div>Address: {{ $order->delivery_address }}</div>
+        @if($order->latitude && $order->longitude)
+        <div>Location: <a href="https://maps.google.com/?q={{ $order->latitude }},{{ $order->longitude }}">Google Maps Link</a></div>
+        @endif
         <div>Phone: {{ $order->phone }}</div>
         <div>Status: {{ ucfirst($order->status) }} | Payment: {{ ucfirst($order->payment_status) }}</div>
     </div>
