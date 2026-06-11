@@ -288,24 +288,78 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('doctor.appointments.lab-tests.store', $appointment) }}">
+        <form id="lab-test-form" method="POST" action="{{ route('doctor.appointments.lab-tests.store', $appointment) }}">
             @csrf
-            <div class="grid cols-2" style="gap: 16px; align-items: end;">
-                <label>
-                    Select Lab Tests (Hold Ctrl/Cmd to select multiple)
-                    <select name="test_names[]" multiple required style="height: 120px;">
-                        @foreach($availableTests as $test)
-                            <option value="{{ $test->name }}">{{ $test->name }} (BDT {{ $test->fee_bdt }})</option>
-                        @endforeach
-                    </select>
-                </label>
-                <label>
-                    Notes (Optional)
-                    <input type="text" name="notes" placeholder="Instructions for staff/patient">
-                </label>
+            <div id="lab-test-items"></div>
+            <div style="display: flex; gap: 12px; margin-top: 12px;">
+                <button type="button" id="add-lab-test-btn" class="ghost-button">Add lab test</button>
+                <button class="button" type="submit">Submit Requests</button>
             </div>
-            <button class="button" type="submit" style="margin-top: 12px;">Request Lab Test</button>
         </form>
+
+        <datalist id="available-tests-list">
+            @foreach($availableTests as $test)
+                <option value="{{ $test->name }}">{{ $test->name }} (BDT {{ $test->fee_bdt }})</option>
+            @endforeach
+        </datalist>
+
+        <script>
+            (() => {
+                const container = document.getElementById('lab-test-items');
+                const addBtn = document.getElementById('add-lab-test-btn');
+                let index = 0;
+
+                const buildRow = () => {
+                    const row = document.createElement('div');
+                    row.className = 'grid cols-2';
+                    row.style.gap = '16px';
+                    row.style.alignItems = 'end';
+                    row.style.marginBottom = '12px';
+                    row.style.padding = '12px';
+                    row.style.border = '1px solid var(--border-color)';
+                    row.style.borderRadius = '4px';
+                    row.style.background = '#f8fafc';
+                    
+                    row.innerHTML = `
+                        <label style="margin-bottom: 0;">
+                            Test Name
+                            <input type="text" name="test_names[]" list="available-tests-list" placeholder="Type to search available tests..." required>
+                        </label>
+                        <div style="display: flex; gap: 16px; align-items: flex-end;">
+                            <label style="flex: 1; margin-bottom: 0;">
+                                Notes (Optional)
+                                <input type="text" name="notes[]" placeholder="Instructions for staff/patient">
+                            </label>
+                            <button class="ghost-button remove-test" type="button" style="color: var(--error-text); margin-bottom: 4px;">Remove</button>
+                        </div>
+                    `;
+
+                    row.querySelector('.remove-test').addEventListener('click', () => {
+                        row.remove();
+                    });
+                    return row;
+                };
+
+                addBtn.addEventListener('click', () => container.appendChild(buildRow()));
+                
+                // Add one row initially to encourage input, but they can remove it
+                container.appendChild(buildRow());
+
+                document.getElementById('lab-test-form').addEventListener('submit', (e) => {
+                    // Filter out empty rows before submitting if they just pressed submit on a half-filled form
+                    const inputs = container.querySelectorAll('input[name="test_names[]"]');
+                    let hasValue = false;
+                    inputs.forEach(input => {
+                        if (input.value.trim() !== '') hasValue = true;
+                    });
+                    
+                    if (!hasValue && container.children.length > 0) {
+                        e.preventDefault();
+                        alert('Please fill out the test name or remove the empty row.');
+                    }
+                });
+            })();
+        </script>
     </div>
 
     <div class="card" style="margin-top:20px;">

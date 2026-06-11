@@ -253,15 +253,20 @@ class AppointmentController extends Controller
         abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
 
         $validated = $request->validate([
-            'test_names' => ['required', 'array'],
+            'test_names' => ['nullable', 'array'],
             'test_names.*' => ['required', 'string', 'max:255'],
-            'notes' => ['nullable', 'string', 'max:1000'],
+            'notes' => ['nullable', 'array'],
+            'notes.*' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        foreach ($validated['test_names'] as $testName) {
+        if (empty($validated['test_names'])) {
+            return back()->with('status', 'No lab tests were added.');
+        }
+
+        foreach ($validated['test_names'] as $index => $testName) {
             $appointment->labTests()->create([
                 'test_name' => $testName,
-                'notes' => $validated['notes'],
+                'notes' => $validated['notes'][$index] ?? null,
                 'status' => 'pending',
             ]);
 
