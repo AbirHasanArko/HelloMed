@@ -65,9 +65,9 @@ class OrderController extends Controller
 
         $medicines = \App\Models\Medicine::query()
             ->where('name', 'like', "%{$query}%")
-            ->orWhere('generic_name', 'like', "%{$query}%")
+            ->orWhere('medicine_group', 'like', "%{$query}%")
             ->take(10)
-            ->get(['id', 'name', 'generic_name', 'price', 'stock_quantity', 'requires_prescription']);
+            ->get(['id', 'name', 'medicine_group', 'price', 'stock_quantity', 'requires_prescription']);
 
         return response()->json($medicines);
     }

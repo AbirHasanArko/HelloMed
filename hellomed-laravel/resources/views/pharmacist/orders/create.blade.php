@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.innerHTML = `
                 <td>
                     <div style="font-weight:600;">${item.name}</div>
-                    <div style="font-size:12px; color:var(--muted);">${item.generic_name || ''}</div>
+                    <div style="font-size:12px; color:var(--muted);">${item.medicine_group || ''}</div>
                     <input type="hidden" name="items[${index}][medicine_id]" value="${item.id}">
                 </td>
                 <td>
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <strong>BDT ${med.price}</strong>
                             </div>
                             <div style="font-size: 12px; color: var(--muted); margin-top:4px; display:flex; justify-content:space-between;">
-                                <span>${med.generic_name || 'N/A'}</span>
+                                <span>${med.medicine_group || 'N/A'}</span>
                                 ${stockLabel}
                             </div>
                         `;
