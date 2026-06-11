@@ -289,6 +289,22 @@
         </div>
     @endif
 
+    @if ($appointment->labTests->isNotEmpty())
+        <div class="section">
+            <div class="section-title">Requested Lab Tests</div>
+            <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155;">
+                @foreach ($appointment->labTests as $test)
+                    <li style="margin-bottom: 6px;">
+                        <strong>{{ $test->test_name }}</strong>
+                        @if($test->notes)
+                            <br><span style="color: #64748b; font-size: 11px;">Note: {{ $test->notes }}</span>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if ($appointment->prescription_advice)
     <div class="section">
         <div class="section-title">Clinical Advice & Instructions</div>

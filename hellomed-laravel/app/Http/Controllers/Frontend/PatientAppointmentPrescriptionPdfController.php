@@ -20,7 +20,7 @@ class PatientAppointmentPrescriptionPdfController extends Controller
 
         abort_if(! $hasPrescription, 404, 'Prescription is not available yet.');
 
-        $appointment->load(['doctor.department', 'prescriptionItems.medicine']);
+        $appointment->load(['doctor.department', 'prescriptionItems.medicine', 'labTests']);
 
         $pdf = Pdf::loadView('pdfs.appointment-prescription', [
             'appointment' => $appointment,
