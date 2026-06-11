@@ -12,6 +12,7 @@
             <a class="ghost-button" href="{{ route('staff.ambulance.index') }}" @if($pendingAmbulance > 0) style="border-color:var(--error-border); color:var(--error-text); background:var(--error-bg);" @endif>
                 🚑 Ambulance Dispatch @if($pendingAmbulance > 0) ({{ $pendingAmbulance }}) @endif
             </a>
+            <a class="ghost-button" href="{{ route('staff.lab-tests.index') }}">🧪 Lab Tests</a>
         </div>
         <div class="grid cols-4">
             <div class="stat"><strong>{{ $pendingAppointments }}</strong><span class="muted">Pending appointments</span></div>

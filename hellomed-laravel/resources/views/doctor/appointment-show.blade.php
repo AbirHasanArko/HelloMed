@@ -244,6 +244,67 @@
     </script>
 
     <div class="card" style="margin-top:20px;">
+        <h3>Lab Test Requests</h3>
+        <p class="muted" style="margin-bottom: 12px;">Request lab tests for the patient. Staff will process these and upload results.</p>
+        
+        @if($appointment->labTests && $appointment->labTests->isNotEmpty())
+            <div style="margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px;">
+                <table style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <th style="padding: 8px;">Test Name</th>
+                            <th style="padding: 8px;">Notes</th>
+                            <th style="padding: 8px;">Status</th>
+                            <th style="padding: 8px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($appointment->labTests as $test)
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 8px;">{{ $test->test_name }}</td>
+                            <td style="padding: 8px;">{{ $test->notes ?: '-' }}</td>
+                            <td style="padding: 8px;">
+                                @if($test->status === 'completed')
+                                    <span style="color: green; font-weight: bold;">Completed</span>
+                                @else
+                                    <span style="color: orange; font-weight: bold;">Pending</span>
+                                @endif
+                            </td>
+                            <td style="padding: 8px;">
+                                @if($test->status === 'completed')
+                                    <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="button" style="padding: 4px 8px; font-size: 12px;">Download Result</a>
+                                @else
+                                    <form method="POST" action="{{ route('lab-tests.destroy', $test) }}" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="ghost-button" style="color: var(--error-text); padding: 4px 8px; font-size: 12px;" onclick="return confirm('Delete this lab test request?')">Delete</button>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('appointments.lab-tests.store', $appointment) }}">
+            @csrf
+            <div class="grid cols-2" style="gap: 16px; align-items: end;">
+                <label>
+                    Test Name
+                    <input type="text" name="test_name" placeholder="e.g. CBC, Blood Glucose" required>
+                </label>
+                <label>
+                    Notes (Optional)
+                    <input type="text" name="notes" placeholder="Instructions for staff/patient">
+                </label>
+            </div>
+            <button class="button" type="submit" style="margin-top: 12px;">Request Lab Test</button>
+        </form>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
         <h3>Chat with patient</h3>
         @if ($appointment->status !== 'confirmed')
             <p class="muted">Chat becomes available after appointment is confirmed.</p>

@@ -36,6 +36,7 @@ class PatientDashboardController extends Controller
                 'doctor.department',
                 'payments',
                 'prescriptionItems.medicine',
+                'labTests',
                 'chatMessages' => fn ($query) => $query->with('user')->orderBy('created_at'),
             ]),
         ]);

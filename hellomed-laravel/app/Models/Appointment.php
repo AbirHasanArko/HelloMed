@@ -91,4 +91,8 @@ class Appointment extends Model
     {
         return $this->hasMany(AppointmentPrescriptionItem::class)->orderBy('sort_order');
     }
+    public function labTests(): HasMany
+    {
+        return $this->hasMany(LabTestRequest::class);
+    }
 }

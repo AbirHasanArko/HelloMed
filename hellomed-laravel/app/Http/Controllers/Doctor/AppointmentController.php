@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Doctor;
 use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Medicine;
+use App\Models\LabTestRequest;
 use App\Support\AuditLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class AppointmentController extends Controller
         abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
 
         return view('doctor.appointment-show', [
-            'appointment' => $appointment->load(['user.patientProfile', 'chatMessages.user', 'prescriptionItems.medicine']),
+            'appointment' => $appointment->load(['user.patientProfile', 'chatMessages.user', 'prescriptionItems.medicine', 'labTests']),
             'medicines' => Medicine::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'power', 'amount']),
             'medicinesForJs' => Medicine::query()
                 ->where('is_active', true)
@@ -243,5 +244,43 @@ class AppointmentController extends Controller
         }
 
         return back()->with('status', 'Patient medical profile updated successfully.');
+    }
+
+    public function storeLabTest(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $doctor = $request->user()->doctorProfile;
+        abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
+
+        $validated = $request->validate([
+            'test_name' => ['required', 'string', 'max:255'],
+            'notes' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        $appointment->labTests()->create([
+            'test_name' => $validated['test_name'],
+            'notes' => $validated['notes'],
+            'status' => 'pending',
+        ]);
+
+        AuditLogger::log('appointment.lab_test_requested', $appointment, [], [
+            'test_name' => $validated['test_name'],
+        ]);
+
+        return back()->with('status', 'Lab test requested successfully.');
+    }
+
+    public function destroyLabTest(Request $request, LabTestRequest $labTest): RedirectResponse
+    {
+        $appointment = $labTest->appointment;
+        $doctor = $request->user()->doctorProfile;
+        abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
+        abort_unless($labTest->status === 'pending', 400, 'Cannot delete a completed lab test.');
+
+        $testName = $labTest->test_name;
+        $labTest->delete();
+
+        AuditLogger::log('appointment.lab_test_deleted', $appointment, ['test_name' => $testName], []);
+
+        return back()->with('status', 'Lab test request deleted.');
     }
 }

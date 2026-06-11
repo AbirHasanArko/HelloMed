@@ -38,6 +38,10 @@ Developed with a clean, premium teal-and-white aesthetic, HelloMed focuses on us
   - Patients can rate and leave feedback on doctor profiles after consultations.
 - **Patient-Doctor Chat**
   - Patient-doctor appointment chat with read status and secure file attachment support.
+- **Lab Test Management Workflow**
+  - Doctors can request lab tests directly from the consultation panel.
+  - Staff process offline payments and securely upload PDF test results.
+  - Patients and doctors can securely download completed lab results from the platform.
 - **Comprehensive Admin Dashboard**
   - Statistical overviews, CMS management, doctor scheduling, and system-wide audit logging.
 
@@ -87,12 +91,12 @@ The platform follows a classic **Monolithic MVC (Model-View-Controller)** archit
 1. **Onboarding:** Registers an account or browses the public directory as a guest. Ambulance calling does not require login.
 2. **Booking:** Filters doctors by department, selects an online or offline slot, and confirms the booking.
 3. **Consultation:** Accesses the online meeting link at the scheduled time or visits the hospital.
-4. **Post-Consultation:** Receives a digital prescription (PDF downloadable), medicine buying links are automatically added to the prescription. Buys prescribed medicines directly from the platform, and leaves a doctor review.
+4. **Post-Consultation:** Receives a digital prescription (PDF downloadable), medicine buying links are automatically added to the prescription. Buys prescribed medicines directly from the platform, and leaves a doctor review. Views and downloads any prescribed lab test results.
 
 ### 👨‍⚕️ 2. Doctor Workflow
 1. **Management:** Logs into the Doctor Dashboard.
 2. **Schedule:** Updates availability (days, times, slot durations).
-3. **Appointments:** Views upcoming appointments, provides meeting links for online consults, and writes digital prescriptions.
+3. **Appointments:** Views upcoming appointments, provides meeting links for online consults, requests lab tests, and writes digital prescriptions.
 4. **Outreach:** Authors and publishes health articles to the public blog.
 
 ### 👔 3. Admin Workflow
@@ -102,7 +106,8 @@ The platform follows a classic **Monolithic MVC (Model-View-Controller)** archit
 
 ### 🚑 4. Staff Workflow
 1. **Walk-ins:** Registers new patients on the spot and books offline appointments directly via the internal staff panel.
-2. **Ambulance:** Monitors incoming emergency ambulance requests and dispatches vehicles, updating the status in real-time.
+2. **Lab Tests:** Monitors doctor-requested lab tests, conducts them, and securely uploads the results to the patient's appointment record.
+3. **Ambulance:** Monitors incoming emergency ambulance requests and dispatches vehicles, updating the status in real-time.
 
 ### 💊 5. Pharmacist Workflow
 1. **Inventory:** Manages medicine stock, prices, and categorization.

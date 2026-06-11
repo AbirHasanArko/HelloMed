@@ -74,6 +74,28 @@
                         <a class="ghost-button" href="{{ route('patient.appointments.prescription-pdf', $appointment) }}">Download prescription PDF</a>
                     </div>
                 @endif
+                
+                @if ($appointment->labTests && $appointment->labTests->isNotEmpty())
+                    <div style="margin-top:20px;">
+                        <strong>Lab Tests:</strong>
+                        <div class="list">
+                            @foreach ($appointment->labTests as $test)
+                                <div class="list-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <strong>{{ $test->test_name }}</strong>
+                                        <p class="muted">Status: {{ ucfirst($test->status) }}</p>
+                                        @if($test->notes)
+                                            <p style="font-size: 13px;">Notes: {{ $test->notes }}</p>
+                                        @endif
+                                    </div>
+                                    @if($test->status === 'completed')
+                                        <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="button" style="padding: 6px 12px; font-size: 13px;">Download Result</a>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <div class="card">
