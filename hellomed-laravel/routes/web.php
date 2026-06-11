@@ -231,6 +231,8 @@ Route::prefix('admin')
             Route::get('/staff', [AdminStaffController::class, 'index'])->name('staff.index');
             Route::get('/staff/create', [AdminStaffController::class, 'create'])->name('staff.create');
             Route::post('/staff', [AdminStaffController::class, 'store'])->name('staff.store');
+            Route::get('/staff/{user}/edit', [AdminStaffController::class, 'edit'])->name('staff.edit');
+            Route::put('/staff/{user}', [AdminStaffController::class, 'update'])->name('staff.update');
             Route::delete('/staff/{user}', [AdminStaffController::class, 'destroy'])->name('staff.destroy');
         });
     });

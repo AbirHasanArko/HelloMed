@@ -16,6 +16,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
+        'monthly_payment',
         'password',
         'role',
         'is_active',
@@ -29,6 +31,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_active' => 'boolean',
+        'monthly_payment' => 'decimal:2',
     ];
 
     public function isAdmin(): bool

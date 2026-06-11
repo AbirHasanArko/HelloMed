@@ -16,6 +16,8 @@
                 <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Phone</th>
+                    <th>Monthly Payment</th>
                     <th>Status</th>
                     <th>Action</th>
                 </tr>
@@ -25,9 +27,12 @@
                     <tr>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->phone ?? '-' }}</td>
+                        <td>{{ $user->monthly_payment ? 'BDT ' . number_format((float)$user->monthly_payment, 2) : '-' }}</td>
                         <td>{{ $user->is_active ? 'Active' : 'Inactive' }}</td>
                         <td>
                             <div class="pill-row">
+                                <a href="{{ route('admin.staff.edit', $user) }}" class="ghost-button">Edit</a>
                                 <form action="{{ route('admin.staff.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this staff member?');">
                                     @csrf
                                     @method('DELETE')
@@ -38,7 +43,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="muted">No staff found.</td>
+                        <td colspan="6" class="muted">No staff found.</td>
                     </tr>
                 @endforelse
             </tbody>

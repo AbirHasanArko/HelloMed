@@ -23,6 +23,8 @@ class AdminStaffController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'monthly_payment' => ['nullable', 'numeric', 'min:0'],
             'initial_password' => ['required', 'string', 'min:8', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
         ]);
@@ -30,6 +32,8 @@ class AdminStaffController extends Controller
         $staff = User::query()->create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'monthly_payment' => $validated['monthly_payment'] ?? null,
             'password' => Hash::make($validated['initial_password']),
             'role' => 'staff',
             'is_active' => $request->boolean('is_active', true),
@@ -40,7 +44,7 @@ class AdminStaffController extends Controller
             'is_active' => $staff->is_active,
         ]);
 
-        return redirect()->route('admin.dashboard')->with('status', 'Staff account created successfully.');
+        return redirect()->route('admin.staff.index')->with('status', 'Staff account created successfully.');
     }
 
     public function index(): View
@@ -57,5 +61,46 @@ class AdminStaffController extends Controller
         }
 
         return redirect()->route('admin.staff.index')->with('status', 'Staff deleted successfully.');
+    }
+
+    public function edit(User $user): View|RedirectResponse
+    {
+        if ($user->role !== 'staff') {
+            return redirect()->route('admin.staff.index')->with('error', 'Invalid staff user.');
+        }
+
+        return view('admin.staff.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user): RedirectResponse
+    {
+        if ($user->role !== 'staff') {
+            return redirect()->route('admin.staff.index')->with('error', 'Invalid staff user.');
+        }
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'monthly_payment' => ['nullable', 'numeric', 'min:0'],
+            'password' => ['nullable', 'string', 'min:8', 'max:255'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $user->fill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'] ?? null,
+            'monthly_payment' => $validated['monthly_payment'] ?? null,
+            'is_active' => $request->boolean('is_active', false),
+        ]);
+
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()->route('admin.staff.index')->with('status', 'Staff account updated successfully.');
     }
 }

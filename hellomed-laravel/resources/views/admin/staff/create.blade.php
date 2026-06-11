@@ -15,6 +15,14 @@
                     <input type="email" name="email" value="{{ old('email') }}" required>
                 </label>
                 <label>
+                    Phone number
+                    <input type="text" name="phone" value="{{ old('phone') }}">
+                </label>
+                <label>
+                    Monthly payment (BDT)
+                    <input type="number" step="0.01" name="monthly_payment" value="{{ old('monthly_payment') }}">
+                </label>
+                <label>
                     Initial password
                     <input type="text" name="initial_password" value="{{ old('initial_password') }}" required>
                 </label>
