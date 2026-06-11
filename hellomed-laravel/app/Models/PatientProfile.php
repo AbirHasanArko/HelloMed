@@ -35,7 +35,6 @@ class PatientProfile extends Model
         return empty($this->date_of_birth)
             || empty($this->gender)
             || empty($this->height)
-            || empty($this->weight)
-            || empty($this->known_conditions);
+            || empty($this->weight);
     }
 }
