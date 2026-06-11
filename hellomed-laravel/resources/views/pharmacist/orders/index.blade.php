@@ -69,20 +69,26 @@
                             @endif
                         </td>
                         <td>
-                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}" style="display:flex; flex-direction:column; gap:6px;">
+                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}" style="display:flex; flex-direction:column; gap:8px;">
                                 @csrf
                                 @method('PATCH')
-                                <select name="status">
-                                    @foreach (['pending','processing','completed','cancelled'] as $status)
-                                        <option value="{{ $status }}" @selected($order->status === $status)>Status: {{ ucfirst($status) }}</option>
-                                    @endforeach
-                                </select>
-                                <select name="payment_status">
-                                    @foreach (['pending','paid','failed','refunded'] as $status)
-                                        <option value="{{ $status }}" @selected($order->payment_status === $status)>Payment: {{ ucfirst($status) }}</option>
-                                    @endforeach
-                                </select>
-                                <button class="button" type="submit">Save</button>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--muted); margin-bottom: 2px;">Status</div>
+                                    <select name="status" style="width: 100%;">
+                                        @foreach (['pending','processing','completed','cancelled'] as $status)
+                                            <option value="{{ $status }}" @selected($order->status === $status)>{{ ucfirst($status) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <div style="font-size: 11px; color: var(--muted); margin-bottom: 2px;">Payment</div>
+                                    <select name="payment_status" style="width: 100%;">
+                                        @foreach (['pending','paid','failed','refunded'] as $status)
+                                            <option value="{{ $status }}" @selected($order->payment_status === $status)>{{ ucfirst($status) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <button class="button" type="submit" style="margin-top: 4px;">Save</button>
                             </form>
                         </td>
                     </tr>
