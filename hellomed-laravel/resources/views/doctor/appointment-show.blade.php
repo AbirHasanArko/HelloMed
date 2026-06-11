@@ -274,7 +274,7 @@
                                 @if($test->status === 'completed')
                                     <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="button" style="padding: 4px 8px; font-size: 12px;">Download Result</a>
                                 @else
-                                    <form method="POST" action="{{ route('lab-tests.destroy', $test) }}" style="display:inline;">
+                                    <form method="POST" action="{{ route('doctor.lab-tests.destroy', $test) }}" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="ghost-button" style="color: var(--error-text); padding: 4px 8px; font-size: 12px;" onclick="return confirm('Delete this lab test request?')">Delete</button>
@@ -288,7 +288,7 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('appointments.lab-tests.store', $appointment) }}">
+        <form method="POST" action="{{ route('doctor.appointments.lab-tests.store', $appointment) }}">
             @csrf
             <div class="grid cols-2" style="gap: 16px; align-items: end;">
                 <label>
