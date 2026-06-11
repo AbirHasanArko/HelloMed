@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="hero">
+<div class="hero" style="grid-template-areas: 'text visual'; grid-template-columns: 1fr 1fr; align-items: center; gap: 40px;">
     <div class="hero-text fade-in">
         <h1>Available Diagnostics Services</h1>
         <p style="font-size: 1.15rem; max-width: 500px;">Browse our comprehensive catalog of diagnostic and laboratory tests. High-quality imaging, blood work, and pathology services available directly at our hospital.</p>
