@@ -49,7 +49,9 @@
                     @csrf
                     @method('PATCH')
                     <div class="grid cols-2" style="font-size: 14px; align-items: end; gap: 8px;">
-                        <label>DOB <input type="date" name="date_of_birth" value="{{ old('date_of_birth', $p?->date_of_birth?->format('Y-m-d')) }}"></label>
+                        <label>DOB <span id="age-display" style="font-weight: bold; font-size: 12px; color: var(--primary); margin-left: 4px;"></span>
+                            <input type="date" id="dob-input" name="date_of_birth" value="{{ old('date_of_birth', $p?->date_of_birth?->format('Y-m-d')) }}">
+                        </label>
                         <label>Gender <select name="gender">
                             <option value="">--</option>
                             <option value="Male" @selected(old('gender', $p?->gender) === 'Male')>Male</option>
@@ -61,6 +63,26 @@
                         <label style="grid-column: span 2;">Conditions <input type="text" name="known_conditions" value="{{ old('known_conditions', $p?->known_conditions) }}"></label>
                         <label style="grid-column: span 2; color:var(--error-text);">Allergies <input type="text" name="allergies" value="{{ old('allergies', $p?->allergies) }}"></label>
                     </div>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const dobInput = document.getElementById('dob-input');
+                            const ageDisplay = document.getElementById('age-display');
+                            const updateAge = () => {
+                                if (!dobInput.value) {
+                                    ageDisplay.innerText = '';
+                                    return;
+                                }
+                                const dob = new Date(dobInput.value);
+                                const diff = Date.now() - dob.getTime();
+                                const age = Math.abs(new Date(diff).getUTCFullYear() - 1970);
+                                ageDisplay.innerText = `(${age} yrs)`;
+                            };
+                            if (dobInput) {
+                                dobInput.addEventListener('change', updateAge);
+                                updateAge();
+                            }
+                        });
+                    </script>
                     <div style="text-align: right; margin-top: 8px;">
                         <button class="button" type="submit" style="padding: 4px 10px; font-size: 12px;">Update Patient Profile</button>
                     </div>

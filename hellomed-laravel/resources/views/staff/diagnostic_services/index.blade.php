@@ -94,7 +94,22 @@
                         <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <strong style="font-size: 16px; color: var(--primary-strong);">{{ $test->test_name }}</strong>
-                                <p style="margin-top: 4px;"><strong>Patient:</strong> {{ $test->appointment->patient_name }} ({{ $test->appointment->patient_phone }})</p>
+                                <p style="margin-top: 4px;">
+                                    <strong>Patient:</strong> {{ $test->appointment->patient_name }} ({{ $test->appointment->patient_phone }})
+                                    @php
+                                        $patientProfile = $test->appointment->user?->patientProfile;
+                                    @endphp
+                                    @if($patientProfile)
+                                        <span class="muted" style="font-size: 13px; margin-left: 8px;">
+                                            @if($patientProfile->date_of_birth)
+                                                · {{ \Carbon\Carbon::parse($patientProfile->date_of_birth)->age }} yrs
+                                            @endif
+                                            @if($patientProfile->gender)
+                                                · {{ $patientProfile->gender }}
+                                            @endif
+                                        </span>
+                                    @endif
+                                </p>
                                 <p><strong>Doctor:</strong> Dr. {{ $test->appointment->doctor->user->name ?? 'Unknown' }} ({{ $test->appointment->doctor->department->name ?? 'Unknown' }})</p>
                                 <p><strong>Requested:</strong> {{ $test->created_at->format('M d, Y h:i A') }}</p>
                                 @if($test->notes)
