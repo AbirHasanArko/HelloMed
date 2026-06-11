@@ -55,7 +55,7 @@
                     </label>
                     <label>
                         Phone
-                        <input type="text" name="patient_phone" value="{{ old('patient_phone') }}" required>
+                        <input type="text" name="patient_phone" value="{{ old('patient_phone', auth()->user()?->phone) }}" required>
                     </label>
                     <label>
                         Service mode

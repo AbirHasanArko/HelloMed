@@ -3,8 +3,8 @@
 @section('content')
     <section class="section">
         <h1>Edit article</h1>
-        <div class="card">
-            <form method="POST" action="{{ route('admin.articles.update', $article) }}" enctype="multipart/form-data">
+        <div class="card" style="max-width: 600px;">
+            <form method="POST" action="{{ route($routePrefix . '.articles.update', $article) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <label>

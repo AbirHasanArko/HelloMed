@@ -23,6 +23,18 @@
             @csrf
             @method('PATCH')
             
+            <h2 style="font-size: 1.5rem; margin-bottom: 16px;">Account Details</h2>
+            <div class="grid cols-2" style="margin-bottom: 24px;">
+                <div>
+                    <label>Phone number</label>
+                    <input type="text" name="phone" value="{{ old('phone', $patient->phone) }}">
+                </div>
+                <div>
+                    <label>New password <span class="muted">(leave blank to keep current)</span></label>
+                    <input type="text" name="password" value="{{ old('password') }}">
+                </div>
+            </div>
+
             <h2 style="font-size: 1.5rem; margin-bottom: 16px;">Medical Details</h2>
             
             <div class="grid cols-2" style="margin-bottom: 24px;">

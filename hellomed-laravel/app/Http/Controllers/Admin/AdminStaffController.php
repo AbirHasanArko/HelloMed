@@ -47,10 +47,25 @@ class AdminStaffController extends Controller
         return redirect()->route('admin.staff.index')->with('status', 'Staff account created successfully.');
     }
 
-    public function index(): View
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|View
     {
+        $query = User::query()->where('role', 'staff');
+
+        $result = User::handleSearchAndFilters($request, $query, function ($user) {
+            return [
+                'id' => $user->id,
+                'title' => $user->name,
+                'subtitle' => $user->email . ' | ' . $user->phone
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
         return view('admin.staff.index', [
-            'staff' => User::query()->where('role', 'staff')->latest()->paginate(15),
+            'staff' => $result->latest()->paginate(15)->withQueryString(),
+            'routePrefix' => 'admin',
         ]);
     }
 

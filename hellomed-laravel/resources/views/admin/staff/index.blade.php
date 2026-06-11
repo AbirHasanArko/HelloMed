@@ -10,6 +10,12 @@
         <a class="button" href="{{ route('admin.staff.create') }}">Add staff</a>
     </div>
 
+    <x-search-filter 
+        action="{{ route('admin.staff.index') }}" 
+        search-placeholder="Search staff by name, email, phone..." 
+        :filters="['is_active' => ['1' => 'Active', '0' => 'Inactive']]" 
+    />
+
     <div class="card">
         <table class="table">
             <thead>

@@ -13,10 +13,24 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View
     {
+        $query = MedicineOrder::query()->with(['user', 'items.medicine']);
+
+        $result = MedicineOrder::handleSearchAndFilters($request, $query, function ($order) {
+            return [
+                'id' => $order->id,
+                'title' => 'Order #' . $order->id,
+                'subtitle' => 'By: ' . $order->user->name . ' | Total: $' . $order->total_price
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
         return view('pharmacist.orders.index', [
-            'orders' => MedicineOrder::query()->with(['user', 'items.medicine'])->latest()->paginate(20),
+            'orders' => $result->latest()->paginate(20)->withQueryString(),
         ]);
     }
 

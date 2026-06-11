@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MedicineOrder extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Searchable;
+
+    protected array $searchableFields = ['order_number', 'user.email', 'user.phone', 'user.name'];
 
     protected $fillable = [
         'user_id',

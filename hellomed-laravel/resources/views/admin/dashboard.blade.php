@@ -5,16 +5,20 @@
         <h1>Admin dashboard</h1>
         <div class="meta-row" style="margin-bottom: 16px;">
             <a class="ghost-button" href="{{ route('admin.appointments.index') }}">Appointments</a>
+            <a class="ghost-button" href="{{ route('admin.patients.index') }}">Patients</a>
             <a class="ghost-button" href="{{ route('admin.departments.index') }}">Departments</a>
             <a class="ghost-button" href="{{ route('admin.available-tests.index') }}">Available Tests</a>
+            <a class="ghost-button" href="{{ route('admin.medicines.index') }}">Pharmacy</a>
+            <a class="ghost-button" href="{{ route('admin.ambulance.index') }}">Ambulance</a>
             <a class="ghost-button" href="{{ route('admin.articles.index') }}">Articles</a>
-            <a class="ghost-button" href="{{ route('admin.doctors.index') }}">Doctor schedules</a>
-            <a class="ghost-button" href="{{ route('admin.doctors.create') }}">Add doctor</a>
+            <a class="ghost-button" href="{{ route('admin.comments.index') }}">Comments</a>
+            <a class="ghost-button" href="{{ route('admin.qna.index') }}">Q&A</a>
+            <a class="ghost-button" href="{{ route('admin.doctors.index') }}">Doctors</a>
             <a class="ghost-button" href="{{ route('admin.audit-logs.index') }}">Audit logs</a>
             @if (auth()->user()->isAdmin())
                 <a class="ghost-button" href="{{ route('admin.payments.index') }}">Payments</a>
                 <a class="ghost-button" href="{{ route('admin.staff.index') }}">Staff</a>
-                <a class="ghost-button" href="{{ route('admin.staff.create') }}">Add staff</a>
+                <a class="ghost-button" href="{{ route('admin.pharmacists.index') }}">Pharmacists</a>
             @endif
         </div>
         <div class="grid cols-4">

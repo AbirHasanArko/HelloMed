@@ -7,8 +7,15 @@
             <h1>Manage medicines</h1>
             <p>Maintain medicine catalog, pricing, and stock for patient purchases.</p>
         </div>
-        <a class="button" href="{{ route('pharmacist.medicines.create') }}">Add medicine</a>
+        <a class="button" href="{{ route($routePrefix . '.medicines.create') }}">Add medicine</a>
     </div>
+
+    <x-search-filter 
+        action="{{ route($routePrefix . '.medicines.index') }}" 
+        search-placeholder="Search medicines by name, manufacturer, group..." 
+        :filters="['is_active' => ['1' => 'Active', '0' => 'Inactive'], 'requires_prescription' => ['1' => 'Prescription Only', '0' => 'OTC']]" 
+    />
+
     <div class="card">
         <table class="table">
             <thead>
@@ -33,7 +40,16 @@
                         <td>BDT {{ number_format((float) $medicine->price, 2) }}</td>
                         <td>{{ $medicine->stock_quantity }}</td>
                         <td>{{ $medicine->is_active ? 'Yes' : 'No' }}</td>
-                        <td><a class="ghost-button" href="{{ route('pharmacist.medicines.edit', $medicine) }}">Edit</a></td>
+                        <td>
+                            <div class="pill-row">
+                                <a class="ghost-button" href="{{ route($routePrefix . '.medicines.edit', $medicine) }}">Edit</a>
+                                <form action="{{ route($routePrefix . '.medicines.destroy', $medicine) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this medicine?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="ghost-button" style="color: var(--error-text); border-color: var(--error-border);">Delete</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

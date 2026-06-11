@@ -7,8 +7,14 @@
             <h1>Available Diagnostics Services</h1>
             <p>Manage the hospital's diagnostics services and diagnostic services catalog.</p>
         </div>
-        <a class="button" href="{{ route('admin.available-tests.create') }}">Add Test</a>
+        <a href="{{ route('admin.available-tests.create') }}" class="button">Add New Test</a>
     </div>
+
+    <x-search-filter 
+        action="{{ route('admin.available-tests.index') }}" 
+        search-placeholder="Search tests by name, code, category..." 
+        :filters="[]" 
+    />
 
     <div class="card">
         <table class="table">

@@ -10,12 +10,24 @@ use Illuminate\Http\Request;
 
 class AdminAppointmentController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View
     {
-        $this->authorize('viewAny', \App\Models\Appointment::class);
+        $query = Appointment::query()->with(['doctor.department', 'user.patientProfile']);
+
+        $result = Appointment::handleSearchAndFilters($request, $query, function ($appointment) {
+            return [
+                'id' => $appointment->id,
+                'title' => 'Apt #' . $appointment->id . ' - ' . $appointment->patient_name,
+                'subtitle' => 'Dr. ' . $appointment->doctor->name . ' | ' . $appointment->status
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
 
         return view('admin.appointments.index', [
-            'appointments' => Appointment::query()->with(['doctor.department'])->latest()->paginate(15),
+            'appointments' => $result->latest()->paginate(15)->withQueryString(),
         ]);
     }
 

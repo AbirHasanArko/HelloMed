@@ -68,26 +68,6 @@
                 <button class="button" type="submit">Save schedule</button>
             </form>
 
-            <hr style="margin:20px 0; border:0; border-top:1px solid var(--border);">
-
-            <h3>Change login password</h3>
-            <form method="POST" action="{{ route('doctor.password.update') }}">
-                @csrf
-                @method('PATCH')
-                <label>
-                    Current password
-                    <input type="password" name="current_password" required>
-                </label>
-                <label>
-                    New password
-                    <input type="password" name="new_password" required>
-                </label>
-                <label>
-                    Confirm new password
-                    <input type="password" name="new_password_confirmation" required>
-                </label>
-                <button class="ghost-button" type="submit">Update password</button>
-            </form>
         </div>
 
         <div class="card">

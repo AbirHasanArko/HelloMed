@@ -88,7 +88,7 @@ class AppointmentController extends Controller
             'prescription_follow_up_date' => ['nullable', 'date', 'after_or_equal:today'],
             'prescription_items' => ['nullable', 'array'],
             'prescription_items.*.medicine_id' => ['nullable', 'integer', 'exists:medicines,id'],
-            'prescription_items.*.medicine_name' => ['required', 'string', 'max:255'],
+            'prescription_items.*.medicine_name' => ['nullable', 'string', 'max:255'],
             'prescription_items.*.amount' => ['nullable', 'string', 'max:120'],
             'prescription_items.*.dosage' => ['nullable', 'string', 'max:120'],
             'prescription_items.*.intake_time' => ['nullable', 'string', 'max:120'],

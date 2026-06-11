@@ -7,14 +7,29 @@ use App\Models\Department;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminDepartmentController extends Controller
 {
-    public function index(): View
+    public function index(Request $request)
     {
+        $query = Department::query();
+
+        $result = Department::handleSearchAndFilters($request, $query, function ($department) {
+            return [
+                'id' => $department->id,
+                'title' => $department->name,
+                'subtitle' => Str::limit($department->description, 40)
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
         return view('admin.departments.index', [
-            'departments' => Department::query()->withCount('doctors')->latest()->paginate(15),
+            'departments' => $result->latest()->paginate(15)->withQueryString(),
         ]);
     }
 

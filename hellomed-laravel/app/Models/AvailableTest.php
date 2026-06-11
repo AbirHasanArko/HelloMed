@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Searchable;
 
 class AvailableTest extends Model
 {
     /** @use HasFactory<\Database\Factories\AvailableTestFactory> */
-    use HasFactory;
+    use HasFactory, Searchable;
+
+    protected array $searchableFields = ['name', 'description'];
 
     protected $fillable = [
         'name',

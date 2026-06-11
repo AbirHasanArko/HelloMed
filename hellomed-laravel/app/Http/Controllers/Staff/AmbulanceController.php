@@ -8,47 +8,104 @@ use Illuminate\Http\Request;
 
 class AmbulanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $requests = AmbulanceRequest::orderByRaw("
-            CASE status
-                WHEN 'pending' THEN 1
-                WHEN 'dispatched' THEN 2
-                WHEN 'resolved' THEN 3
-                WHEN 'cancelled' THEN 4
-                ELSE 5
-            END
-        ")
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $query = AmbulanceRequest::query()->with('user');
 
-        return view('staff.ambulance.index', compact('requests'));
+        $result = AmbulanceRequest::handleSearchAndFilters($request, $query, function ($req) {
+            return [
+                'id' => $req->id,
+                'title' => 'Ambulance Req #' . $req->id . ' - ' . $req->patient_name,
+                'subtitle' => $req->address . ' | ' . $req->status
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
+        return view('admin.ambulance.index', [
+            'requests' => $result->orderByRaw("FIELD(status, 'pending', 'dispatched', 'resolved', 'cancelled')")->latest()->paginate(15)->withQueryString(),
+            'routePrefix' => 'staff',
+        ]);
     }
 
-    public function update(Request $request, AmbulanceRequest $ambulanceRequest)
+    public function create()
     {
-        $request->validate([
+        return view('admin.ambulance.create', [
+            'routePrefix' => 'staff',
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'patient_name' => 'required|string|max:255',
+            'patient_phone' => 'required|string|max:255',
+            'latitude' => 'nullable|string|max:255',
+            'longitude' => 'nullable|string|max:255',
+            'address' => 'required|string|max:1000',
             'status' => 'required|in:pending,dispatched,resolved,cancelled',
             'notes' => 'nullable|string',
         ]);
 
-        $data = [
-            'status' => $request->status,
-            'notes' => $request->notes,
-        ];
-
-        if ($request->status === 'dispatched' && $ambulanceRequest->status !== 'dispatched') {
+        $data = $validated;
+        
+        if ($request->status === 'dispatched') {
             $data['dispatched_at'] = now();
             $data['staff_id'] = auth()->id();
-        } elseif ($request->status === 'resolved' && $ambulanceRequest->status !== 'resolved') {
+        } elseif ($request->status === 'resolved') {
             $data['resolved_at'] = now();
-            if (!$ambulanceRequest->staff_id) {
+            $data['staff_id'] = auth()->id();
+        }
+
+        AmbulanceRequest::create($data);
+
+        return redirect()->route('staff.ambulance.index')->with('success', 'Ambulance request created successfully.');
+    }
+
+    public function edit(AmbulanceRequest $ambulance) // using $ambulance to match resource route
+    {
+        return view('admin.ambulance.edit', [
+            'request' => $ambulance,
+            'routePrefix' => 'staff',
+        ]);
+    }
+
+    public function update(Request $request, AmbulanceRequest $ambulance)
+    {
+        $validated = $request->validate([
+            'patient_name' => 'required|string|max:255',
+            'patient_phone' => 'required|string|max:255',
+            'latitude' => 'nullable|string|max:255',
+            'longitude' => 'nullable|string|max:255',
+            'address' => 'required|string|max:1000',
+            'status' => 'required|in:pending,dispatched,resolved,cancelled',
+            'notes' => 'nullable|string',
+        ]);
+
+        $data = $validated;
+
+        if ($request->status === 'dispatched' && $ambulance->status !== 'dispatched') {
+            $data['dispatched_at'] = now();
+            if (!$ambulance->staff_id) {
+                $data['staff_id'] = auth()->id();
+            }
+        } elseif ($request->status === 'resolved' && $ambulance->status !== 'resolved') {
+            $data['resolved_at'] = now();
+            if (!$ambulance->staff_id) {
                 $data['staff_id'] = auth()->id();
             }
         }
 
-        $ambulanceRequest->update($data);
+        $ambulance->update($data);
 
         return back()->with('success', 'Ambulance request updated successfully.');
+    }
+
+    public function destroy(AmbulanceRequest $ambulance)
+    {
+        $ambulance->delete();
+        return redirect()->route('staff.ambulance.index')->with('success', 'Ambulance request deleted successfully.');
     }
 }

@@ -815,6 +815,7 @@
                     @elseif (auth()->user()->isPharmacist())
                         <a href="{{ route('pharmacist.dashboard') }}" class="ghost-button">Pharmacy</a>
                     @endif
+                    <a href="{{ route('settings.profile') }}" class="ghost-button">Account Settings</a>
                     <form method="POST" action="{{ route('logout') }}" style="display:inline;">
                         @csrf
                         <button class="ghost-button" type="submit">Logout</button>

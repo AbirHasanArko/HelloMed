@@ -10,10 +10,25 @@ use Illuminate\Validation\Rule;
 
 class AvailableTestController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $tests = AvailableTest::latest()->paginate(10);
-        return view('admin.available_tests.index', compact('tests'));
+        $query = AvailableTest::query();
+
+        $result = AvailableTest::handleSearchAndFilters($request, $query, function ($test) {
+            return [
+                'id' => $test->id,
+                'title' => $test->name,
+                'subtitle' => $test->category . ' | $' . $test->price
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
+        return view('admin.available_tests.index', [
+            'tests' => $result->latest()->paginate(15)->withQueryString(),
+        ]);
     }
 
     public function create()

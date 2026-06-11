@@ -3,6 +3,13 @@
 @section('content')
 <section class="section">
     <h1>Medicine orders</h1>
+
+    <x-search-filter 
+        action="{{ route('pharmacist.orders.index') }}" 
+        search-placeholder="Search orders by number, patient name, email..." 
+        :filters="['status' => ['pending' => 'Pending', 'processing' => 'Processing', 'completed' => 'Completed', 'cancelled' => 'Cancelled']]" 
+    />
+
     <div class="card">
         <table class="table">
             <thead>

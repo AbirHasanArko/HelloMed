@@ -9,16 +9,33 @@ use Illuminate\Http\Request;
 
 class MedicineController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View
     {
+        $query = Medicine::query();
+
+        $result = Medicine::handleSearchAndFilters($request, $query, function ($medicine) {
+            return [
+                'id' => $medicine->id,
+                'title' => $medicine->name,
+                'subtitle' => $medicine->medicine_group . ' | ' . $medicine->manufacturer
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
+
         return view('pharmacist.medicines.index', [
-            'medicines' => Medicine::query()->latest()->paginate(20),
+            'medicines' => $result->latest()->paginate(20)->withQueryString(),
+            'routePrefix' => 'pharmacist',
         ]);
     }
 
     public function create()
     {
-        return view('pharmacist.medicines.create');
+        return view('pharmacist.medicines.create', [
+            'routePrefix' => 'pharmacist',
+        ]);
     }
 
     public function store(Request $request)
@@ -56,7 +73,10 @@ class MedicineController extends Controller
 
     public function edit(Medicine $medicine)
     {
-        return view('pharmacist.medicines.edit', compact('medicine'));
+        return view('pharmacist.medicines.edit', [
+            'medicine' => $medicine,
+            'routePrefix' => 'pharmacist',
+        ]);
     }
 
     public function update(Request $request, Medicine $medicine)
@@ -86,5 +106,12 @@ class MedicineController extends Controller
         AuditLogger::log('medicine.updated', $medicine, $old, $medicine->only(['name', 'power', 'amount', 'price', 'stock_quantity', 'is_active', 'requires_prescription']));
 
         return redirect()->route('pharmacist.medicines.index')->with('status', 'Medicine updated.');
+    }
+
+    public function destroy(Medicine $medicine)
+    {
+        $medicine->delete();
+        AuditLogger::log('medicine.deleted', $medicine, $medicine->toArray(), []);
+        return redirect()->route('pharmacist.medicines.index')->with('status', 'Medicine deleted.');
     }
 }

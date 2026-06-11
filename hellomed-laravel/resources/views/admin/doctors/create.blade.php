@@ -11,6 +11,10 @@
                     <input type="email" name="doctor_email" value="{{ old('doctor_email') }}" required>
                 </label>
                 <label>
+                    Phone number
+                    <input type="text" name="phone" value="{{ old('phone') }}">
+                </label>
+                <label>
                     Initial password
                     <input type="text" name="initial_password" value="{{ old('initial_password') }}" required>
                 </label>

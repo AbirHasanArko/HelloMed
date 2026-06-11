@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use App\Traits\Searchable;
 
 class Medicine extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
+
+    protected array $searchableFields = ['name', 'manufacturer', 'medicine_group', 'strength'];
 
     protected $fillable = [
         'name',

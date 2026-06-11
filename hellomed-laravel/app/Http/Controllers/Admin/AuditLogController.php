@@ -10,16 +10,24 @@ use Illuminate\View\View;
 
 class AuditLogController extends Controller
 {
-    public function index(Request $request): View
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|View
     {
-        $logs = $this->buildFilteredQuery($request)
-            ->with('actor')
-            ->latest()
-            ->paginate(25)
-            ->withQueryString();
+        $query = $this->buildFilteredQuery($request)->with('actor');
+
+        $result = AuditLog::handleSearchAndFilters($request, $query, function ($log) {
+            return [
+                'id' => $log->id,
+                'title' => $log->action . ' on ' . class_basename($log->auditable_type),
+                'subtitle' => 'By: ' . ($log->actor ? $log->actor->name : 'System')
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
 
         return view('admin.audit-logs.index', [
-            'logs' => $logs,
+            'logs' => $result->latest()->paginate(20)->withQueryString(),
             'entityTypes' => AuditLog::query()->select('entity_type')->distinct()->orderBy('entity_type')->pluck('entity_type'),
         ]);
     }

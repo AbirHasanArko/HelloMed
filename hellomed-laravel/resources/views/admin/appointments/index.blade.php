@@ -3,6 +3,16 @@
 @section('content')
     <section class="section">
         <h1>Appointments</h1>
+        
+        <x-search-filter 
+            action="{{ route('admin.appointments.index') }}" 
+            search-placeholder="Search appointments by patient name, phone, email, doctor name..." 
+            :filters="[
+                'status' => ['pending' => 'Pending', 'confirmed' => 'Confirmed', 'completed' => 'Completed', 'cancelled' => 'Cancelled'],
+                'appointment_date' => 'date_range'
+            ]" 
+        />
+
         <div class="card">
             <table class="table">
                 <thead>
@@ -29,10 +39,10 @@
                                         @if($p->height || $p->weight) <div>{{ $p->height }} / {{ $p->weight }}</div> @endif
                                         @if($p->allergies) <div style="color:var(--error-text);">Allergies: {{ $p->allergies }}</div> @endif
                                         @if($p->known_conditions) <div>Conditions: {{ $p->known_conditions }}</div> @endif
-                                        <div style="margin-top: 4px;"><a href="{{ route('admin.patients.profile.edit', $appointment->user) }}" style="text-decoration: underline; color: var(--primary);">Edit Profile</a></div>
+                                        <div style="margin-top: 4px;"><a href="{{ route('admin.patients.edit', $appointment->user) }}" style="text-decoration: underline; color: var(--primary);">Edit Profile</a></div>
                                     </div>
                                 @elseif($appointment->user)
-                                    <div style="margin-top: 4px;"><a href="{{ route('admin.patients.profile.edit', $appointment->user) }}" style="text-decoration: underline; color: var(--primary); font-size: 12px;">Create Profile</a></div>
+                                    <div style="margin-top: 4px;"><a href="{{ route('admin.patients.edit', $appointment->user) }}" style="text-decoration: underline; color: var(--primary); font-size: 12px;">Create Profile</a></div>
                                 @endif
                             </td>
                             <td>{{ $appointment->doctor?->name }}</td>

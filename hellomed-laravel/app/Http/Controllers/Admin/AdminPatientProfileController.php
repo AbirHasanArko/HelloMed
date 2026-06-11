@@ -25,6 +25,8 @@ class AdminPatientProfileController extends Controller
         abort_unless($user->role === 'patient', 404);
 
         $validated = $request->validate([
+            'phone' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'string', 'min:8', 'max:255'],
             'date_of_birth' => ['nullable', 'date', 'before:today'],
             'gender' => ['nullable', 'string', 'max:50'],
             'height' => ['nullable', 'string', 'max:50'],
@@ -33,6 +35,14 @@ class AdminPatientProfileController extends Controller
             'known_conditions' => ['nullable', 'string', 'max:3000'],
             'medical_notes' => ['nullable', 'string', 'max:5000'],
         ]);
+
+        if (isset($validated['phone'])) {
+            $user->phone = $validated['phone'];
+        }
+        if (!empty($validated['password'])) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        }
+        $user->save();
 
         $user->patientProfile()->updateOrCreate(
             ['user_id' => $user->id],

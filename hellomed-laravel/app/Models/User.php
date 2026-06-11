@@ -7,11 +7,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Traits\Searchable;
 
 class User extends Authenticatable
 {
-    use HasFactory;
-    use Notifiable;
+    use HasFactory, Notifiable, Searchable;
+
+    protected array $searchableFields = ['name', 'email', 'phone'];
 
     protected $fillable = [
         'name',

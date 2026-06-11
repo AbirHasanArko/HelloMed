@@ -91,22 +91,4 @@ class DashboardController extends Controller
         return back()->with('status', 'Schedule updated successfully.');
     }
 
-    public function updatePassword(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
-        ]);
-
-        $request->user()->update([
-            'password' => Hash::make($validated['new_password']),
-        ]);
-
-        AuditLogger::log('auth.password_changed', $request->user(), [], [
-            'role' => $request->user()->role,
-            'changed_via' => 'doctor_dashboard',
-        ]);
-
-        return back()->with('status', 'Password updated successfully.');
-    }
 }

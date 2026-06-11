@@ -30,6 +30,10 @@
                     <input type="text" name="name" value="{{ old('name', $doctor->name) }}" required>
                 </label>
                 <label>
+                    Phone number
+                    <input type="text" name="phone" value="{{ old('phone', $doctor->user?->phone) }}">
+                </label>
+                <label>
                     Specialty
                     <input type="text" name="specialty" value="{{ old('specialty', $doctor->specialty) }}" required>
                 </label>
@@ -139,6 +143,10 @@
                 <label><input type="checkbox" name="online_available" value="1" @checked(old('online_available', $doctor->online_available))> Online available</label>
                 <label><input type="checkbox" name="offline_available" value="1" @checked(old('offline_available', $doctor->offline_available))> Offline available</label>
                 <label><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $doctor->is_active))> Active profile</label>
+                <label>
+                    New password <span class="muted">(leave blank to keep current)</span>
+                    <input type="text" name="password" value="{{ old('password') }}">
+                </label>
                 <button class="button" type="submit">Save doctor schedule</button>
             </form>
         </div>

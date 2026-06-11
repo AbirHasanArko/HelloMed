@@ -3,8 +3,8 @@
 @section('content')
 <section class="section">
     <h1>Edit medicine</h1>
-    <div class="card">
-        <form method="POST" action="{{ route('pharmacist.medicines.update', $medicine) }}">
+    <div class="card" style="max-width: 600px;">
+        <form method="POST" action="{{ route($routePrefix . '.medicines.update', $medicine) }}">
             @csrf
             @method('PUT')
             @include('pharmacist.medicines.partials.form', ['medicine' => $medicine])

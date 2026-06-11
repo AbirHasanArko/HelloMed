@@ -7,6 +7,12 @@
         <div class="meta-row" style="margin-bottom: 16px;">
             <a class="button" href="{{ route('admin.doctors.create') }}">Add new doctor</a>
         </div>
+
+        <x-search-filter 
+            action="{{ route('admin.doctors.index') }}" 
+            search-placeholder="Search doctors by name, email, phone, specialty..." 
+        />
+
         <div class="card">
             <table class="table">
                 <thead>

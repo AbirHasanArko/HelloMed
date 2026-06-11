@@ -11,12 +11,26 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminArticleController extends Controller
 {
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
         $this->authorize('viewAny', Article::class);
+        $query = Article::query()->with(['category', 'author', 'reviewer']);
+
+        $result = Article::handleSearchAndFilters($request, $query, function ($article) {
+            return [
+                'id' => $article->id,
+                'title' => $article->title,
+                'subtitle' => 'By: ' . $article->author->name . ' | ' . $article->publication_status
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
 
         return view('admin.articles.index', [
-            'articles' => Article::query()->with(['category', 'author', 'reviewer'])->latest()->paginate(15),
+            'articles' => $result->latest()->paginate(15)->withQueryString(),
+            'routePrefix' => 'admin',
         ]);
     }
 
@@ -26,6 +40,7 @@ class AdminArticleController extends Controller
 
         return view('admin.articles.create', [
             'categories' => ArticleCategory::query()->where('is_active', true)->orderBy('name')->get(),
+            'routePrefix' => 'admin',
         ]);
     }
 
@@ -63,6 +78,7 @@ class AdminArticleController extends Controller
         return view('admin.articles.edit', [
             'article' => $article,
             'categories' => ArticleCategory::query()->where('is_active', true)->orderBy('name')->get(),
+            'routePrefix' => 'admin',
         ]);
     }
 
@@ -151,5 +167,20 @@ class AdminArticleController extends Controller
         ]);
 
         return back()->with('status', 'Article rejected. Doctor can edit and resubmit.');
+    }
+
+    public function destroy(Article $article)
+    {
+        $this->authorize('update', $article); // Reuse update auth for admin
+
+        if ($article->cover_image_path) {
+            Storage::disk('public')->delete($article->cover_image_path);
+        }
+
+        $article->delete();
+
+        AuditLogger::log('article.deleted', $article, $article->toArray(), []);
+
+        return redirect()->route('admin.articles.index')->with('status', 'Article deleted successfully.');
     }
 }

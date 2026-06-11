@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\Searchable;
 
 class Appointment extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
+
+    protected array $searchableFields = ['patient_name', 'patient_email', 'patient_phone', 'doctor.name'];
 
     protected $fillable = [
         'user_id',

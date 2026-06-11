@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class AdminDoctorController extends Controller
 {
@@ -28,6 +29,7 @@ class AdminDoctorController extends Controller
         $doctorUser = \App\Models\User::query()->create([
             'name' => $validated['name'],
             'email' => $validated['doctor_email'],
+            'phone' => $validated['phone'] ?? null,
             'password' => Hash::make($validated['initial_password']),
             'role' => 'doctor',
             'is_active' => true,
@@ -60,12 +62,26 @@ class AdminDoctorController extends Controller
         return redirect()->route('admin.doctors.index')->with('status', 'Doctor account created successfully.');
     }
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|View
     {
         $this->authorize('viewAny', Doctor::class);
+        $query = Doctor::query()->with(['department', 'user']);
+
+        $result = Doctor::handleSearchAndFilters($request, $query, function ($doctor) {
+            return [
+                'id' => $doctor->id,
+                'title' => $doctor->name,
+                'subtitle' => $doctor->department?->name ?? ''
+            ];
+        });
+
+        if ($result instanceof \Illuminate\Http\JsonResponse) {
+            return $result;
+        }
 
         return view('admin.doctors.index', [
-            'doctors' => Doctor::query()->with('department')->latest()->paginate(15),
+            'doctors' => $result->latest()->paginate(15)->withQueryString(),
+            'routePrefix' => 'admin',
         ]);
     }
 
@@ -91,6 +107,18 @@ class AdminDoctorController extends Controller
                 Storage::disk('public')->delete($doctor->photo_path);
             }
             $photoPath = $request->file('photo')->store('doctor-photos', 'public');
+        }
+
+        $user = $doctor->user;
+        if ($user) {
+            $user->name = $validated['name'];
+            if (isset($validated['phone'])) {
+                $user->phone = $validated['phone'];
+            }
+            if (!empty($validated['password'])) {
+                $user->password = Hash::make($validated['password']);
+            }
+            $user->save();
         }
 
         $doctor->update([
@@ -134,6 +162,7 @@ class AdminDoctorController extends Controller
         $rules = [
             'department_id' => ['required', 'exists:departments,id'],
             'name' => ['required', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:255'],
             'specialty' => ['required', 'string', 'max:255'],
             'qualification' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string', 'max:2000'],
@@ -163,6 +192,8 @@ class AdminDoctorController extends Controller
         if ($isCreate) {
             $rules['doctor_email'] = ['required', 'email', 'max:255', Rule::unique('users', 'email')];
             $rules['initial_password'] = ['required', 'string', 'min:8', 'max:255'];
+        } else {
+            $rules['password'] = ['nullable', 'string', 'min:8', 'max:255'];
         }
 
         return $request->validate($rules);

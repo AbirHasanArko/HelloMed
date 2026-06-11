@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminArticleController;
 use App\Http\Controllers\Admin\AdminDepartmentController;
 use App\Http\Controllers\Admin\AdminDoctorController;
 use App\Http\Controllers\Admin\AdminPaymentController;
+use App\Http\Controllers\Admin\AdminPharmacistController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AvailableTestController as AdminAvailableTestController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Frontend\MedicinePaymentController;
 use App\Http\Controllers\Frontend\PatientDashboardController;
 use App\Http\Controllers\Frontend\PatientRecordController;
 use App\Http\Controllers\Frontend\PrescriptionCartController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Frontend\QnaController;
 use App\Http\Controllers\Frontend\PatientMedicineInvoiceController;
 use App\Http\Controllers\Frontend\PatientMedicineOrderController;
@@ -76,6 +78,8 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+Route::get('/settings/profile', [ProfileController::class, 'edit'])->middleware('auth')->name('settings.profile');
+Route::patch('/settings/profile', [ProfileController::class, 'update'])->middleware('auth')->name('settings.profile.update');
 Route::post('/shop/checkout', [MedicineCartController::class, 'checkout'])->middleware('auth')->name('shop.checkout');
 Route::get('/my/appointments', [PatientDashboardController::class, 'index'])
     ->middleware('auth')
@@ -151,6 +155,7 @@ Route::prefix('pharmacist')
         Route::post('/medicines', [PharmacistMedicineController::class, 'store'])->name('medicines.store');
         Route::get('/medicines/{medicine}/edit', [PharmacistMedicineController::class, 'edit'])->name('medicines.edit');
         Route::put('/medicines/{medicine}', [PharmacistMedicineController::class, 'update'])->name('medicines.update');
+        Route::delete('/medicines/{medicine}', [PharmacistMedicineController::class, 'destroy'])->name('medicines.destroy');
         Route::get('/orders', [PharmacistOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}/prescription', [PharmacistOrderController::class, 'prescription'])->name('orders.prescription');
         Route::patch('/orders/{order}', [PharmacistOrderController::class, 'update'])->name('orders.update');
@@ -161,14 +166,18 @@ Route::prefix('staff')
     ->middleware(['auth', 'role:staff'])
     ->group(function (): void {
         Route::get('/', [StaffDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/ambulance', [\App\Http\Controllers\Staff\AmbulanceController::class, 'index'])->name('ambulance.index');
-        Route::patch('/ambulance/{ambulanceRequest}', [\App\Http\Controllers\Staff\AmbulanceController::class, 'update'])->name('ambulance.update');
+        Route::resource('ambulance', \App\Http\Controllers\Staff\AmbulanceController::class)->parameters(['ambulance' => 'ambulance']);
+        Route::resource('comments', \App\Http\Controllers\Staff\StaffCommentController::class)->only(['index', 'edit', 'update', 'destroy']);
+        Route::resource('qna', \App\Http\Controllers\Staff\StaffQnaController::class)->only(['index', 'edit', 'update', 'destroy'])->parameters(['qna' => 'qna']);
+        Route::resource('articles', \App\Http\Controllers\Staff\StaffArticleController::class)->parameters(['articles' => 'article']);
+        Route::patch('/articles/{article}/review', [\App\Http\Controllers\Staff\StaffArticleController::class, 'review'])->name('articles.review');
         Route::get('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'create'])->name('offline-appointments.create');
         Route::post('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'store'])->name('offline-appointments.store');
         Route::get('/diagnostic-services', [StaffLabTestController::class, 'index'])->name('diagnostic-services.index');
         Route::patch('/diagnostic-services/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('diagnostic-services.mark-paid');
         Route::post('/diagnostic-services/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('diagnostic-services.upload');
         Route::delete('/diagnostic-services/{labTest}/remove-result', [StaffLabTestController::class, 'removeResult'])->name('diagnostic-services.remove-result');
+        Route::resource('patients', \App\Http\Controllers\Staff\StaffPatientController::class)->parameters(['patients' => 'patient']);
     });
 
 Route::prefix('doctor')
@@ -177,7 +186,6 @@ Route::prefix('doctor')
     ->group(function (): void {
         Route::get('/', [DoctorDashboardController::class, 'index'])->name('dashboard');
         Route::patch('/schedule', [DoctorDashboardController::class, 'updateSchedule'])->name('schedule.update');
-        Route::patch('/password', [DoctorDashboardController::class, 'updatePassword'])->name('password.update');
         Route::get('/articles', [DoctorArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/create', [DoctorArticleController::class, 'create'])->name('articles.create');
         Route::post('/articles', [DoctorArticleController::class, 'store'])->name('articles.store');
@@ -199,8 +207,11 @@ Route::prefix('admin')
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/appointments', [AdminAppointmentController::class, 'index'])->name('appointments.index');
         Route::patch('/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('appointments.update');
-        Route::get('/patients/{user}/profile/edit', [\App\Http\Controllers\Admin\AdminPatientProfileController::class, 'edit'])->name('patients.profile.edit');
-        Route::patch('/patients/{user}/profile', [\App\Http\Controllers\Admin\AdminPatientProfileController::class, 'update'])->name('patients.profile.update');
+        Route::resource('patients', \App\Http\Controllers\Admin\AdminPatientController::class)->parameters(['patients' => 'patient']);
+        Route::resource('medicines', \App\Http\Controllers\Admin\AdminMedicineController::class)->parameters(['medicines' => 'medicine']);
+        Route::resource('ambulance', \App\Http\Controllers\Admin\AdminAmbulanceController::class)->parameters(['ambulance' => 'ambulance']);
+        Route::resource('comments', \App\Http\Controllers\Admin\AdminCommentController::class)->only(['index', 'edit', 'update', 'destroy']);
+        Route::resource('qna', \App\Http\Controllers\Admin\AdminQnaController::class)->only(['index', 'edit', 'update', 'destroy'])->parameters(['qna' => 'qna']);
         Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');
         Route::get('/departments/create', [AdminDepartmentController::class, 'create'])->name('departments.create');
         Route::post('/departments', [AdminDepartmentController::class, 'store'])->name('departments.store');
@@ -215,6 +226,7 @@ Route::prefix('admin')
         Route::post('/articles', [AdminArticleController::class, 'store'])->name('articles.store');
         Route::get('/articles/{article}/edit', [AdminArticleController::class, 'edit'])->name('articles.edit');
         Route::put('/articles/{article}', [AdminArticleController::class, 'update'])->name('articles.update');
+        Route::delete('/articles/{article}', [AdminArticleController::class, 'destroy'])->name('articles.destroy');
         Route::patch('/articles/{article}/review', [AdminArticleController::class, 'review'])->name('articles.review');
         Route::get('/doctors', [AdminDoctorController::class, 'index'])->name('doctors.index');
         Route::get('/doctors/create', [AdminDoctorController::class, 'create'])->name('doctors.create');
@@ -234,5 +246,12 @@ Route::prefix('admin')
             Route::get('/staff/{user}/edit', [AdminStaffController::class, 'edit'])->name('staff.edit');
             Route::put('/staff/{user}', [AdminStaffController::class, 'update'])->name('staff.update');
             Route::delete('/staff/{user}', [AdminStaffController::class, 'destroy'])->name('staff.destroy');
+
+            Route::get('/pharmacists', [AdminPharmacistController::class, 'index'])->name('pharmacists.index');
+            Route::get('/pharmacists/create', [AdminPharmacistController::class, 'create'])->name('pharmacists.create');
+            Route::post('/pharmacists', [AdminPharmacistController::class, 'store'])->name('pharmacists.store');
+            Route::get('/pharmacists/{user}/edit', [AdminPharmacistController::class, 'edit'])->name('pharmacists.edit');
+            Route::put('/pharmacists/{user}', [AdminPharmacistController::class, 'update'])->name('pharmacists.update');
+            Route::delete('/pharmacists/{user}', [AdminPharmacistController::class, 'destroy'])->name('pharmacists.destroy');
         });
     });

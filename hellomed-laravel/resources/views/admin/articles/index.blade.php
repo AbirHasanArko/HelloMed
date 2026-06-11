@@ -7,8 +7,15 @@
                 <h1>Articles</h1>
                 <p>Manage hospital articles and general health content.</p>
             </div>
-            <a class="button" href="{{ route('admin.articles.create') }}">New article</a>
+            <a class="button" href="{{ route($routePrefix . '.articles.create') }}">New article</a>
         </div>
+
+        <x-search-filter 
+            action="{{ route($routePrefix . '.articles.index') }}" 
+            search-placeholder="Search articles by title, author..." 
+            :filters="['publication_status' => ['draft' => 'Draft', 'pending_review' => 'Pending Review', 'published' => 'Published', 'rejected' => 'Rejected'], 'is_published' => ['1' => 'Published Only', '0' => 'Unpublished']]" 
+        />
+
         <div class="card">
             @foreach ($articles as $article)
                 <div class="list-item" style="margin-bottom: 12px;">
@@ -19,16 +26,21 @@
                         Status: {{ str_replace('_', ' ', ucfirst($article->publication_status ?? 'draft')) }}
                     </p>
                     <div class="pill-row">
-                        <a class="ghost-button" href="{{ route('admin.articles.edit', $article) }}">Edit</a>
+                        <a class="ghost-button" href="{{ route($routePrefix . '.articles.edit', $article) }}">Edit</a>
+                        <form method="POST" action="{{ route($routePrefix . '.articles.destroy', $article) }}" onsubmit="return confirm('Are you sure you want to delete this article?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="ghost-button" style="color: var(--error-text); border-color: var(--error-border);">Delete</button>
+                        </form>
 
                         @if (($article->publication_status ?? 'draft') === 'pending_review')
-                            <form method="POST" action="{{ route('admin.articles.review', $article) }}">
+                            <form method="POST" action="{{ route($routePrefix . '.articles.review', $article) }}">
                                 @csrf
                                 @method('PATCH')
                                 <input type="hidden" name="decision" value="approve">
                                 <button class="button" type="submit">Approve & publish</button>
                             </form>
-                            <form method="POST" action="{{ route('admin.articles.review', $article) }}">
+                            <form method="POST" action="{{ route($routePrefix . '.articles.review', $article) }}">
                                 @csrf
                                 @method('PATCH')
                                 <input type="hidden" name="decision" value="reject">

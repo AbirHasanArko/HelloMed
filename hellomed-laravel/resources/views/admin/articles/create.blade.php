@@ -3,8 +3,8 @@
 @section('content')
     <section class="section">
         <h1>Create article</h1>
-        <div class="card">
-            <form method="POST" action="{{ route('admin.articles.store') }}" enctype="multipart/form-data">
+        <div class="card" style="max-width: 600px;">
+            <form method="POST" action="{{ route($routePrefix . '.articles.store') }}" enctype="multipart/form-data">
                 @csrf
                 <label>
                     Category

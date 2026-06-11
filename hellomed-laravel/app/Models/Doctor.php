@@ -10,7 +10,9 @@ use Illuminate\Support\Str;
 
 class Doctor extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Searchable;
+
+    protected array $searchableFields = ['name', 'specialty', 'slug', 'user.email', 'user.phone'];
 
     protected $fillable = [
         'department_id',

@@ -10,6 +10,11 @@
         <a class="button" href="{{ route('admin.departments.create') }}">Add department</a>
     </div>
 
+    <x-search-filter 
+        action="{{ route('admin.departments.index') }}" 
+        search-placeholder="Search departments by name or description..." 
+    />
+
     <div class="card">
         <table class="table">
             <thead>
