@@ -103,10 +103,16 @@
                             </div>
                             
                             @if($test->status === 'completed')
-                                <div>
+                                <div style="display: flex; gap: 8px; flex-direction: column; align-items: flex-end;">
                                     <span class="badge" style="background: var(--badge-green-bg); color: var(--badge-green-text); padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; margin-bottom: 8px; display: inline-block;">Completed</span>
-                                    <br>
-                                    <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="ghost-button">Download Result</a>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="ghost-button">Download</a>
+                                        <form method="POST" action="{{ route('staff.lab-tests.remove-result', $test) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="ghost-button" type="submit" style="color: var(--error-text);" onclick="return confirm('Are you sure you want to delete this result file? The test will be moved back to the pending queue.')">Remove</button>
+                                        </form>
+                                    </div>
                                 </div>
                             @endif
                         </div>

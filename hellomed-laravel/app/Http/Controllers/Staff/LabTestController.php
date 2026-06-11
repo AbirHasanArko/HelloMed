@@ -94,4 +94,21 @@ class LabTestController extends Controller
 
         return back()->with('status', 'Lab test result uploaded successfully.');
     }
+
+    public function removeResult(LabTestRequest $labTest): RedirectResponse
+    {
+        abort_unless($labTest->status === 'completed', 400, 'Only completed lab tests have results to remove.');
+
+        if ($labTest->result_file_path) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($labTest->result_file_path);
+        }
+
+        $labTest->update([
+            'status' => 'pending',
+            'result_file_path' => null,
+            'uploaded_by' => null,
+        ]);
+
+        return back()->with('status', 'Lab test result removed successfully. Test is marked as pending again.');
+    }
 }

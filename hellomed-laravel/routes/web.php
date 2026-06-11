@@ -168,6 +168,7 @@ Route::prefix('staff')
         Route::get('/lab-tests', [StaffLabTestController::class, 'index'])->name('lab-tests.index');
         Route::patch('/lab-tests/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('lab-tests.mark-paid');
         Route::post('/lab-tests/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('lab-tests.upload');
+        Route::delete('/lab-tests/{labTest}/remove-result', [StaffLabTestController::class, 'removeResult'])->name('lab-tests.remove-result');
     });
 
 Route::prefix('doctor')
