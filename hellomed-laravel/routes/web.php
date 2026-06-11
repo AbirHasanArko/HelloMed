@@ -178,6 +178,7 @@ Route::prefix('staff')
         Route::patch('/articles/{article}/review', [\App\Http\Controllers\Staff\StaffArticleController::class, 'review'])->name('articles.review');
         Route::get('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'create'])->name('offline-appointments.create');
         Route::post('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'store'])->name('offline-appointments.store');
+        Route::get('/api/patients', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'searchPatients'])->name('api.patients');
         Route::get('/diagnostic-services', [StaffLabTestController::class, 'index'])->name('diagnostic-services.index');
         Route::patch('/diagnostic-services/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('diagnostic-services.mark-paid');
         Route::post('/diagnostic-services/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('diagnostic-services.upload');

@@ -23,19 +23,28 @@
             @csrf
             
             <h2 style="font-size: 1.5rem; margin-bottom: 16px;">1. Patient Details</h2>
-            <p class="muted">If the email doesn't exist, a new account will be automatically created.</p>
+            <p class="muted">Search existing patient or fill in details. If no match and email is provided, an account is created.</p>
+            
+            <div style="position: relative; margin-bottom: 24px;" id="patient-search-wrapper">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Search Existing Patient (Phone or Email)</label>
+                <input type="text" id="patient_search" class="input" placeholder="Type phone number or email..." autocomplete="off" style="width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;">
+                <div class="autocomplete-dropdown" id="patient-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; margin-top: 4px; box-shadow: var(--shadow-lg); z-index: 50; max-height: 250px; overflow-y: auto;">
+                    <div class="autocomplete-results"></div>
+                </div>
+            </div>
+
             <div class="grid cols-2" style="margin-bottom: 24px;">
                 <div>
-                    <label>Patient Full Name</label>
-                    <input type="text" name="patient_name" value="{{ old('patient_name') }}" required>
+                    <label>Patient Full Name <span style="color:var(--error-text);">*</span></label>
+                    <input type="text" name="patient_name" id="patient_name" value="{{ old('patient_name') }}" required>
                 </div>
                 <div>
-                    <label>Patient Email</label>
-                    <input type="email" name="patient_email" value="{{ old('patient_email') }}" required>
+                    <label>Patient Email (Optional)</label>
+                    <input type="email" name="patient_email" id="patient_email" value="{{ old('patient_email') }}">
                 </div>
                 <div>
-                    <label>Patient Phone Number</label>
-                    <input type="tel" name="patient_phone" value="{{ old('patient_phone') }}" required>
+                    <label>Patient Phone Number <span style="color:var(--error-text);">*</span></label>
+                    <input type="tel" name="patient_phone" id="patient_phone" value="{{ old('patient_phone') }}" required>
                 </div>
             </div>
 
@@ -127,8 +136,85 @@
     </div>
 </section>
 
+<style>
+    .autocomplete-item:hover { background: var(--surface-hover); }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Patient Search
+    const patientInput = document.getElementById('patient_search');
+    const patientDropdown = document.getElementById('patient-dropdown');
+    const patientResults = patientDropdown.querySelector('.autocomplete-results');
+    let patientTimer;
+
+    patientInput.addEventListener('input', function() {
+        clearTimeout(patientTimer);
+        const query = this.value.trim();
+        
+        if (query.length < 2) {
+            patientDropdown.style.display = 'none';
+            return;
+        }
+
+        patientTimer = setTimeout(() => {
+            fetch(`{{ route('staff.api.patients') }}?query=${encodeURIComponent(query)}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                patientResults.innerHTML = '';
+                if (data.length === 0) {
+                    patientResults.innerHTML = '<div style="padding: 12px 16px; color: var(--muted);">No matching patients found.</div>';
+                } else {
+                    data.forEach(user => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.style.cssText = 'padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-light);';
+                        div.innerHTML = `<strong>${user.name}</strong> <div style="font-size: 12px; color: var(--muted); margin-top:4px;">${user.phone} | ${user.email}</div>`;
+                        
+                        div.addEventListener('click', () => {
+                            document.getElementById('patient_name').value = user.name || '';
+                            document.getElementById('patient_phone').value = user.phone || '';
+                            document.getElementById('patient_email').value = user.email || '';
+                            
+                            // Auto fill medical profile if exists
+                            if (user.patient_profile) {
+                                const p = user.patient_profile;
+                                if (document.querySelector('input[name="date_of_birth"]') && p.date_of_birth) 
+                                    document.querySelector('input[name="date_of_birth"]').value = p.date_of_birth.split('T')[0];
+                                if (document.querySelector('select[name="gender"]') && p.gender) 
+                                    document.querySelector('select[name="gender"]').value = p.gender;
+                                if (document.querySelector('input[name="height"]')) 
+                                    document.querySelector('input[name="height"]').value = p.height || '';
+                                if (document.querySelector('input[name="weight"]')) 
+                                    document.querySelector('input[name="weight"]').value = p.weight || '';
+                                if (document.querySelector('input[name="allergies"]')) 
+                                    document.querySelector('input[name="allergies"]').value = p.allergies || '';
+                                if (document.querySelector('textarea[name="known_conditions"]')) 
+                                    document.querySelector('textarea[name="known_conditions"]').value = p.known_conditions || '';
+                                if (document.querySelector('textarea[name="medical_notes"]')) 
+                                    document.querySelector('textarea[name="medical_notes"]').value = p.medical_notes || '';
+                            }
+
+                            patientInput.value = '';
+                            patientDropdown.style.display = 'none';
+                        });
+                        patientResults.appendChild(div);
+                    });
+                }
+                patientDropdown.style.display = 'block';
+            });
+        }, 300);
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('patient-search-wrapper').contains(e.target)) {
+            patientDropdown.style.display = 'none';
+        }
+    });
+
     const doctorSelect = document.querySelector('select[name="doctor_id"]');
     const scheduleContainer = document.getElementById('doctor-schedule-container');
     const scheduleContent = document.getElementById('doctor-schedule-content');
