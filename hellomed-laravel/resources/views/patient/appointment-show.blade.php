@@ -68,10 +68,16 @@
                         @if ($appointment->prescription_follow_up_date)
                             <p><strong>Follow-up date:</strong> {{ $appointment->prescription_follow_up_date?->format('M d, Y') }}</p>
                         @endif
-                        @if ($appointment->prescriptionItems->isNotEmpty())
-                            <a class="ghost-button" href="{{ route('patient.appointments.buy-all-medicines', $appointment) }}">Buy all prescribed medicines</a>
-                        @endif
-                        <a class="ghost-button" href="{{ route('patient.appointments.prescription-pdf', $appointment) }}">Download prescription PDF</a>
+                        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                            <a class="button" style="padding: 10px 20px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" href="{{ route('patient.appointments.prescription-pdf', $appointment) }}">
+                                📄 Download Prescription PDF
+                            </a>
+                            @if ($appointment->prescriptionItems->isNotEmpty())
+                                <a class="button" style="background-color: #0f172a; padding: 10px 20px; font-weight: bold; font-size: 14px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);" href="{{ route('patient.appointments.buy-all-medicines', $appointment) }}">
+                                    🛒 Buy all medicines
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 @endif
                 
