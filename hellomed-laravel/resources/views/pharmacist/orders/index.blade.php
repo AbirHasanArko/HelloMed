@@ -2,7 +2,13 @@
 
 @section('content')
 <section class="section">
-    <h1>Medicine orders</h1>
+    <div class="nav-inner" style="padding: 0 0 16px;">
+        <div>
+            <h1>Medicine orders</h1>
+            <p>Manage online orders and record in-store POS sales.</p>
+        </div>
+        <a class="button" href="{{ route('pharmacist.orders.create') }}">New Offline Sale</a>
+    </div>
 
     <x-search-filter 
         action="{{ route('pharmacist.orders.index') }}" 
@@ -28,7 +34,10 @@
                     <tr>
                         <td>{{ $order->order_number }}</td>
                         <td>
-                            <strong>{{ $order->user?->name ?? 'Guest' }}</strong>
+                            <strong>{{ $order->user?->name ?? $order->customer_name }}</strong>
+                            <div style="font-size: 11px; margin-top: 4px;">
+                                <a href="{{ route('pharmacist.orders.invoice', $order) }}" target="_blank" class="muted">Download Receipt</a>
+                            </div>
                             @if($order->phone)
                                 <div class="muted" style="font-size: 13px; margin-top: 2px;">{{ $order->phone }}</div>
                             @endif

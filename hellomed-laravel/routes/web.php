@@ -157,8 +157,13 @@ Route::prefix('pharmacist')
         Route::put('/medicines/{medicine}', [PharmacistMedicineController::class, 'update'])->name('medicines.update');
         Route::delete('/medicines/{medicine}', [PharmacistMedicineController::class, 'destroy'])->name('medicines.destroy');
         Route::get('/orders', [PharmacistOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/create', [PharmacistOrderController::class, 'create'])->name('orders.create');
+        Route::post('/orders', [PharmacistOrderController::class, 'store'])->name('orders.store');
         Route::get('/orders/{order}/prescription', [PharmacistOrderController::class, 'prescription'])->name('orders.prescription');
+        Route::get('/orders/{order}/invoice', [PharmacistOrderController::class, 'invoice'])->name('orders.invoice');
         Route::patch('/orders/{order}', [PharmacistOrderController::class, 'update'])->name('orders.update');
+        Route::get('/api/patients', [PharmacistOrderController::class, 'searchPatients'])->name('api.patients');
+        Route::get('/api/medicines', [PharmacistOrderController::class, 'searchMedicines'])->name('api.medicines');
     });
 
 Route::prefix('staff')

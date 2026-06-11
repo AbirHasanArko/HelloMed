@@ -81,6 +81,7 @@ class AdminDoctorController extends Controller
 
         return view('admin.doctors.index', [
             'doctors' => $result->latest()->paginate(15)->withQueryString(),
+            'departments' => \App\Models\Department::pluck('name', 'id')->toArray(),
             'routePrefix' => 'admin',
         ]);
     }

@@ -15,6 +15,8 @@ class MedicineOrder extends Model
 
     protected $fillable = [
         'user_id',
+        'customer_name',
+        'customer_email',
         'order_number',
         'status',
         'total_amount',

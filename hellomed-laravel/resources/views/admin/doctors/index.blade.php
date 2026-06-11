@@ -11,6 +11,7 @@
         <x-search-filter 
             action="{{ route('admin.doctors.index') }}" 
             search-placeholder="Search doctors by name, email, phone, specialty..." 
+            :filters="['department_id' => $departments]"
         />
 
         <div class="card">

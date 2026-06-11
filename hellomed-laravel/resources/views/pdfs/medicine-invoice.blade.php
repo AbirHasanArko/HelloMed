@@ -16,7 +16,7 @@
     <div class="header">
         <div class="title">HelloMed Pharmacy Invoice</div>
         <div>Order: {{ $order->order_number }}</div>
-        <div>Patient: {{ $order->user?->name }}</div>
+        <div>Customer: {{ $order->user?->name ?? $order->customer_name }}</div>
         <div>Address: {{ $order->delivery_address }}</div>
         <div>Phone: {{ $order->phone }}</div>
         <div>Status: {{ ucfirst($order->status) }} | Payment: {{ ucfirst($order->payment_status) }}</div>
