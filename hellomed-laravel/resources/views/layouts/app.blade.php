@@ -248,10 +248,15 @@
         .hero {
             padding: 64px 0 36px;
             display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 36px;
-            align-items: center;
+            grid-template-columns: 1.4fr 0.6fr;
+            grid-template-areas: 
+                "text visual"
+                "cards visual";
+            gap: 24px 36px;
+            align-items: stretch;
         }
+        .hero-text { grid-area: text; }
+        .hero-cards { grid-area: cards; }
         .hero h1 {
             font-size: clamp(2.2rem, 4vw, 3.8rem);
             line-height: 1.08;
@@ -268,13 +273,15 @@
             background-clip: text;
         }
         .hero-visual {
+            grid-area: visual;
             position: relative;
             border-radius: 24px;
             overflow: hidden;
-            aspect-ratio: 4/3;
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             display: grid;
             place-items: center;
+            height: 100%;
+            min-height: 300px;
         }
         .hero-visual-pattern {
             position: absolute;
@@ -286,7 +293,6 @@
                 radial-gradient(circle at 50% 50%, white 2px, transparent 2px);
             background-size: 40px 40px, 60px 60px, 80px 80px;
         }
-        .hero-visual svg { width: 55%; height: auto; color: white; opacity: 0.9; }
 
         /* ===== CARDS ===== */
         .card, .panel {
@@ -612,8 +618,15 @@
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 960px) {
-            .hero { grid-template-columns: 1fr; padding: 36px 0 24px; }
-            .hero-visual { max-height: 280px; }
+            .hero { 
+                grid-template-columns: 1fr; 
+                grid-template-areas: 
+                    "text"
+                    "visual"
+                    "cards";
+                padding: 36px 0 24px; 
+            }
+            .hero-visual { max-height: none; min-height: 380px; padding: 24px 0; overflow: visible; }
             .grid.cols-3, .grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .nav-inner { flex-wrap: wrap; }
         }
@@ -787,6 +800,7 @@
                 <a href="{{ route('medicines.index') }}">Medicine shop</a>
                 @auth
                     @if (auth()->user()->role === 'patient')
+                        <a href="{{ route('patient.profile') }}" class="ghost-button">My profile</a>
                         <a href="{{ route('patient.appointments') }}" class="ghost-button">My appointments</a>
                         <a href="{{ route('patient.records') }}" class="ghost-button">My records</a>
                         <a href="{{ route('patient.medicine-orders') }}" class="ghost-button">My medicine orders</a>
@@ -832,6 +846,14 @@
         @if (session('status'))
             <div class="notice" style="margin-top: 20px;">{{ session('status') }}</div>
         @endif
+
+        @auth
+            @if(auth()->user()->role === 'patient' && (!auth()->user()->patientProfile || auth()->user()->patientProfile->isIncomplete()))
+                <div class="notice" style="background-color: #fffbeb; color: #92400e; border-color: #fef3c7; margin: 20px 0;">
+                    <strong>Action Required:</strong> Please complete your medical profile (date of birth, gender, height, weight, etc.) in your <a href="{{ route('patient.profile') }}" style="text-decoration: underline; color: inherit;">profile</a> for better care.
+                </div>
+            @endif
+        @endauth
 
         @yield('content')
     </main>
