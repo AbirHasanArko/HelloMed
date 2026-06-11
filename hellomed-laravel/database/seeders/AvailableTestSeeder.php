@@ -12,6 +12,6 @@ class AvailableTestSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\AvailableTest::factory(10)->create();
+        \App\Models\AvailableTest::factory(18)->create();
     }
 }

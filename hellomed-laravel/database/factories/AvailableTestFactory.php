@@ -22,7 +22,8 @@ class AvailableTestFactory extends Factory
             'Kidney Function Test (KFT)', 'Thyroid Profile', 'Blood Sugar Fasting',
             'HbA1c', 'Urine Routine', 'Vitamin D', 'Vitamin B12',
             'Electrocardiogram (ECG)', 'Chest X-Ray', 'Ultrasound Whole Abdomen',
-            'MRI Brain', 'CT Scan Thorax'
+            'MRI Brain', 'CT Scan Thorax', 'Skin scraping KOH test', 'Skin patch test', 
+            'Total IgE level test'
         ];
 
         return [
