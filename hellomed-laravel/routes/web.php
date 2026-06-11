@@ -45,8 +45,8 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [HomeController::class, 'about'])->name('about');
 Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
 Route::get('/departments/{department:slug}', [DepartmentController::class, 'show'])->name('departments.show');
-Route::get('/lab-tests', [FrontendAvailableTestController::class, 'index'])->name('available-tests.index');
-Route::get('/lab-tests/{availableTest:slug}', [FrontendAvailableTestController::class, 'show'])->name('available-tests.show');
+Route::get('/diagnostic-services', [FrontendAvailableTestController::class, 'index'])->name('available-tests.index');
+Route::get('/diagnostic-services/{availableTest:slug}', [FrontendAvailableTestController::class, 'show'])->name('available-tests.show');
 Route::get('/doctors', [DoctorController::class, 'index'])->name('doctors.index');
 Route::get('/doctors/{doctor:slug}', [DoctorController::class, 'show'])->name('doctors.show');
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
@@ -137,9 +137,9 @@ Route::get('/shop/payments/{order}/{provider}', [MedicinePaymentController::clas
 Route::get('/shop/payments/{order}/{provider}/callback/{status}', [MedicinePaymentController::class, 'callback'])
     ->middleware('auth')
     ->name('shop.payments.callback');
-Route::get('/lab-tests/{labTest}/download', LabTestDownloadController::class)
-    ->middleware('auth')
-    ->name('lab-tests.download');
+Route::get('/diagnostic-services/{labTest}/download', LabTestDownloadController::class)
+    ->middleware(['auth'])
+    ->name('diagnostic-services.download');
 
 Route::prefix('pharmacist')
     ->name('pharmacist.')
@@ -165,10 +165,10 @@ Route::prefix('staff')
         Route::patch('/ambulance/{ambulanceRequest}', [\App\Http\Controllers\Staff\AmbulanceController::class, 'update'])->name('ambulance.update');
         Route::get('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'create'])->name('offline-appointments.create');
         Route::post('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'store'])->name('offline-appointments.store');
-        Route::get('/lab-tests', [StaffLabTestController::class, 'index'])->name('lab-tests.index');
-        Route::patch('/lab-tests/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('lab-tests.mark-paid');
-        Route::post('/lab-tests/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('lab-tests.upload');
-        Route::delete('/lab-tests/{labTest}/remove-result', [StaffLabTestController::class, 'removeResult'])->name('lab-tests.remove-result');
+        Route::get('/diagnostic-services', [StaffLabTestController::class, 'index'])->name('diagnostic-services.index');
+        Route::patch('/diagnostic-services/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('diagnostic-services.mark-paid');
+        Route::post('/diagnostic-services/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('diagnostic-services.upload');
+        Route::delete('/diagnostic-services/{labTest}/remove-result', [StaffLabTestController::class, 'removeResult'])->name('diagnostic-services.remove-result');
     });
 
 Route::prefix('doctor')
@@ -187,8 +187,8 @@ Route::prefix('doctor')
         Route::patch('/appointments/{appointment}/meeting-link', [DoctorAppointmentController::class, 'updateMeetingLink'])->name('appointments.meeting-link.update');
         Route::patch('/appointments/{appointment}/prescription', [DoctorAppointmentController::class, 'updatePrescription'])->name('appointments.prescription.update');
         Route::patch('/appointments/{appointment}/patient-profile', [DoctorAppointmentController::class, 'updatePatientProfile'])->name('appointments.patient-profile.update');
-        Route::post('/appointments/{appointment}/lab-tests', [DoctorAppointmentController::class, 'storeLabTest'])->name('appointments.lab-tests.store');
-        Route::delete('/lab-tests/{labTest}', [DoctorAppointmentController::class, 'destroyLabTest'])->name('lab-tests.destroy');
+        Route::post('/appointments/{appointment}/diagnostic-services', [DoctorAppointmentController::class, 'storeLabTest'])->name('appointments.diagnostic-services.store');
+        Route::delete('/diagnostic-services/{labTest}', [DoctorAppointmentController::class, 'destroyLabTest'])->name('diagnostic-services.destroy');
     });
 
 Route::prefix('admin')

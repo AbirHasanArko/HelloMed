@@ -44,7 +44,7 @@ class LabTestController extends Controller
         $doctorNames = \App\Models\User::whereHas('doctorProfile')->pluck('name');
         $availableTests = \App\Models\AvailableTest::select('name')->distinct()->pluck('name');
 
-        return view('staff.lab_tests.index', [
+        return view('staff.diagnostic_services.index', [
             'labTests' => $labTests,
             'currentStatus' => $status,
             'patientNames' => $patientNames,
@@ -61,19 +61,19 @@ class LabTestController extends Controller
 
     public function markAsPaid(LabTestRequest $labTest): RedirectResponse
     {
-        abort_unless($labTest->status === 'pending', 400, 'Cannot update payment status of completed lab tests.');
+        abort_unless($labTest->status === 'pending', 400, 'Cannot update payment status of completed diagnostic services.');
 
         $labTest->update([
             'payment_status' => 'paid',
         ]);
 
-        return back()->with('status', 'Lab test marked as paid successfully.');
+        return back()->with('status', 'Diagnostic service marked as paid successfully.');
     }
 
     public function upload(Request $request, LabTestRequest $labTest): RedirectResponse
     {
-        abort_unless($labTest->status === 'pending', 400, 'Only pending lab tests can be uploaded.');
-        abort_unless($labTest->payment_status === 'paid', 400, 'Cannot upload results for unpaid lab tests.');
+        abort_unless($labTest->status === 'pending', 400, 'Only pending diagnostic services can be uploaded.');
+        abort_unless($labTest->payment_status === 'paid', 400, 'Cannot upload results for unpaid diagnostic services.');
 
         $validated = $request->validate([
             'result_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // 5MB max
@@ -92,12 +92,12 @@ class LabTestController extends Controller
             'uploaded_by' => $request->user()->id,
         ]);
 
-        return back()->with('status', 'Lab test result uploaded successfully.');
+        return back()->with('status', 'Diagnostic service result uploaded successfully.');
     }
 
     public function removeResult(LabTestRequest $labTest): RedirectResponse
     {
-        abort_unless($labTest->status === 'completed', 400, 'Only completed lab tests have results to remove.');
+        abort_unless($labTest->status === 'completed', 400, 'Only completed diagnostic services have results to remove.');
 
         if ($labTest->result_file_path) {
             \Illuminate\Support\Facades\Storage::disk('local')->delete($labTest->result_file_path);
@@ -109,6 +109,6 @@ class LabTestController extends Controller
             'uploaded_by' => null,
         ]);
 
-        return back()->with('status', 'Lab test result removed successfully. Test is marked as pending again.');
+        return back()->with('status', 'Diagnostic service result removed successfully. Test is marked as pending again.');
     }
 }

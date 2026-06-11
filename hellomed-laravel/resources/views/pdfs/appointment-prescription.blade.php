@@ -291,7 +291,7 @@
 
     @if ($appointment->labTests->isNotEmpty())
         <div class="section">
-            <div class="section-title">Requested Lab Tests</div>
+            <div class="section-title">Requested Diagnostics Services</div>
             <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #334155;">
                 @foreach ($appointment->labTests as $test)
                     <li style="margin-bottom: 6px;">

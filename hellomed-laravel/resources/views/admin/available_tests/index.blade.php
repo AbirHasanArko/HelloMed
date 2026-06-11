@@ -4,8 +4,8 @@
 <section class="section">
     <div class="nav-inner" style="padding: 0 0 16px;">
         <div>
-            <h1>Available Lab Tests</h1>
-            <p>Manage the hospital's lab tests and diagnostic services catalog.</p>
+            <h1>Available Diagnostics Services</h1>
+            <p>Manage the hospital's diagnostics services and diagnostic services catalog.</p>
         </div>
         <a class="button" href="{{ route('admin.available-tests.create') }}">Add Test</a>
     </div>

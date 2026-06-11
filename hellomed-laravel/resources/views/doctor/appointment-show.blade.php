@@ -244,8 +244,8 @@
     </script>
 
     <div class="card" style="margin-top:20px;">
-        <h3>Lab Test Requests</h3>
-        <p class="muted" style="margin-bottom: 12px;">Request lab tests for the patient. Staff will process these and upload results.</p>
+        <h3>Diagnostics Service Requests</h3>
+        <p class="muted" style="margin-bottom: 12px;">Request diagnostics services for the patient. Staff will process these and upload results.</p>
         
         @if($appointment->labTests && $appointment->labTests->isNotEmpty())
             <div style="margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 4px; padding: 8px;">
@@ -272,12 +272,12 @@
                             </td>
                             <td style="padding: 8px;">
                                 @if($test->status === 'completed')
-                                    <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="button" style="padding: 4px 8px; font-size: 12px;">Download Result</a>
+                                    <a href="{{ route('diagnostic-services.download', $test) }}" target="_blank" class="button" style="padding: 4px 8px; font-size: 12px;">Download Result</a>
                                 @else
-                                    <form method="POST" action="{{ route('doctor.lab-tests.destroy', $test) }}" style="display:inline;">
+                                    <form method="POST" action="{{ route('doctor.diagnostic-services.destroy', $test) }}" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="ghost-button" style="color: var(--error-text); padding: 4px 8px; font-size: 12px;" onclick="return confirm('Delete this lab test request?')">Delete</button>
+                                        <button type="submit" class="ghost-button" style="color: var(--error-text); padding: 4px 8px; font-size: 12px;" onclick="return confirm('Delete this diagnostics service request?')">Delete</button>
                                     </form>
                                 @endif
                             </td>
@@ -288,11 +288,11 @@
             </div>
         @endif
 
-        <form id="lab-test-form" method="POST" action="{{ route('doctor.appointments.lab-tests.store', $appointment) }}">
+        <form id="lab-test-form" method="POST" action="{{ route('doctor.appointments.diagnostic-services.store', $appointment) }}">
             @csrf
             <div id="lab-test-items"></div>
             <div style="display: flex; gap: 12px; margin-top: 12px;">
-                <button type="button" id="add-lab-test-btn" class="ghost-button">Add lab test</button>
+                <button type="button" id="add-lab-test-btn" class="ghost-button">Add diagnostics service</button>
                 <button class="button" type="submit">Submit Requests</button>
             </div>
         </form>

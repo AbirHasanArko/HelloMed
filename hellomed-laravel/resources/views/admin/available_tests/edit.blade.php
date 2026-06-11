@@ -4,8 +4,8 @@
 <section class="section">
     <div class="nav-inner" style="padding: 0 0 16px;">
         <div>
-            <h1>Edit Lab Test</h1>
-            <p>Modify existing lab test or diagnostic service details.</p>
+            <h1>Edit Diagnostics Service</h1>
+            <p>Modify existing diagnostics service or diagnostic service details.</p>
         </div>
         <a class="ghost-button" href="{{ route('admin.available-tests.index') }}">← Back</a>
     </div>

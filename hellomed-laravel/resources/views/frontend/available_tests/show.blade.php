@@ -8,7 +8,7 @@
 
     <div class="grid cols-2">
         <div class="card fade-in">
-            <div class="tag">Lab Test Details</div>
+            <div class="tag">Diagnostics Service Details</div>
             <h1>{{ $availableTest->name }}</h1>
             
             <div style="margin-top: 24px; padding: 20px; background: var(--surface-hover); border-radius: 12px; border: 1px solid var(--border);">

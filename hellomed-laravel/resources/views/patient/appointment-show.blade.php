@@ -77,7 +77,7 @@
                 
                 @if ($appointment->labTests && $appointment->labTests->isNotEmpty())
                     <div style="margin-top:20px;">
-                        <strong>Lab Tests:</strong>
+                        <strong>Diagnostics Services:</strong>
                         <div class="list">
                             @foreach ($appointment->labTests as $test)
                                 <div class="list-item" style="display: flex; justify-content: space-between; align-items: center;">
@@ -89,7 +89,7 @@
                                         @endif
                                     </div>
                                     @if($test->status === 'completed')
-                                        <a href="{{ route('lab-tests.download', $test) }}" target="_blank" class="button" style="padding: 6px 12px; font-size: 13px;">Download Result</a>
+                                        <a href="{{ route('diagnostic-services.download', $test) }}" target="_blank" class="button" style="padding: 6px 12px; font-size: 13px;">Download Result</a>
                                     @endif
                                 </div>
                             @endforeach

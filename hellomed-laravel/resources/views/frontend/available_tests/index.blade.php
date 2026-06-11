@@ -3,7 +3,7 @@
 @section('content')
 <div class="hero">
     <div class="hero-text fade-in">
-        <h1>Available Lab Tests</h1>
+        <h1>Available Diagnostics Services</h1>
         <p style="font-size: 1.15rem; max-width: 500px;">Browse our comprehensive catalog of diagnostic and laboratory tests. High-quality imaging, blood work, and pathology services available directly at our hospital.</p>
     </div>
     <div class="hero-visual fade-in fade-in-delay-1">
@@ -37,7 +37,7 @@
             </a>
         @empty
             <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                <p class="muted">No lab tests are currently available in the catalog.</p>
+                <p class="muted">No diagnostics services are currently available in the catalog.</p>
             </div>
         @endforelse
     </div>
