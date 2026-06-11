@@ -7,8 +7,8 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <h1>Lab Test Requests</h1>
             <div style="display: flex; gap: 8px;">
-                <a href="{{ route('lab-tests.index', ['status' => 'pending']) }}" class="{{ $currentStatus === 'pending' ? 'button' : 'ghost-button' }}">Pending</a>
-                <a href="{{ route('lab-tests.index', ['status' => 'completed']) }}" class="{{ $currentStatus === 'completed' ? 'button' : 'ghost-button' }}">Completed</a>
+                <a href="{{ route('staff.lab-tests.index', ['status' => 'pending']) }}" class="{{ $currentStatus === 'pending' ? 'button' : 'ghost-button' }}">Pending</a>
+                <a href="{{ route('staff.lab-tests.index', ['status' => 'completed']) }}" class="{{ $currentStatus === 'completed' ? 'button' : 'ghost-button' }}">Completed</a>
             </div>
         </div>
 
@@ -32,7 +32,7 @@
         <!-- Filter Bar -->
         <div class="card" style="margin-bottom: 24px; padding: 16px;">
             <strong style="display: block; margin-bottom: 12px;">Filter Requests</strong>
-            <form method="GET" action="{{ route('lab-tests.index') }}" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+            <form method="GET" action="{{ route('staff.lab-tests.index') }}" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
                 <input type="hidden" name="status" value="{{ $currentStatus }}">
                 
                 <label style="flex: 1; min-width: 150px; margin-bottom: 0;">
@@ -58,7 +58,7 @@
                 <div style="display: flex; gap: 8px;">
                     <button class="button" type="submit">Filter</button>
                     @if(array_filter($filters))
-                        <a href="{{ route('lab-tests.index', ['status' => $currentStatus]) }}" class="ghost-button">Clear</a>
+                        <a href="{{ route('staff.lab-tests.index', ['status' => $currentStatus]) }}" class="ghost-button">Clear</a>
                     @endif
                 </div>
             </form>
@@ -115,7 +115,7 @@
                             @if($test->payment_status === 'unpaid')
                                 <div style="background: var(--error-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--error-border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
                                     <strong style="color: var(--error-text);">Payment Required Before Upload</strong>
-                                    <form method="POST" action="{{ route('lab-tests.mark-paid', $test) }}">
+                                    <form method="POST" action="{{ route('staff.lab-tests.mark-paid', $test) }}">
                                         @csrf
                                         @method('PATCH')
                                         <button class="button" type="submit" style="background: var(--primary); color: white;" onclick="return confirm('Confirm payment received for this test?')">Mark as Paid</button>
@@ -127,7 +127,7 @@
                                         <strong>Upload Result Document</strong>
                                         <span style="color: var(--badge-green-text); font-weight: bold; font-size: 12px;">✓ Paid</span>
                                     </div>
-                                    <form method="POST" action="{{ route('lab-tests.upload', $test) }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end;">
+                                    <form method="POST" action="{{ route('staff.lab-tests.upload', $test) }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end;">
                                         @csrf
                                         <label style="flex: 1; margin-bottom: 0;">
                                             File (PDF, JPG, PNG) max 5MB
