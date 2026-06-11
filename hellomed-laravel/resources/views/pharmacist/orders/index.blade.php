@@ -69,17 +69,17 @@
                             @endif
                         </td>
                         <td>
-                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}">
+                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}" style="display:flex; flex-direction:column; gap:6px;">
                                 @csrf
                                 @method('PATCH')
                                 <select name="status">
                                     @foreach (['pending','processing','completed','cancelled'] as $status)
-                                        <option value="{{ $status }}" @selected($order->status === $status)>{{ $status }}</option>
+                                        <option value="{{ $status }}" @selected($order->status === $status)>Status: {{ ucfirst($status) }}</option>
                                     @endforeach
                                 </select>
                                 <select name="payment_status">
                                     @foreach (['pending','paid','failed','refunded'] as $status)
-                                        <option value="{{ $status }}" @selected($order->payment_status === $status)>{{ $status }}</option>
+                                        <option value="{{ $status }}" @selected($order->payment_status === $status)>Payment: {{ ucfirst($status) }}</option>
                                     @endforeach
                                 </select>
                                 <button class="button" type="submit">Save</button>
