@@ -84,7 +84,7 @@ class AppointmentController extends Controller
         $validated = $request->validate([
             'prescription_diagnosis' => ['required', 'string', 'max:2000'],
             'prescription_medicines' => ['nullable', 'string', 'max:4000'],
-            'prescription_advice' => ['required', 'string', 'max:3000'],
+            'prescription_advice' => ['nullable', 'string', 'max:3000'],
             'prescription_follow_up_date' => ['nullable', 'date', 'after_or_equal:today'],
             'prescription_items' => ['nullable', 'array'],
             'prescription_items.*.medicine_id' => ['nullable', 'integer', 'exists:medicines,id'],

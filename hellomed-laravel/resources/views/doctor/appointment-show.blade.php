@@ -82,7 +82,7 @@
             </label>
             <label>
                 Additional advice
-                <textarea name="prescription_advice" required>{{ old('prescription_advice', $appointment->prescription_advice) }}</textarea>
+                <textarea name="prescription_advice">{{ old('prescription_advice', $appointment->prescription_advice) }}</textarea>
             </label>
             <label>
                 Follow-up date
@@ -146,7 +146,7 @@
                         </label>
                         <label>
                             Medicine name
-                            <input type="text" name="prescription_items[${currentIndex}][medicine_name]" required>
+                            <input type="text" name="prescription_items[${currentIndex}][medicine_name]">
                         </label>
                         <label>
                             Amount
