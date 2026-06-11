@@ -186,6 +186,7 @@ Route::prefix('doctor')
         Route::get('/appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('appointments.show');
         Route::patch('/appointments/{appointment}/meeting-link', [DoctorAppointmentController::class, 'updateMeetingLink'])->name('appointments.meeting-link.update');
         Route::patch('/appointments/{appointment}/prescription', [DoctorAppointmentController::class, 'updatePrescription'])->name('appointments.prescription.update');
+        Route::patch('/appointments/{appointment}/complete', [DoctorAppointmentController::class, 'markAsComplete'])->name('appointments.complete');
         Route::patch('/appointments/{appointment}/patient-profile', [DoctorAppointmentController::class, 'updatePatientProfile'])->name('appointments.patient-profile.update');
         Route::post('/appointments/{appointment}/diagnostic-services', [DoctorAppointmentController::class, 'storeLabTest'])->name('appointments.diagnostic-services.store');
         Route::delete('/diagnostic-services/{labTest}', [DoctorAppointmentController::class, 'destroyLabTest'])->name('diagnostic-services.destroy');

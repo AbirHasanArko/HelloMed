@@ -10,6 +10,15 @@
         <p><strong>Patient email:</strong> {{ $appointment->patient_email }}</p>
         <p><strong>Patient phone:</strong> {{ $appointment->patient_phone }}</p>
         <p><strong>Reason:</strong> {{ $appointment->reason }}</p>
+        <p><strong>Status:</strong> <span class="tag" style="margin: 0; padding: 2px 8px;">{{ ucfirst($appointment->status) }}</span></p>
+
+        @if(in_array($appointment->status, ['pending', 'confirmed']))
+            <form method="POST" action="{{ route('doctor.appointments.complete', $appointment) }}" style="margin-top: 16px;">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="button" style="padding: 6px 14px; font-size: 13px;">Mark Appointment as Complete</button>
+            </form>
+        @endif
     </div>
 
     @if ($appointment->service_mode === 'online')

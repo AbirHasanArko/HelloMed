@@ -186,7 +186,6 @@ class AppointmentController extends Controller
                 'prescription_safety_notes' => $safetyNotes !== '' ? $safetyNotes : null,
                 'prescription_follow_up_date' => $validated['prescription_follow_up_date'] ?? null,
                 'prescription_written_at' => now(),
-                'status' => in_array($appointment->status, ['pending', 'confirmed'], true) ? 'completed' : $appointment->status,
             ]);
 
             $appointment->prescriptionItems()->delete();
@@ -213,6 +212,26 @@ class AppointmentController extends Controller
         });
 
         return back()->with('status', 'Prescription saved. Patient can now download it as PDF.');
+    }
+
+    public function markAsComplete(Request $request, Appointment $appointment): RedirectResponse
+    {
+        $doctor = $request->user()->doctorProfile;
+        abort_unless($doctor && $appointment->doctor_id === $doctor->id, 403);
+
+        if (! in_array($appointment->status, ['pending', 'confirmed'], true)) {
+            return back()->withErrors(['status' => 'Only pending or confirmed appointments can be completed.']);
+        }
+
+        $appointment->update(['status' => 'completed']);
+
+        AuditLogger::log('appointment.status_updated', $appointment, [
+            'status' => $appointment->getOriginal('status'),
+        ], [
+            'status' => 'completed',
+        ]);
+
+        return back()->with('status', 'Appointment marked as completed.');
     }
 
     public function updatePatientProfile(Request $request, Appointment $appointment): RedirectResponse
