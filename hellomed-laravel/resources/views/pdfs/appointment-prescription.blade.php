@@ -210,13 +210,18 @@
     <div class="header">
         <table class="brand-row">
             <tr>
-                <td style="width:70px;"><div class="logo">HM</div></td>
+                <td style="width:70px;">
+                    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('logo.png'))) }}" style="width:56px; height:56px; border-radius:14px; object-fit:cover;" alt="Logo" />
+                </td>
                 <td>
                     <div class="brand-title">HelloMed Hospital</div>
                     <div class="brand-subtitle">Integrated Care & Digital Prescription</div>
                 </td>
-                <td style="text-align:right; width:150px; vertical-align: top;">
-                    <span class="prescription-tag">E-Prescription</span>
+                <td style="text-align:right; vertical-align: top;">
+                    <div style="font-weight: bold; font-size: 16px; color: #0f766e; margin-bottom: 2px;">{{ $appointment->doctor->name }}</div>
+                    <div style="font-size: 12px; color: #475569;">{{ $appointment->doctor->specialty }}</div>
+                    <div style="font-size: 12px; color: #475569;">{{ $appointment->doctor->department?->name }}</div>
+                    <div style="margin-top: 6px;"><span class="prescription-tag">E-Prescription</span></div>
                 </td>
             </tr>
         </table>
