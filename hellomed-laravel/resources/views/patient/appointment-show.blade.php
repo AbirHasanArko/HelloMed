@@ -84,6 +84,9 @@
                                     <div>
                                         <strong>{{ $test->test_name }}</strong>
                                         <p class="muted">Status: {{ ucfirst($test->status) }}</p>
+                                        @if($test->availableTest && $test->availableTest->lab_room_number)
+                                            <p style="font-size: 13px; color: var(--primary);">Room: {{ $test->availableTest->lab_room_number }} ({{ $test->availableTest->location }})</p>
+                                        @endif
                                         @if($test->notes)
                                             <p style="font-size: 13px;">Notes: {{ $test->notes }}</p>
                                         @endif

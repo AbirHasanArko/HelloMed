@@ -29,4 +29,9 @@ class LabTestRequest extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
+
+    public function availableTest(): BelongsTo
+    {
+        return $this->belongsTo(AvailableTest::class, 'test_name', 'name');
+    }
 }

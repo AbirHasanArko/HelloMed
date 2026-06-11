@@ -296,6 +296,9 @@
                 @foreach ($appointment->labTests as $test)
                     <li style="margin-bottom: 6px;">
                         <strong>{{ $test->test_name }}</strong>
+                        @if($test->availableTest && $test->availableTest->lab_room_number)
+                            <br><span style="color: #0d9488; font-weight: bold; font-size: 11px;">Room: {{ $test->availableTest->lab_room_number }} ({{ $test->availableTest->location }})</span>
+                        @endif
                         @if($test->notes)
                             <br><span style="color: #64748b; font-size: 11px;">Note: {{ $test->notes }}</span>
                         @endif
