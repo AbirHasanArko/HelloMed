@@ -27,6 +27,8 @@ class StoreAppointmentRequest extends FormRequest
             'service_mode' => ['required', 'in:online,offline'],
             'scheduled_for' => ['required', 'date', 'after:now'],
             'payment_method' => ['nullable', 'in:none,bkash,nagad,cash-counter'],
+            'sender_number' => ['nullable', 'string', 'max:50'],
+            'transaction_id' => ['nullable', 'string', 'max:100'],
             'reason' => ['required', 'string', 'max:1000'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];

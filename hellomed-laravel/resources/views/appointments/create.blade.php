@@ -81,13 +81,52 @@
 
                     <label>
                         Optional payment method
-                        <select name="payment_method">
-                            <option value="none" @selected(old('payment_method', 'none') === 'none')>Pay later at hospital</option>
+                        <select name="payment_method" id="payment-method-select">
+                            <option value="cash-counter" @selected(old('payment_method') === 'cash-counter')>Hospital cash counter</option>
                             <option value="bkash" @selected(old('payment_method') === 'bkash')>bKash</option>
                             <option value="nagad" @selected(old('payment_method') === 'nagad')>Nagad</option>
-                            <option value="cash-counter" @selected(old('payment_method') === 'cash-counter')>Hospital cash counter</option>
                         </select>
                     </label>
+
+                    <div id="mobile-payment-details" style="display: {{ in_array(old('payment_method'), ['bkash', 'nagad']) ? 'block' : 'none' }}; margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px solid var(--border);">
+                        <h4 style="margin-bottom: 8px;">Mobile Payment Instructions</h4>
+                        <p style="font-size: 13px; margin-bottom: 16px;">
+                            Please send the exact amount to the Hospital's <span id="payment-provider-name">bKash/Nagad</span> number: <strong>01234567890</strong> (Personal).<br>
+                            After sending the money, please enter your sender number and transaction ID below to verify your payment.
+                        </p>
+                        
+                        <label>
+                            Your Sender Number
+                            <input type="text" name="sender_number" value="{{ old('sender_number') }}" placeholder="e.g. 01712345678">
+                        </label>
+                        <label>
+                            Transaction ID
+                            <input type="text" name="transaction_id" value="{{ old('transaction_id') }}" placeholder="e.g. 8M32K91L">
+                        </label>
+                    </div>
+
+                    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const select = document.getElementById('payment-method-select');
+                            const detailsDiv = document.getElementById('mobile-payment-details');
+                            const providerSpan = document.getElementById('payment-provider-name');
+                            
+                            if(select && detailsDiv) {
+                                select.addEventListener('change', () => {
+                                    if(select.value === 'bkash' || select.value === 'nagad') {
+                                        detailsDiv.style.display = 'block';
+                                        providerSpan.innerText = select.value === 'bkash' ? 'bKash' : 'Nagad';
+                                    } else {
+                                        detailsDiv.style.display = 'none';
+                                    }
+                                });
+                                // Trigger on load
+                                if(select.value === 'bkash' || select.value === 'nagad') {
+                                    providerSpan.innerText = select.value === 'bkash' ? 'bKash' : 'Nagad';
+                                }
+                            }
+                        });
+                    </script>
                     <label>
                         Reason for visit
                         <textarea name="reason" required>{{ old('reason') }}</textarea>

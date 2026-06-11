@@ -47,7 +47,18 @@
                             </td>
                             <td>{{ $appointment->doctor?->name }}</td>
                             <td>{{ $appointment->service_mode }}</td>
-                            <td>{{ $appointment->payment_status }}</td>
+                            <td>
+                                <div>{{ $appointment->payment_status }}</div>
+                                @foreach($appointment->payments as $payment)
+                                    @if(in_array($payment->method, ['bkash', 'nagad']))
+                                        <div class="muted" style="font-size:12px; margin-top:4px;">
+                                            <strong>{{ strtoupper($payment->method) }}</strong><br>
+                                            Trx: {{ $payment->transaction_id ?? 'N/A' }}<br>
+                                            From: {{ $payment->sender_number ?? 'N/A' }}
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </td>
                             <td>{{ $appointment->status }}</td>
                             <td>
                                 <form method="POST" action="{{ route('admin.appointments.update', $appointment) }}">

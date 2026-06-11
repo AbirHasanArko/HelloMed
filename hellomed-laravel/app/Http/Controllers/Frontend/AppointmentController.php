@@ -102,6 +102,8 @@ class AppointmentController extends Controller
                     'method' => $request->input('payment_method'),
                     'amount' => $amount,
                     'status' => 'pending',
+                    'sender_number' => in_array($request->input('payment_method'), ['bkash', 'nagad']) ? $request->input('sender_number') : null,
+                    'transaction_id' => in_array($request->input('payment_method'), ['bkash', 'nagad']) ? $request->input('transaction_id') : null,
                 ]);
             }
 

@@ -151,6 +151,8 @@ class MedicineCartController extends Controller
                 'payment_method' => $validated['payment_method'],
                 'payment_callback_token' => in_array($validated['payment_method'], ['bkash', 'nagad'], true) ? Str::random(48) : null,
                 'payment_status' => 'pending',
+                'sender_number' => in_array($validated['payment_method'], ['bkash', 'nagad']) ? $request->input('sender_number') : null,
+                'transaction_id' => in_array($validated['payment_method'], ['bkash', 'nagad']) ? $request->input('transaction_id') : null,
                 'delivery_address' => $validated['delivery_address'],
                 'phone' => $validated['phone'],
                 'notes' => $validated['notes'] ?? null,
@@ -181,12 +183,6 @@ class MedicineCartController extends Controller
 
         $request->session()->forget('medicine_cart');
 
-        if (in_array($order->payment_method, ['bkash', 'nagad'], true)) {
-            return redirect()
-                ->route('shop.payments.start', ['order' => $order, 'provider' => $order->payment_method])
-                ->with('status', 'Order placed. Complete your payment to confirm the order.');
-        }
-
-        return redirect()->route('patient.medicine-orders.show', $order)->with('status', 'Medicine order placed successfully.');
+        return redirect()->route('patient.medicine-orders.show', $order)->with('status', 'Medicine order placed successfully. Payment is pending verification.');
     }
 }

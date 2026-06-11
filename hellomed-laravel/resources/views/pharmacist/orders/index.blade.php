@@ -44,7 +44,16 @@
                         </td>
                         <td>BDT {{ number_format((float) $order->total_amount, 2) }}</td>
                         <td>{{ ucfirst($order->status) }}</td>
-                        <td>{{ ucfirst($order->payment_status) }}</td>
+                        <td>
+                            {{ ucfirst($order->payment_status) }}
+                            @if(in_array($order->payment_method, ['bkash', 'nagad']))
+                                <div class="muted" style="font-size:12px; margin-top:4px;">
+                                    <strong>{{ strtoupper($order->payment_method) }}</strong><br>
+                                    Trx: {{ $order->transaction_id ?? 'N/A' }}<br>
+                                    From: {{ $order->sender_number ?? 'N/A' }}
+                                </div>
+                            @endif
+                        </td>
                         <td>
                             @if ($order->prescription_path)
                                 <a href="{{ route('pharmacist.orders.prescription', $order) }}" target="_blank">View file</a>

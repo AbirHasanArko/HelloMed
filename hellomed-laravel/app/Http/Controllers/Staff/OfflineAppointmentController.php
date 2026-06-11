@@ -37,12 +37,13 @@ class OfflineAppointmentController extends Controller
             'scheduled_time' => 'required|date_format:H:i',
             'reason' => 'required|string|max:1000',
             'date_of_birth' => 'nullable|date|before:today',
-            'gender' => 'nullable|string|max:50',
-            'height' => 'nullable|string|max:50',
-            'weight' => 'nullable|string|max:50',
-            'allergies' => 'nullable|string|max:3000',
-            'known_conditions' => 'nullable|string|max:3000',
-            'medical_notes' => 'nullable|string|max:5000',
+            'gender' => ['nullable', 'string', 'in:Male,Female,Other'],
+            'height' => ['nullable', 'string', 'max:20'],
+            'weight' => ['nullable', 'string', 'max:20'],
+            'allergies' => ['nullable', 'string', 'max:500'],
+            'known_conditions' => ['nullable', 'string', 'max:1000'],
+            'medical_notes' => ['nullable', 'string', 'max:1000'],
+            'override_payment_amount' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         return DB::transaction(function () use ($request, $validated) {
@@ -103,8 +104,19 @@ class OfflineAppointmentController extends Controller
                 'scheduled_for' => $scheduledFor,
                 'reason' => $validated['reason'],
                 'status' => 'confirmed',
-                'payment_status' => 'not_required',
+                'payment_status' => isset($validated['override_payment_amount']) ? 'paid' : 'not_required',
             ]);
+
+            if (isset($validated['override_payment_amount'])) {
+                \App\Models\Payment::query()->create([
+                    'appointment_id' => $appointment->id,
+                    'user_id' => $user?->id,
+                    'method' => 'cash-counter',
+                    'amount' => $validated['override_payment_amount'],
+                    'status' => 'paid',
+                    'paid_at' => now(),
+                ]);
+            }
 
             $successMsg = 'Offline appointment successfully booked for ' . $validated['patient_name'] . '.';
             if ($user && $user->wasRecentlyCreated) {

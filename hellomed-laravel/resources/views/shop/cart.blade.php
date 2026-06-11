@@ -65,12 +65,52 @@
                 </label>
                 <label>
                     Payment method
-                    <select name="payment_method" required>
+                    <select name="payment_method" id="cart-payment-method-select" required>
                         <option value="cash-on-delivery">Cash on delivery</option>
                         <option value="bkash">bKash</option>
                         <option value="nagad">Nagad</option>
                     </select>
                 </label>
+
+                <div id="cart-mobile-payment-details" style="display: none; margin-top: 16px; padding: 16px; background: rgba(0,0,0,0.05); border-radius: 8px; border: 1px solid var(--border);">
+                    <h4 style="margin-bottom: 8px;">Mobile Payment Instructions</h4>
+                    <p style="font-size: 13px; margin-bottom: 16px;">
+                        Please send the exact amount to the Hospital's <span id="cart-payment-provider-name">bKash/Nagad</span> number: <strong>01234567890</strong> (Personal).<br>
+                        After sending the money, please enter your sender number and transaction ID below to verify your payment.
+                    </p>
+                    
+                    <label>
+                        Your Sender Number
+                        <input type="text" name="sender_number" value="{{ old('sender_number') }}" placeholder="e.g. 01712345678">
+                    </label>
+                    <label>
+                        Transaction ID
+                        <input type="text" name="transaction_id" value="{{ old('transaction_id') }}" placeholder="e.g. 8M32K91L">
+                    </label>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const select = document.getElementById('cart-payment-method-select');
+                        const detailsDiv = document.getElementById('cart-mobile-payment-details');
+                        const providerSpan = document.getElementById('cart-payment-provider-name');
+                        
+                        if(select && detailsDiv) {
+                            select.addEventListener('change', () => {
+                                if(select.value === 'bkash' || select.value === 'nagad') {
+                                    detailsDiv.style.display = 'block';
+                                    providerSpan.innerText = select.value === 'bkash' ? 'bKash' : 'Nagad';
+                                } else {
+                                    detailsDiv.style.display = 'none';
+                                }
+                            });
+                            if(select.value === 'bkash' || select.value === 'nagad') {
+                                detailsDiv.style.display = 'block';
+                                providerSpan.innerText = select.value === 'bkash' ? 'bKash' : 'Nagad';
+                            }
+                        }
+                    });
+                </script>
                 <label>
                     Notes
                     <textarea name="notes">{{ old('notes') }}</textarea>

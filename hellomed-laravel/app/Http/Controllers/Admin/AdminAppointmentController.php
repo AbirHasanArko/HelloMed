@@ -12,7 +12,7 @@ class AdminAppointmentController extends Controller
 {
     public function index(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse|\Illuminate\Contracts\View\View
     {
-        $query = Appointment::query()->with(['doctor.department', 'user.patientProfile']);
+        $query = Appointment::query()->with(['doctor.department', 'user.patientProfile', 'payments']);
 
         $result = Appointment::handleSearchAndFilters($request, $query, function ($appointment) {
             return [

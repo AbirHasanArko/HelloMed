@@ -116,8 +116,13 @@
                     <input type="time" name="scheduled_time" value="{{ old('scheduled_time') }}" required>
                 </div>
                 <div style="grid-column: span 2;">
-                    <label>Reason for Visit</label>
+                    <label>Reason for Visit <span style="color:var(--error-text);">*</span></label>
                     <textarea name="reason" rows="3" required>{{ old('reason') }}</textarea>
+                </div>
+                <div style="grid-column: span 2; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                    <label>Override Payment Amount (Optional)</label>
+                    <p class="muted" style="margin-top: 0; margin-bottom: 8px;">If provided, a payment record will be created for this amount as paid at the cash counter.</p>
+                    <input type="number" step="0.01" min="0" name="override_payment_amount" value="{{ old('override_payment_amount') }}" placeholder="e.g. 500">
                 </div>
             </div>
 
