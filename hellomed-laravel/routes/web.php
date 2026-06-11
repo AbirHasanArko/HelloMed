@@ -166,6 +166,7 @@ Route::prefix('staff')
         Route::get('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'create'])->name('offline-appointments.create');
         Route::post('/offline-appointments', [\App\Http\Controllers\Staff\OfflineAppointmentController::class, 'store'])->name('offline-appointments.store');
         Route::get('/lab-tests', [StaffLabTestController::class, 'index'])->name('lab-tests.index');
+        Route::patch('/lab-tests/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('lab-tests.mark-paid');
         Route::post('/lab-tests/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('lab-tests.upload');
     });
 

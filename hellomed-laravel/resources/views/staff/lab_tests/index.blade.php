@@ -29,6 +29,58 @@
             </div>
         @endif
 
+        <!-- Filter Bar -->
+        <div class="card" style="margin-bottom: 24px; padding: 16px;">
+            <strong style="display: block; margin-bottom: 12px;">Filter Requests</strong>
+            <form method="GET" action="{{ route('lab-tests.index') }}" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;">
+                <input type="hidden" name="status" value="{{ $currentStatus }}">
+                
+                <label style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                    Patient Name
+                    <input type="text" name="patient_name" list="patient-names" value="{{ $filters['patient_name'] ?? '' }}" placeholder="Type to search...">
+                </label>
+                
+                <label style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                    Doctor Name
+                    <input type="text" name="doctor_name" list="doctor-names" value="{{ $filters['doctor_name'] ?? '' }}" placeholder="Type to search...">
+                </label>
+                
+                <label style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                    Test Name
+                    <input type="text" name="test_name" list="test-names" value="{{ $filters['test_name'] ?? '' }}" placeholder="Type to search...">
+                </label>
+
+                <label style="flex: 1; min-width: 130px; margin-bottom: 0;">
+                    Date
+                    <input type="date" name="date" value="{{ $filters['date'] ?? '' }}">
+                </label>
+
+                <div style="display: flex; gap: 8px;">
+                    <button class="button" type="submit">Filter</button>
+                    @if(array_filter($filters))
+                        <a href="{{ route('lab-tests.index', ['status' => $currentStatus]) }}" class="ghost-button">Clear</a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        <datalist id="patient-names">
+            @foreach($patientNames as $name)
+                <option value="{{ $name }}">{{ $name }}</option>
+            @endforeach
+        </datalist>
+        <datalist id="doctor-names">
+            @foreach($doctorNames as $name)
+                <option value="{{ $name }}">{{ $name }}</option>
+            @endforeach
+        </datalist>
+        <datalist id="test-names">
+            @foreach($availableTests as $name)
+                <option value="{{ $name }}">{{ $name }}</option>
+            @endforeach
+        </datalist>
+
+        <!-- List -->
         <div class="card">
             @if($currentStatus === 'pending')
                 <div class="tag">Pending Uploads</div>
@@ -60,22 +112,36 @@
                         </div>
 
                         @if($test->status === 'pending')
-                            <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light); margin-top: 8px;">
-                                <strong>Upload Result Document</strong>
-                                <form method="POST" action="{{ route('lab-tests.upload', $test) }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end; margin-top: 8px;">
-                                    @csrf
-                                    <label style="flex: 1; margin-bottom: 0;">
-                                        File (PDF, JPG, PNG) max 5MB
-                                        <input type="file" name="result_file" accept=".pdf,.jpg,.jpeg,.png" required style="background: var(--surface);">
-                                    </label>
-                                    <button class="button" type="submit">Upload & Complete</button>
-                                </form>
-                            </div>
+                            @if($test->payment_status === 'unpaid')
+                                <div style="background: var(--error-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--error-border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+                                    <strong style="color: var(--error-text);">Payment Required Before Upload</strong>
+                                    <form method="POST" action="{{ route('lab-tests.mark-paid', $test) }}">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button class="button" type="submit" style="background: var(--primary); color: white;" onclick="return confirm('Confirm payment received for this test?')">Mark as Paid</button>
+                                    </form>
+                                </div>
+                            @else
+                                <div style="background: var(--bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border-light); margin-top: 8px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <strong>Upload Result Document</strong>
+                                        <span style="color: var(--badge-green-text); font-weight: bold; font-size: 12px;">✓ Paid</span>
+                                    </div>
+                                    <form method="POST" action="{{ route('lab-tests.upload', $test) }}" enctype="multipart/form-data" style="display: flex; gap: 12px; align-items: flex-end;">
+                                        @csrf
+                                        <label style="flex: 1; margin-bottom: 0;">
+                                            File (PDF, JPG, PNG) max 5MB
+                                            <input type="file" name="result_file" accept=".pdf,.jpg,.jpeg,.png" required style="background: var(--surface);">
+                                        </label>
+                                        <button class="button" type="submit">Upload & Complete</button>
+                                    </form>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 @empty
                     <div class="list-item" style="text-align: center; color: var(--muted); padding: 32px 0;">
-                        No {{ $currentStatus }} lab test requests found.
+                        No {{ $currentStatus }} lab test requests found matching your filters.
                     </div>
                 @endforelse
             </div>

@@ -15,6 +15,7 @@ class LabTestRequest extends Model
         'test_name',
         'notes',
         'status',
+        'payment_status',
         'result_file_path',
         'uploaded_by',
     ];
