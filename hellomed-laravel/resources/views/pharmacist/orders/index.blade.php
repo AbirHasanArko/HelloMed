@@ -69,7 +69,7 @@
                             @endif
                         </td>
                         <td>
-                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}" style="display:flex; flex-direction:column; gap:8px;">
+                            <form method="POST" action="{{ route('pharmacist.orders.update', $order) }}" style="display:flex; flex-direction:column; gap:8px;" autocomplete="off">
                                 @csrf
                                 @method('PATCH')
                                 <div>
