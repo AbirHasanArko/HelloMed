@@ -39,6 +39,7 @@ class AdminAppointmentController extends Controller
 
         $validated = $request->validate([
             'status' => ['required', 'in:pending,confirmed,completed,cancelled'],
+            'payment_status' => ['required', 'in:pending,paid,failed,refunded,not_required'],
         ]);
 
         $appointment->update($validated);

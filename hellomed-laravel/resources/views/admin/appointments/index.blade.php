@@ -61,15 +61,20 @@
                             </td>
                             <td>{{ $appointment->status }}</td>
                             <td>
-                                <form method="POST" action="{{ route('admin.appointments.update', $appointment) }}">
+                                <form method="POST" action="{{ route('admin.appointments.update', $appointment) }}" style="display: flex; flex-direction: column; gap: 8px;">
                                     @csrf
                                     @method('PATCH')
-                                    <select name="status">
+                                    <select name="status" title="Appointment Status">
                                         @foreach (['pending', 'confirmed', 'completed', 'cancelled'] as $status)
-                                            <option value="{{ $status }}" @selected($appointment->status === $status)>{{ $status }}</option>
+                                            <option value="{{ $status }}" @selected($appointment->status === $status)>{{ ucfirst($status) }}</option>
                                         @endforeach
                                     </select>
-                                    <button class="button" type="submit">Update</button>
+                                    <select name="payment_status" title="Payment Status">
+                                        @foreach (['pending', 'paid', 'failed', 'refunded', 'not_required'] as $pStatus)
+                                            <option value="{{ $pStatus }}" @selected($appointment->payment_status === $pStatus)>{{ ucfirst(str_replace('_', ' ', $pStatus)) }}</option>
+                                        @endforeach
+                                    </select>
+                                    <button class="button" type="submit" style="padding: 4px 8px; font-size: 13px;">Update</button>
                                 </form>
                             </td>
                         </tr>
