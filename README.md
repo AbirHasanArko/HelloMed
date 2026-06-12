@@ -364,6 +364,13 @@ php artisan optimize:clear
 php artisan migrate:fresh --seed
 ```
 
+## Recent Updates
+
+- **Medicines Seeding & Image Assignment:** Added `app:import-medicines-csv` to seed medicines from a CSV file and `app:assign-medicine-images` to automatically map generated placeholder images to existing inventory based on type.
+- **E-Pharmacy Enhancements:** Implemented a new search panel allowing patients to search medicines by name or filter by group. Fixed pagination layout to use a completely custom, pure vanilla CSS and HTML design instead of default Tailwind.
+- **Inventory Management:** Upgraded the pharmacist and admin medicine forms to support multipart file uploads for custom medicine images, complete with image previews.
+- **Pharmacy Financial Tracking:** Added `buying_price` to the `medicines` table to track wholesale inventory costs. Implemented the `app:seed-buying-prices` command to calculate approximate buying prices based on typical industry profit margins (e.g., generics, branded, OTC). The pharmacy management dashboard now features an Income/Expense/Profit overview to track total inventory expenses, sales income, and net profit.
+
 ## License
 
 Copyright (c) 2026 Abir Hasan Arko. All rights reserved.

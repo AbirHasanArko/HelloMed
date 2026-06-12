@@ -559,24 +559,52 @@
         }
 
         /* ===== PAGINATION ===== */
-        nav[aria-label="Pagination Navigation"] span,
+        nav[aria-label="Pagination Navigation"] {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        nav[aria-label="Pagination Navigation"] .sm\:hidden { display: none; }
+        nav[aria-label="Pagination Navigation"] .sm\:flex { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 16px; flex-wrap: wrap; }
+        @media (max-width: 640px) {
+            nav[aria-label="Pagination Navigation"] .sm\:hidden { display: flex; justify-content: space-between; width: 100%; gap: 12px; }
+            nav[aria-label="Pagination Navigation"] .sm\:flex { display: none; }
+        }
+        nav[aria-label="Pagination Navigation"] svg {
+            width: 18px;
+            height: 18px;
+        }
+        nav[aria-label="Pagination Navigation"] span.relative.inline-flex,
+        nav[aria-label="Pagination Navigation"] span.inline-flex.rtl\:flex-row-reverse {
+            display: inline-flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        nav[aria-label="Pagination Navigation"] span[aria-disabled="true"] span,
+        nav[aria-label="Pagination Navigation"] span[aria-disabled="true"],
         nav[aria-label="Pagination Navigation"] a {
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 8px;
             border: 1px solid var(--border);
             font-size: 13px;
+            font-weight: 500;
             background: var(--surface);
             color: var(--text);
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         nav[aria-label="Pagination Navigation"] a:hover {
             border-color: var(--primary);
             color: var(--primary);
+            box-shadow: var(--shadow-sm);
         }
         nav[aria-label="Pagination Navigation"] span[aria-current="page"] span {
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: white;
             border-color: transparent;
+            box-shadow: var(--shadow-sm);
         }
 
         /* ===== ANIMATIONS ===== */

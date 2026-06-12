@@ -7,6 +7,15 @@
     <input type="text" name="medicine_group" value="{{ old('medicine_group', $medicine?->medicine_group) }}" placeholder="Paracetamol" required>
 </label>
 <label>
+    Image
+    @if($medicine?->image_path)
+        <div style="margin-bottom: 8px;">
+            <img src="{{ Storage::url($medicine->image_path) }}" alt="Medicine Image" style="max-height: 100px; border-radius: 4px;">
+        </div>
+    @endif
+    <input type="file" name="image" accept="image/*">
+</label>
+<label>
     Description
     <textarea name="description">{{ old('description', $medicine?->description) }}</textarea>
 </label>
@@ -23,7 +32,11 @@
     <input type="text" name="manufacturer" value="{{ old('manufacturer', $medicine?->manufacturer) }}">
 </label>
 <label>
-    Price
+    Buying Price
+    <input type="number" step="0.01" min="0" name="buying_price" value="{{ old('buying_price', $medicine?->buying_price) }}">
+</label>
+<label>
+    Selling Price
     <input type="number" step="0.01" min="0" name="price" value="{{ old('price', $medicine?->price) }}" required>
 </label>
 <label>

@@ -13,5 +13,12 @@
         <div class="stat"><strong>{{ $pendingOrders }}</strong><span class="muted">Pending orders</span></div>
         <div class="stat"><strong>{{ $processingOrders }}</strong><span class="muted">Processing orders</span></div>
     </div>
+    
+    <h2 style="margin-top: 2rem;">Finances</h2>
+    <div class="grid cols-3">
+        <div class="stat"><strong>৳{{ number_format($expense, 2) }}</strong><span class="muted">Expense (Inventory Cost)</span></div>
+        <div class="stat"><strong>৳{{ number_format($income, 2) }}</strong><span class="muted">Income (Sales)</span></div>
+        <div class="stat"><strong>৳{{ number_format($profit, 2) }}</strong><span class="muted">Profit</span></div>
+    </div>
 </section>
 @endsection

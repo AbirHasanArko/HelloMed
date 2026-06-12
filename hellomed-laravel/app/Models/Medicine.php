@@ -19,10 +19,12 @@ class Medicine extends Model
         'medicine_group',
         'slug',
         'description',
+        'image_path',
         'strength',
         'power',
         'amount',
         'manufacturer',
+        'buying_price',
         'price',
         'stock_quantity',
         'is_active',
@@ -30,6 +32,7 @@ class Medicine extends Model
     ];
 
     protected $casts = [
+        'buying_price' => 'decimal:2',
         'price' => 'decimal:2',
         'stock_quantity' => 'integer',
         'is_active' => 'boolean',

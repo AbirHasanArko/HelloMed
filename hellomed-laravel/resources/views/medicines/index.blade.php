@@ -13,6 +13,31 @@
             View cart
         </a>
     </div>
+
+    <div class="panel fade-in" style="margin-bottom: 24px; padding: 16px;">
+        <form method="GET" action="{{ route('medicines.index') }}" style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px;">
+                <label for="search" style="margin-bottom: 6px;">Search</label>
+                <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Search by name or group..." style="margin-top: 0;">
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <label for="group" style="margin-bottom: 6px;">Filter by Group</label>
+                <select id="group" name="group" style="margin-top: 0;">
+                    <option value="">All Groups</option>
+                    @foreach ($groups as $group)
+                        <option value="{{ $group }}" @selected(request('group') === $group)>{{ $group }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 2px;">
+                <button type="submit" class="button">Search</button>
+                @if(request()->hasAny(['search', 'group']) && (request('search') || request('group')))
+                    <a href="{{ route('medicines.index') }}" class="ghost-button">Clear</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <div class="grid cols-4">
         @foreach ($medicines as $medicine)
             <div class="card photo-card fade-in">
