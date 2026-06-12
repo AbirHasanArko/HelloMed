@@ -42,6 +42,7 @@ use App\Http\Controllers\Pharmacist\OrderController as PharmacistOrderController
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\LabTestController as StaffLabTestController;
 use App\Http\Controllers\LabTestDownloadController;
+use App\Http\Controllers\Frontend\AiChatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -157,6 +158,17 @@ Route::prefix('api/notifications')
         Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index'])->name('index');
         Route::post('/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'readAll'])->name('read-all');
         Route::post('/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'read'])->name('read');
+    });
+
+// ── AI Health Assistant API ─────────────────────────────────────────────────
+// No auth required — guests can also chat with the AI
+Route::prefix('api/ai')
+    ->name('ai.')
+    ->group(function (): void {
+        Route::post('/chat', [AiChatController::class, 'chat'])->name('chat');
+        Route::get('/chat/status', [AiChatController::class, 'status'])->name('chat.status');
+        Route::post('/chat/feedback', [AiChatController::class, 'feedback'])
+            ->name('chat.feedback');
     });
 
 Route::prefix('pharmacist')
