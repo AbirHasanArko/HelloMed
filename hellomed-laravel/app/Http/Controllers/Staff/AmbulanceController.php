@@ -75,23 +75,26 @@ class AmbulanceController extends Controller
     public function update(Request $request, AmbulanceRequest $ambulance)
     {
         $validated = $request->validate([
-            'patient_name' => 'required|string|max:255',
-            'patient_phone' => 'required|string|max:255',
+            'status' => 'required|in:pending,dispatched,resolved,cancelled',
+            'patient_name' => 'sometimes|required|string|max:255',
+            'patient_phone' => 'sometimes|required|string|max:255',
             'latitude' => 'nullable|string|max:255',
             'longitude' => 'nullable|string|max:255',
-            'address' => 'required|string|max:1000',
-            'status' => 'required|in:pending,dispatched,resolved,cancelled',
+            'address' => 'sometimes|required|string|max:1000',
             'notes' => 'nullable|string',
         ]);
 
         $data = $validated;
 
-        if ($request->status === 'dispatched' && $ambulance->status !== 'dispatched') {
+        $statusChangedToDispatched = $request->status === 'dispatched' && $ambulance->status !== 'dispatched';
+        $statusChangedToResolved = $request->status === 'resolved' && $ambulance->status !== 'resolved';
+
+        if ($statusChangedToDispatched) {
             $data['dispatched_at'] = now();
             if (!$ambulance->staff_id) {
                 $data['staff_id'] = auth()->id();
             }
-        } elseif ($request->status === 'resolved' && $ambulance->status !== 'resolved') {
+        } elseif ($statusChangedToResolved) {
             $data['resolved_at'] = now();
             if (!$ambulance->staff_id) {
                 $data['staff_id'] = auth()->id();
@@ -101,11 +104,18 @@ class AmbulanceController extends Controller
         $ambulance->update($data);
 
         if ($ambulance->user) {
-            if ($request->status === 'dispatched' && $ambulance->getOriginal('status') !== 'dispatched') {
+            if ($statusChangedToDispatched) {
                 $ambulance->user->notify(new \App\Notifications\SystemNotification(
                     'Ambulance Dispatched',
                     "Your ambulance request has been dispatched. Driver is on the way.",
                     'important',
+                    null
+                ));
+            } elseif ($statusChangedToResolved) {
+                $ambulance->user->notify(new \App\Notifications\SystemNotification(
+                    'Ambulance Resolved',
+                    "Your ambulance request has been marked as resolved.",
+                    'normal',
                     null
                 ));
             }

@@ -18,6 +18,7 @@ class SendAppointmentReminders extends Command
         $sentCount = 0;
 
         $sentCount += $this->sendWindowReminders(24, 20);
+        $sentCount += $this->sendWindowReminders(2, 20);
         $sentCount += $this->sendWindowReminders(1, 20);
 
         $this->info("Appointment reminders processed. Sent: {$sentCount}");
@@ -57,6 +58,15 @@ class SendAppointmentReminders extends Command
                 $appointment,
                 ['hours_ahead' => $hoursAhead]
             );
+
+            if ($appointment->user) {
+                $appointment->user->notify(new \App\Notifications\SystemNotification(
+                    'Upcoming Appointment',
+                    "Reminder: You have an appointment with {$appointment->doctor?->name} in {$hoursAhead} hour(s) at {$appointment->scheduled_for?->format('h:i A')}.",
+                    'moderate',
+                    route('patient.appointments.show', $appointment)
+                ));
+            }
 
             $sent++;
         }

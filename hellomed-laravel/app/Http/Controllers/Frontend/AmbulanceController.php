@@ -33,6 +33,17 @@ class AmbulanceController extends Controller
             'status' => 'pending',
         ]);
 
+        if (auth()->check()) {
+            $user = auth()->user();
+            $user->update(['phone' => $request->patient_phone]);
+            if ($request->address) {
+                $user->patientProfile()->updateOrCreate(
+                    ['user_id' => $user->id],
+                    ['address' => $request->address]
+                );
+            }
+        }
+
         $adminStaff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
         foreach ($adminStaff as $staff) {
             $staff->notify(new \App\Notifications\SystemNotification(

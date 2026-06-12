@@ -17,12 +17,12 @@
                 
                 <div style="margin-bottom: 16px;">
                     <label>Contact Phone</label>
-                    <input type="tel" name="patient_phone" required placeholder="Enter active phone number">
+                    <input type="tel" name="patient_phone" value="{{ auth()->user()->phone ?? '' }}" required placeholder="Enter active phone number">
                 </div>
 
                 <div style="margin-bottom: 24px;">
                     <label>Address / Location details</label>
-                    <textarea name="address" rows="3" placeholder="Enter building, street, or landmark details"></textarea>
+                    <textarea name="address" rows="3" placeholder="Enter building, street, or landmark details">{{ auth()->check() ? (auth()->user()->patientProfile->address ?? '') : '' }}</textarea>
                     
                     <div style="margin-top: 12px; display:flex; align-items:center; gap: 10px;">
                         <button type="button" class="ghost-button" id="getLocationBtn" style="color: var(--primary);">

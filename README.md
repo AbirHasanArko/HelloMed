@@ -44,6 +44,15 @@ Developed with a clean, premium teal-and-white aesthetic, HelloMed focuses on us
   - Patients and doctors can securely download completed lab results from the platform.
 - **Comprehensive Admin Dashboard**
   - Statistical overviews, CMS management, doctor scheduling, and system-wide audit logging.
+- **In-Website Notification System**
+  - Role-based notifications for Patients, Doctors, Pharmacists, Staff, and Admins.
+  - Async polling for unread badges and clickable notification cards with severity indicators (Red/Yellow/Green).
+  - Automated alerts for appointment updates, new chat messages, lab results, prescriptions, ambulance dispatch, medicine orders, and low stock warnings.
+- **Online Payment Integrations**
+  - Support for manual payment verification (bKash & Nagad) including sender number and transaction ID tracking during appointments and medicine purchases.
+- **Enhanced E-Pharmacy Workflow**
+  - Geolocation support allowing patients to share their current location, providing pharmacists with direct Google Maps links for delivery.
+  - Ability for pharmacists to explicitly override default order and payment statuses.
 
 ---
 

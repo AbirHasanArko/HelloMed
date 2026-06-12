@@ -97,7 +97,7 @@ class LabTestController extends Controller
                 'Diagnostic Result Ready',
                 "Your diagnostic result for {$labTest->test_name} is now available.",
                 'important',
-                route('patient.records')
+                route('patient.appointments.show', $labTest->appointment)
             ));
         }
 
