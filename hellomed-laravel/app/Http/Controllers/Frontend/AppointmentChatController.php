@@ -86,6 +86,27 @@ class AppointmentChatController extends Controller
             'attachment_size' => $attachmentSize,
         ]);
 
+        $recipientUser = null;
+        $actionUrl = null;
+        if ($user->id === $appointment->user_id) {
+            // Patient sent message, notify Doctor
+            $recipientUser = $appointment->doctor?->user;
+            $actionUrl = route('doctor.appointments.show', $appointment);
+        } else {
+            // Doctor sent message, notify Patient
+            $recipientUser = $appointment->user;
+            $actionUrl = route('patient.appointments.show', $appointment);
+        }
+
+        if ($recipientUser) {
+            $recipientUser->notify(new \App\Notifications\SystemNotification(
+                'New Message',
+                "You have a new message from " . $user->name . " regarding appointment #{$appointment->id}.",
+                'normal',
+                $actionUrl
+            ));
+        }
+
         return back()->with('status', 'Message sent.');
     }
 

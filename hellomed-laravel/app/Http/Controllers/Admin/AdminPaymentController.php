@@ -40,6 +40,24 @@ class AdminPaymentController extends Controller
                     $message->to($payment->appointment->patient_email)->subject('HelloMed Payment Status Updated');
                 }
             );
+
+            if ($payment->user) {
+                $payment->user->notify(new \App\Notifications\SystemNotification(
+                    'Payment ' . ucfirst($payment->status),
+                    "Your payment of ৳{$payment->amount} for appointment #{$payment->appointment_id} is {$payment->status}.",
+                    $payment->status === 'paid' ? 'normal' : 'moderate',
+                    route('patient.appointments.show', $payment->appointment)
+                ));
+            }
+
+            if ($payment->status === 'paid' && $payment->appointment->doctor?->user) {
+                $payment->appointment->doctor->user->notify(new \App\Notifications\SystemNotification(
+                    'Payment Arrived',
+                    "Payment of ৳{$payment->amount} arrived for appointment #{$payment->appointment_id}.",
+                    'normal',
+                    route('doctor.appointments.show', $payment->appointment)
+                ));
+            }
         }
 
         return back()->with('status', 'Payment status updated.');

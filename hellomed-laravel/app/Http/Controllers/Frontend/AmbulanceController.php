@@ -23,7 +23,7 @@ class AmbulanceController extends Controller
             'longitude' => 'nullable|numeric',
         ]);
 
-        AmbulanceRequest::create([
+        $ambulance = AmbulanceRequest::create([
             'user_id' => auth()->id(),
             'patient_name' => $request->patient_name,
             'patient_phone' => $request->patient_phone,
@@ -32,6 +32,16 @@ class AmbulanceController extends Controller
             'address' => $request->address,
             'status' => 'pending',
         ]);
+
+        $adminStaff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
+        foreach ($adminStaff as $staff) {
+            $staff->notify(new \App\Notifications\SystemNotification(
+                'New Ambulance Request',
+                "{$request->patient_name} requested an ambulance at {$request->address}.",
+                'important',
+                route($staff->role . '.ambulance.index')
+            ));
+        }
 
         return redirect()->route('home')->with('success', 'Ambulance requested successfully! Our team will contact you immediately.');
     }

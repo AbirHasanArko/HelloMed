@@ -92,6 +92,15 @@ class LabTestController extends Controller
             'uploaded_by' => $request->user()->id,
         ]);
 
+        if ($labTest->appointment && $labTest->appointment->user) {
+            $labTest->appointment->user->notify(new \App\Notifications\SystemNotification(
+                'Diagnostic Result Ready',
+                "Your diagnostic result for {$labTest->test_name} is now available.",
+                'important',
+                route('patient.records')
+            ));
+        }
+
         return back()->with('status', 'Diagnostic service result uploaded successfully.');
     }
 

@@ -197,6 +197,29 @@ class MedicineCartController extends Controller
 
         $request->session()->forget('medicine_cart');
 
+        $pharmacists = \App\Models\User::where('role', 'pharmacist')->get();
+        foreach ($pharmacists as $pharmacist) {
+            $pharmacist->notify(new \App\Notifications\SystemNotification(
+                'New Medicine Order',
+                "Order {$order->order_number} has been placed by {$request->user()->name}.",
+                'important',
+                route('pharmacist.orders.index')
+            ));
+        }
+
+        foreach ($order->items as $item) {
+            if ($item->medicine->stock_quantity <= 10) { // threshold for low stock
+                foreach ($pharmacists as $pharmacist) {
+                    $pharmacist->notify(new \App\Notifications\SystemNotification(
+                        'Low Stock Alert',
+                        "Medicine '{$item->medicine->name}' is running low on stock ({$item->medicine->stock_quantity} remaining).",
+                        'important',
+                        route('pharmacist.medicines.index')
+                    ));
+                }
+            }
+        }
+
         return redirect()->route('patient.medicine-orders.show', $order)->with('status', 'Medicine order placed successfully. Payment is pending verification.');
     }
 }

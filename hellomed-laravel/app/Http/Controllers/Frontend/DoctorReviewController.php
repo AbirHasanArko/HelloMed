@@ -32,6 +32,15 @@ class DoctorReviewController extends Controller
             'rating' => $review->rating,
         ]);
 
+        if ($doctor->user) {
+            $doctor->user->notify(new \App\Notifications\SystemNotification(
+                'New Review Received',
+                "{$request->user()->name} left a {$review->rating}-star rating.",
+                'normal',
+                route('doctors.show', $doctor)
+            ));
+        }
+
         return back()->with('status', 'Doctor rating submitted successfully.');
     }
 }

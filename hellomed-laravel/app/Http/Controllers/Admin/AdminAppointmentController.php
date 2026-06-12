@@ -58,6 +58,15 @@ class AdminAppointmentController extends Controller
             $appointment
         );
 
+        if ($appointment->user) {
+            $appointment->user->notify(new \App\Notifications\SystemNotification(
+                'Appointment Status Updated',
+                "Your appointment with Dr. {$appointment->doctor->name} is now {$appointment->status}.",
+                'moderate',
+                route('patient.appointments.show', $appointment)
+            ));
+        }
+
         return back()->with('status', 'Appointment updated.');
     }
 }

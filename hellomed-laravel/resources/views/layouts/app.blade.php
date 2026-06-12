@@ -771,6 +771,104 @@
 
         /* ===== PRICE DISPLAY ===== */
         .price { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+
+        /* ===== NOTIFICATION PANEL ===== */
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 340px;
+            max-height: 480px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 200;
+            margin-top: 12px;
+            transform-origin: top right;
+            animation: dropdownScale 0.2s ease forwards;
+        }
+        @keyframes dropdownScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .notification-dropdown.active { display: flex; }
+        .notification-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface-hover);
+        }
+        .notification-header h3 { font-size: 14px; font-weight: 700; margin: 0; }
+        .notification-header button {
+            background: none; border: none; font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600;
+        }
+        .notification-header button:hover { color: var(--primary-strong); text-decoration: underline; }
+        .notification-body {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 0;
+        }
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+            text-decoration: none;
+            color: var(--text);
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        .notification-item:hover { background: var(--surface-hover); }
+        .notification-item.unread { background: var(--notice-bg); }
+        .notification-item.unread:hover { background: var(--notice-border); }
+        .notification-indicator {
+            width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0;
+        }
+        .notification-indicator.important { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+        .notification-indicator.moderate { background: #eab308; box-shadow: 0 0 8px rgba(234, 179, 8, 0.4); }
+        .notification-indicator.normal { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.4); }
+        .notification-content { flex-grow: 1; min-width: 0; }
+        .notification-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+        .notification-message { font-size: 12px; color: var(--text-secondary); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .notification-time { font-size: 11px; color: var(--muted); margin-top: 4px; display: block; }
+        .notification-empty { padding: 32px 16px; text-align: center; color: var(--muted); font-size: 13px; }
+        
+        .notification-toggle-wrapper { position: relative; display: flex; align-items: center; }
+        .notification-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            color: var(--text);
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .notification-toggle:hover { border-color: var(--primary); color: var(--primary); background: var(--surface-hover); }
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            border: 2px solid var(--nav-bg);
+        }
     </style>
 </head>
 <body>
@@ -825,6 +923,25 @@
                     <a href="{{ route('register') }}" class="button">Register</a>
                 @endauth
                 <a href="{{ route('contact') }}">Contact</a>
+                
+                @auth
+                <div class="notification-toggle-wrapper" id="notificationWrapper">
+                    <button class="notification-toggle" id="notificationToggle" aria-label="Notifications">
+                        🔔
+                        <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h3>Notifications</h3>
+                            <button id="markAllReadBtn" style="display: none;">Mark all as read</button>
+                        </div>
+                        <div class="notification-body" id="notificationList">
+                            <!-- Notifications loaded via JS -->
+                        </div>
+                    </div>
+                </div>
+                @endauth
+
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
                     <span class="icon-sun">☀️</span>
                     <span class="icon-moon">🌙</span>
@@ -889,12 +1006,10 @@
     </footer>
 
     <script>
-        // === Theme Toggle ===
         function toggleTheme() {
-            const html = document.documentElement;
-            const current = html.getAttribute('data-theme');
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
             const next = current === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-theme', next);
+            document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('hm-theme', next);
         }
         (function initTheme() {
@@ -905,6 +1020,123 @@
                 document.documentElement.setAttribute('data-theme', 'dark');
             }
         })();
+
+        @auth
+        document.addEventListener('DOMContentLoaded', function() {
+            const wrapper = document.getElementById('notificationWrapper');
+            const toggle = document.getElementById('notificationToggle');
+            const dropdown = document.getElementById('notificationDropdown');
+            const badge = document.getElementById('notificationBadge');
+            const list = document.getElementById('notificationList');
+            const markAllBtn = document.getElementById('markAllReadBtn');
+            let unreadCount = 0;
+
+            toggle.addEventListener('click', () => {
+                dropdown.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            function timeSince(dateStr) {
+                const date = new Date(dateStr);
+                const seconds = Math.floor((new Date() - date) / 1000);
+                let interval = seconds / 31536000;
+                if (interval > 1) return Math.floor(interval) + " years ago";
+                interval = seconds / 2592000;
+                if (interval > 1) return Math.floor(interval) + " months ago";
+                interval = seconds / 86400;
+                if (interval > 1) return Math.floor(interval) + " days ago";
+                interval = seconds / 3600;
+                if (interval > 1) return Math.floor(interval) + " hours ago";
+                interval = seconds / 60;
+                if (interval > 1) return Math.floor(interval) + " minutes ago";
+                return Math.floor(seconds) + " seconds ago";
+            }
+
+            function renderNotifications(notifications) {
+                if (notifications.length === 0) {
+                    list.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
+                    markAllBtn.style.display = 'none';
+                    return;
+                }
+                
+                let html = '';
+                notifications.forEach(n => {
+                    const data = n.data;
+                    const isUnread = n.read_at === null;
+                    html += `
+                        <div class="notification-item ${isUnread ? 'unread' : ''}" data-id="${n.id}" data-url="${data.action_url || ''}">
+                            <div class="notification-indicator ${data.level || 'normal'}"></div>
+                            <div class="notification-content">
+                                <div class="notification-title">${data.title || 'Notification'}</div>
+                                <div class="notification-message">${data.message || ''}</div>
+                                <span class="notification-time">${timeSince(n.created_at)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                list.innerHTML = html;
+                
+                document.querySelectorAll('.notification-item').forEach(item => {
+                    item.addEventListener('click', async function(e) {
+                        const id = this.getAttribute('data-id');
+                        const url = this.getAttribute('data-url');
+                        if (this.classList.contains('unread')) {
+                            await fetch(`/api/notifications/${id}/read`, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                        }
+                        if (url) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            }
+
+            function fetchNotifications() {
+                fetch('/api/notifications', {
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    unreadCount = data.unread_count;
+                    if (unreadCount > 0) {
+                        badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+                        badge.style.display = 'grid';
+                        markAllBtn.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                        markAllBtn.style.display = 'none';
+                    }
+                    renderNotifications(data.notifications);
+                })
+                .catch(err => console.error(err));
+            }
+
+            markAllBtn.addEventListener('click', () => {
+                fetch('/api/notifications/read-all', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(() => fetchNotifications());
+            });
+
+            // Initial fetch
+            fetchNotifications();
+            // Poll every 60 seconds
+            setInterval(fetchNotifications, 60000);
+        });
+        @endauth
 
         // === Scroll Fade-In Observer ===
         document.addEventListener('DOMContentLoaded', function() {

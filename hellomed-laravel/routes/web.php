@@ -145,6 +145,15 @@ Route::get('/diagnostic-services/{labTest}/download', LabTestDownloadController:
     ->middleware(['auth'])
     ->name('diagnostic-services.download');
 
+Route::prefix('api/notifications')
+    ->name('api.notifications.')
+    ->middleware('auth')
+    ->group(function (): void {
+        Route::get('/', [\App\Http\Controllers\Api\NotificationController::class, 'index'])->name('index');
+        Route::post('/read-all', [\App\Http\Controllers\Api\NotificationController::class, 'readAll'])->name('read-all');
+        Route::post('/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'read'])->name('read');
+    });
+
 Route::prefix('pharmacist')
     ->name('pharmacist.')
     ->middleware(['auth', 'role:pharmacist'])

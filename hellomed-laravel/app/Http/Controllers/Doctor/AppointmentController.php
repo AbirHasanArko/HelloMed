@@ -214,6 +214,15 @@ class AppointmentController extends Controller
             ]);
         });
 
+        if ($appointment->user) {
+            $appointment->user->notify(new \App\Notifications\SystemNotification(
+                'Prescription Ready',
+                "Dr. {$doctor->user->name} has uploaded your prescription for appointment #{$appointment->id}.",
+                'important',
+                route('patient.appointments.show', $appointment)
+            ));
+        }
+
         return back()->with('status', 'Prescription saved. Patient can now download it as PDF.');
     }
 
@@ -233,6 +242,15 @@ class AppointmentController extends Controller
         ], [
             'status' => 'completed',
         ]);
+
+        if ($appointment->user) {
+            $appointment->user->notify(new \App\Notifications\SystemNotification(
+                'Appointment Completed',
+                "Your appointment with Dr. {$doctor->user->name} has been marked as completed.",
+                'normal',
+                route('patient.appointments.show', $appointment)
+            ));
+        }
 
         return back()->with('status', 'Appointment marked as completed.');
     }
@@ -295,6 +313,16 @@ class AppointmentController extends Controller
             AuditLogger::log('appointment.lab_test_requested', $appointment, [], [
                 'test_name' => $testName,
             ]);
+        }
+
+        $adminStaff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
+        foreach ($adminStaff as $staff) {
+            $staff->notify(new \App\Notifications\SystemNotification(
+                'New Diagnostic Test Request',
+                "Dr. {$doctor->user->name} prescribed lab tests for {$appointment->patient_name}.",
+                'moderate',
+                route($staff->role . '.diagnostic-services.index')
+            ));
         }
 
         return back()->with('status', 'Lab test requested successfully.');

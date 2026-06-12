@@ -100,6 +100,17 @@ class AdminAmbulanceController extends Controller
 
         $ambulance->update($data);
 
+        if ($ambulance->user) {
+            if ($request->status === 'dispatched' && $ambulance->getOriginal('status') !== 'dispatched') {
+                $ambulance->user->notify(new \App\Notifications\SystemNotification(
+                    'Ambulance Dispatched',
+                    "Your ambulance request has been dispatched. Driver is on the way.",
+                    'important',
+                    null
+                ));
+            }
+        }
+
         return back()->with('success', 'Ambulance request updated successfully.');
     }
 

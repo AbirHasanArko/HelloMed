@@ -141,6 +141,24 @@ class AppointmentController extends Controller
             'status' => $appointment->status,
             'service_mode' => $appointment->service_mode,
         ]);
+        if ($appointment->doctor && $appointment->doctor->user) {
+            $appointment->doctor->user->notify(new \App\Notifications\SystemNotification(
+                'New Appointment Request',
+                "{$appointment->patient_name} has requested an appointment on {$appointment->scheduled_for?->format('M d, Y h:i A')}.",
+                'important',
+                route('doctor.appointments.show', $appointment)
+            ));
+        }
+
+        $adminStaff = User::whereIn('role', ['admin', 'staff'])->get();
+        foreach ($adminStaff as $staff) {
+            $staff->notify(new \App\Notifications\SystemNotification(
+                'New Appointment Needs Approval',
+                "{$appointment->patient_name} requested an appointment with {$appointment->doctor->name}.",
+                'normal',
+                route($staff->role . '.appointments.index')
+            ));
+        }
 
         return redirect()
             ->route('home')
