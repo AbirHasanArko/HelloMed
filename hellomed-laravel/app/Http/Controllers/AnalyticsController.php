@@ -24,23 +24,104 @@ class AnalyticsController extends Controller
         ];
         
         if ($isAdmin) {
-            $viewData['totalFund'] = HospitalFundTransaction::sum('amount');
+            // Overall
+            $totalStaffPayouts = EmployeePayout::join('users', 'users.id', '=', 'employee_payouts.user_id')
+                ->where('users.role', '!=', 'doctor')
+                ->whereIn('employee_payouts.status', ['paid', 'confirmed'])
+                ->sum('employee_payouts.amount');
+
+            $viewData['totalFund'] = HospitalFundTransaction::whereIn('type', ['appointment_cut', 'test_fee', 'medicine_sale'])->sum('amount') 
+                                   - HospitalFundTransaction::where('type', 'medicine_expense')->sum('amount')
+                                   - $totalStaffPayouts;
             $viewData['totalPayouts'] = EmployeePayout::whereIn('status', ['paid', 'confirmed'])->sum('amount');
             
+            // Pharmacy
+            $viewData['pharmacySales'] = HospitalFundTransaction::where('type', 'medicine_sale')->sum('amount');
+            $viewData['pharmacyExpense'] = HospitalFundTransaction::where('type', 'medicine_expense')->sum('amount');
+            
+            $viewData['pharmacyMonthly'] = HospitalFundTransaction::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, type, SUM(amount) as total')
+                ->whereIn('type', ['medicine_sale', 'medicine_expense'])
+                ->groupBy('month', 'type')
+                ->orderBy('month')
+                ->get();
+
+            // Tests
+            $viewData['testRevenue'] = HospitalFundTransaction::where('type', 'test_fee')->sum('amount');
+
+            // Consultancy & Doctor Filter
+            $viewData['doctors'] = \App\Models\Doctor::all();
+            
+            $consultancyQuery = \App\Models\Appointment::where('status', 'completed');
+            if ($request->filled('doctor_id')) {
+                $consultancyQuery->where('doctor_id', $request->input('doctor_id'));
+                $viewData['selectedDoctorId'] = $request->input('doctor_id');
+            } else {
+                $viewData['selectedDoctorId'] = null;
+            }
+
+            // Using Appointment table to calculate cuts so it responds perfectly to the doctor_id filter
+            $viewData['doctorEarnings'] = (clone $consultancyQuery)->sum('doctor_cut');
+            $viewData['hospitalConsultancyRevenue'] = (clone $consultancyQuery)->sum('hospital_cut');
+            $viewData['totalAppointments'] = (clone $consultancyQuery)->count();
+
             // Monthly grouping for charts
-            $viewData['monthlyFunds'] = HospitalFundTransaction::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, SUM(amount) as total')
-                ->groupBy('month')
+            $allTransactions = HospitalFundTransaction::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as month, type, SUM(amount) as total')
+                ->groupBy('month', 'type')
                 ->orderBy('month')
                 ->get();
                 
-            $viewData['monthlyPayouts'] = EmployeePayout::selectRaw('month, SUM(amount) as total')
+            $monthlyIncomeExpenseMap = [];
+            foreach ($allTransactions as $t) {
+                $m = $t->month;
+                if (!isset($monthlyIncomeExpenseMap[$m])) {
+                    $monthlyIncomeExpenseMap[$m] = ['month' => $m, 'income' => 0, 'expense' => 0];
+                }
+                
+                if ($t->type === 'medicine_expense') {
+                    $monthlyIncomeExpenseMap[$m]['expense'] += (float) $t->total;
+                } else {
+                    $monthlyIncomeExpenseMap[$m]['income'] += (float) $t->total;
+                }
+            }
+
+            $monthlyPayouts = EmployeePayout::selectRaw('month, SUM(amount) as total')
                 ->whereIn('status', ['paid', 'confirmed'])
                 ->groupBy('month')
                 ->orderBy('month')
                 ->get();
+            $viewData['monthlyPayouts'] = $monthlyPayouts;
 
-            $viewData['fundByType'] = HospitalFundTransaction::selectRaw('type, SUM(amount) as total')
-                ->groupBy('type')
+            // Add Payouts to Expense
+            foreach ($monthlyPayouts as $p) {
+                $m = $p->month;
+                if (!isset($monthlyIncomeExpenseMap[$m])) {
+                    $monthlyIncomeExpenseMap[$m] = ['month' => $m, 'income' => 0, 'expense' => 0];
+                }
+                $monthlyIncomeExpenseMap[$m]['expense'] += (float) $p->total;
+            }
+
+            // Add Doctor Cuts to Income (since they are now counted as an expense when paid out)
+            $monthlyDoctorCuts = \App\Models\Appointment::selectRaw('DATE_FORMAT(scheduled_for, "%Y-%m") as month, SUM(doctor_cut) as total')
+                ->where('status', 'completed')
+                ->groupBy('month')
+                ->get();
+            
+            foreach ($monthlyDoctorCuts as $dc) {
+                $m = $dc->month;
+                if (!isset($monthlyIncomeExpenseMap[$m])) {
+                    $monthlyIncomeExpenseMap[$m] = ['month' => $m, 'income' => 0, 'expense' => 0];
+                }
+                $monthlyIncomeExpenseMap[$m]['income'] += (float) $dc->total;
+            }
+
+            ksort($monthlyIncomeExpenseMap);
+            $viewData['monthlyIncomeExpense'] = array_values($monthlyIncomeExpenseMap);
+
+            // Payouts by Role
+            $viewData['payoutsByRole'] = EmployeePayout::join('users', 'employee_payouts.user_id', '=', 'users.id')
+                ->whereIn('employee_payouts.status', ['paid', 'confirmed'])
+                ->selectRaw('users.role, SUM(employee_payouts.amount) as total')
+                ->groupBy('users.role')
                 ->get();
         } else {
             $viewData['myPayoutsChart'] = EmployeePayout::where('user_id', $user->id)

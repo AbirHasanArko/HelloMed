@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\AdminAppointmentController;
 use App\Http\Controllers\Admin\AdminArticleController;
 use App\Http\Controllers\Admin\AdminDepartmentController;
 use App\Http\Controllers\Admin\AdminDoctorController;
-use App\Http\Controllers\Admin\AdminPaymentController;
 use App\Http\Controllers\Admin\AdminPharmacistController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AuditLogController;
@@ -263,8 +262,6 @@ Route::prefix('admin')
             Route::patch('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid'])->name('payouts.mark-paid');
             Route::post('/payouts/generate', [AdminPayoutController::class, 'generate'])->name('payouts.generate');
 
-            Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
-            Route::patch('/payments/{payment}', [AdminPaymentController::class, 'update'])->name('payments.update');
             Route::get('/staff', [AdminStaffController::class, 'index'])->name('staff.index');
             Route::get('/staff/create', [AdminStaffController::class, 'create'])->name('staff.create');
             Route::post('/staff', [AdminStaffController::class, 'store'])->name('staff.store');

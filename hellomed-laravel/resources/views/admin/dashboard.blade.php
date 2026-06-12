@@ -16,7 +16,6 @@
             <a class="ghost-button" href="{{ route('admin.doctors.index') }}">Doctors</a>
             <a class="ghost-button" href="{{ route('admin.audit-logs.index') }}">Audit logs</a>
             @if (auth()->user()->isAdmin())
-                <a class="ghost-button" href="{{ route('admin.payments.index') }}">Payments</a>
                 <a class="ghost-button" href="{{ route('admin.staff.index') }}">Staff</a>
                 <a class="ghost-button" href="{{ route('admin.pharmacists.index') }}">Pharmacists</a>
             @endif

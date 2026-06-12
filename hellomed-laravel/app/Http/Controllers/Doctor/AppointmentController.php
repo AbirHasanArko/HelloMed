@@ -252,6 +252,21 @@ class AppointmentController extends Controller
             ));
         }
 
+        if ($appointment->payment_status === 'paid') {
+            $month = date('Y-m', strtotime($appointment->scheduled_for));
+            \Illuminate\Support\Facades\Artisan::call('app:sync-financials', ['--month' => $month]);
+            
+            $appointment->refresh();
+            if ($appointment->doctor_cut > 0) {
+                $doctor->user->notify(new \App\Notifications\SystemNotification(
+                    'Earnings Updated',
+                    "Appointment #{$appointment->id} is complete. Your cut of ৳" . number_format($appointment->doctor_cut, 2) . " has been added to your pending payout.",
+                    'normal',
+                    route('doctor.appointments.show', $appointment)
+                ));
+            }
+        }
+
         return back()->with('status', 'Appointment marked as completed.');
     }
 

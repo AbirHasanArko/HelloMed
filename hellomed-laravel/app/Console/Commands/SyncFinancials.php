@@ -36,9 +36,16 @@ class SyncFinancials extends Command
             ->get();
 
         foreach ($appointments as $appt) {
-            $paid = $appt->payments()->where('status', 'paid')->sum('amount');
+            $paid = (float) $appt->payments()->where('status', 'paid')->sum('amount');
+            
+            if ($paid == 0 && $appt->payment_status === 'paid') {
+                $paid = $appt->service_mode === 'online'
+                    ? (float) ($appt->doctor->online_fee ?? $appt->doctor->consultation_fee ?? 0)
+                    : (float) ($appt->doctor->offline_fee ?? $appt->doctor->consultation_fee ?? 0);
+            }
+
             if ($paid > 0) {
-                $doctorRate = $appt->service_mode === 'online' ? 0.90 : 0.85;
+                $doctorRate = $appt->service_mode === 'online' ? 0.95 : 0.85;
                 $appt->doctor_cut = $paid * $doctorRate;
                 $appt->hospital_cut = $paid - $appt->doctor_cut;
                 $appt->save();
@@ -47,10 +54,13 @@ class SyncFinancials extends Command
                     ['type' => 'appointment_cut', 'reference_id' => $appt->id],
                     ['amount' => $appt->hospital_cut]
                 );
-            } else if ($appt->payment_status === 'not_required') {
-                $appt->doctor_cut = 0;
-                $appt->hospital_cut = 0;
-                $appt->save();
+            } else if (in_array($appt->payment_status, ['not_required', 'pending'])) {
+                // If it's literally 0, just mark it as 0 to prevent re-checking forever if it was free
+                if ($appt->payment_status === 'not_required') {
+                    $appt->doctor_cut = 0;
+                    $appt->hospital_cut = 0;
+                    $appt->save();
+                }
             }
         }
     }
@@ -77,17 +87,22 @@ class SyncFinancials extends Command
             ->get();
 
         foreach ($orders as $order) {
-            $profit = 0;
+            $expense = 0;
+            $sale = 0;
             foreach ($order->items as $item) {
                 $buyingPrice = $item->medicine->buying_price ?? 0;
-                $profit += ($item->unit_price - $buyingPrice) * $item->quantity;
+                $expense += $buyingPrice * $item->quantity;
+                $sale += $item->unit_price * $item->quantity;
             }
-            if ($profit > 0) {
-                HospitalFundTransaction::firstOrCreate(
-                    ['type' => 'medicine_profit', 'reference_id' => $order->id],
-                    ['amount' => $profit]
-                );
-            }
+            
+            HospitalFundTransaction::firstOrCreate(
+                ['type' => 'medicine_sale', 'reference_id' => $order->id],
+                ['amount' => $sale]
+            );
+            HospitalFundTransaction::firstOrCreate(
+                ['type' => 'medicine_expense', 'reference_id' => $order->id],
+                ['amount' => $expense]
+            );
         }
     }
 
@@ -109,8 +124,16 @@ class SyncFinancials extends Command
                 'month' => $month
             ]);
 
-            if ($payout->status === 'pending') {
+            if ($totalCut > ($payout->amount ?? 0)) {
                 $payout->amount = $totalCut;
+                // If it was already paid/confirmed but they earned more, reopen it!
+                if ($payout->exists && $payout->status !== 'pending') {
+                    $payout->status = 'pending';
+                    $payout->paid_at = null;
+                    $payout->confirmed_at = null;
+                } else {
+                    $payout->status = $payout->status ?? 'pending';
+                }
                 $payout->save();
             }
         }
@@ -123,8 +146,16 @@ class SyncFinancials extends Command
                 'month' => $month
             ]);
 
-            if ($payout->status === 'pending') {
-                $payout->amount = $user->monthly_payment ?? 0;
+            $newAmount = $user->monthly_payment ?? 0;
+            if ($newAmount > ($payout->amount ?? 0)) {
+                $payout->amount = $newAmount;
+                if ($payout->exists && $payout->status !== 'pending') {
+                    $payout->status = 'pending';
+                    $payout->paid_at = null;
+                    $payout->confirmed_at = null;
+                } else {
+                    $payout->status = $payout->status ?? 'pending';
+                }
                 $payout->save();
             }
         }

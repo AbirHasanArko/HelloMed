@@ -35,12 +35,14 @@ class AdminPayoutController extends Controller
             'paid_at' => now(),
         ]);
 
-        NotificationLog::create([
-            'user_id' => $payout->user_id,
-            'title' => 'Payment Received',
-            'message' => "Your payout of BDT {$payout->amount} for {$payout->month} has been marked as paid. Please confirm receipt on your Analytics page.",
-            'type' => 'success',
-        ]);
+        if ($payout->user) {
+            $payout->user->notify(new \App\Notifications\SystemNotification(
+                'Payment Received',
+                "Your payout of BDT " . number_format($payout->amount, 2) . " for {$payout->month} has been marked as paid. Please confirm receipt on your Analytics page.",
+                'normal',
+                route('analytics.index')
+            ));
+        }
 
         return back()->with('success', 'Payout marked as paid and user notified.');
     }
