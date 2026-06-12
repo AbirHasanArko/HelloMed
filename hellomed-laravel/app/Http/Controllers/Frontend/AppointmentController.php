@@ -70,7 +70,7 @@ class AppointmentController extends Controller
                 ...$validated,
                 'scheduled_for' => $scheduledFor,
                 'user_id' => $request->user()?->id,
-                'payment_status' => $request->input('payment_method') && $request->input('payment_method') !== 'none' ? 'pending' : 'not_required',
+                'payment_status' => 'pending',
                 'online_meeting_link' => null,
                 'doctor_prescription' => null,
                 'prescription_diagnosis' => null,

@@ -104,7 +104,7 @@ class OfflineAppointmentController extends Controller
                 'scheduled_for' => $scheduledFor,
                 'reason' => $validated['reason'],
                 'status' => 'confirmed',
-                'payment_status' => isset($validated['override_payment_amount']) ? 'paid' : 'not_required',
+                'payment_status' => isset($validated['override_payment_amount']) ? 'paid' : 'pending',
             ]);
 
             if (isset($validated['override_payment_amount'])) {

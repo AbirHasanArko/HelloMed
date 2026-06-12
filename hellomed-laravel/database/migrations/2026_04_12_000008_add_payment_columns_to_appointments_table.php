@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('appointments', function (Blueprint $table): void {
             $table->string('payment_method')->default('none')->after('status');
-            $table->string('payment_status')->default('not_required')->after('payment_method');
+            $table->string('payment_status')->default('pending')->after('payment_method');
         });
     }
 
