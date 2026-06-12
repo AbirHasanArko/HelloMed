@@ -48,7 +48,12 @@
                             <td>{{ $appointment->doctor?->name }}</td>
                             <td>{{ $appointment->service_mode }}</td>
                             <td>
-                                <div>{{ $appointment->payment_status }}</div>
+                                <div><strong>Status:</strong> {{ ucfirst(str_replace('_', ' ', $appointment->payment_status)) }}</div>
+                                @php $totalAmount = $appointment->payments->sum('amount'); @endphp
+                                @if($totalAmount > 0)
+                                    <div style="margin-top: 4px; color: var(--success-text);"><strong>Amount:</strong> BDT {{ number_format($totalAmount, 2) }}</div>
+                                @endif
+                                
                                 @foreach($appointment->payments as $payment)
                                     @if(in_array($payment->method, ['bkash', 'nagad']))
                                         <div class="muted" style="font-size:12px; margin-top:4px;">
@@ -59,21 +64,25 @@
                                     @endif
                                 @endforeach
                             </td>
-                            <td>{{ $appointment->status }}</td>
+                            <td>{{ ucfirst($appointment->status) }}</td>
                             <td>
-                                <form method="POST" action="{{ route('admin.appointments.update', $appointment) }}" style="display: flex; flex-direction: column; gap: 8px;">
+                                <form method="POST" action="{{ route('admin.appointments.update', $appointment) }}" style="display: flex; flex-direction: column; gap: 8px; min-width: 140px;">
                                     @csrf
                                     @method('PATCH')
-                                    <select name="status" title="Appointment Status">
+                                    <label style="font-size: 12px; margin-bottom: -4px;">Appointment Status</label>
+                                    <select name="status" title="Appointment Status" style="padding: 4px; border: 1px solid #ccc; border-radius: 4px;">
                                         @foreach (['pending', 'confirmed', 'completed', 'cancelled'] as $status)
                                             <option value="{{ $status }}" @selected($appointment->status === $status)>{{ ucfirst($status) }}</option>
                                         @endforeach
                                     </select>
-                                    <select name="payment_status" title="Payment Status">
+
+                                    <label style="font-size: 12px; margin-bottom: -4px;">Payment Status</label>
+                                    <select name="payment_status" title="Payment Status" style="padding: 4px; border: 1px solid #ccc; border-radius: 4px;">
                                         @foreach (['pending', 'paid', 'failed', 'refunded', 'not_required'] as $pStatus)
                                             <option value="{{ $pStatus }}" @selected($appointment->payment_status === $pStatus)>{{ ucfirst(str_replace('_', ' ', $pStatus)) }}</option>
                                         @endforeach
                                     </select>
+
                                     <button class="button" type="submit" style="padding: 4px 8px; font-size: 13px;">Update</button>
                                 </form>
                             </td>
