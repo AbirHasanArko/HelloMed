@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AvailableTestController as AdminAvailableTestController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\AdminPayoutController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ArticleController as DoctorArticleController;
 use App\Http\Controllers\Doctor\DashboardController as DoctorDashboardController;
@@ -145,6 +147,10 @@ Route::get('/diagnostic-services/{labTest}/download', LabTestDownloadController:
     ->middleware(['auth'])
     ->name('diagnostic-services.download');
 
+Route::get('/analytics', [AnalyticsController::class, 'index'])->middleware('auth')->name('analytics.index');
+Route::get('/analytics/export', [AnalyticsController::class, 'export'])->middleware('auth')->name('analytics.export');
+Route::patch('/analytics/payouts/{payout}/confirm', [AnalyticsController::class, 'confirmPayout'])->middleware('auth')->name('analytics.payouts.confirm');
+
 Route::prefix('api/notifications')
     ->name('api.notifications.')
     ->middleware('auth')
@@ -253,6 +259,10 @@ Route::prefix('admin')
         Route::get('/audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export');
 
         Route::middleware('role:admin')->group(function (): void {
+            Route::get('/payouts', [AdminPayoutController::class, 'index'])->name('payouts.index');
+            Route::patch('/payouts/{payout}/mark-paid', [AdminPayoutController::class, 'markPaid'])->name('payouts.mark-paid');
+            Route::post('/payouts/generate', [AdminPayoutController::class, 'generate'])->name('payouts.generate');
+
             Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
             Route::patch('/payments/{payment}', [AdminPaymentController::class, 'update'])->name('payments.update');
             Route::get('/staff', [AdminStaffController::class, 'index'])->name('staff.index');

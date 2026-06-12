@@ -110,4 +110,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(QnaAnswer::class);
     }
+
+    public function payouts(): HasMany
+    {
+        return $this->hasMany(EmployeePayout::class);
+    }
 }

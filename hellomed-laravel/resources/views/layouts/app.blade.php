@@ -934,12 +934,16 @@
                     @endif
                     @if (auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="ghost-button">Backoffice</a>
+                        <a href="{{ route('admin.payouts.index') }}" class="ghost-button">Payouts</a>
                     @elseif (auth()->user()->isStaff())
                         <a href="{{ route('staff.dashboard') }}" class="ghost-button">Staff dashboard</a>
                     @elseif (auth()->user()->isDoctor())
                         <a href="{{ route('doctor.dashboard') }}" class="ghost-button">Doctor panel</a>
                     @elseif (auth()->user()->isPharmacist())
                         <a href="{{ route('pharmacist.dashboard') }}" class="ghost-button">Pharmacy</a>
+                    @endif
+                    @if (auth()->user()->role !== 'patient')
+                        <a href="{{ route('analytics.index') }}" class="ghost-button">Analytics</a>
                     @endif
                     <a href="{{ route('settings.profile') }}" class="ghost-button">Account Settings</a>
                     <form method="POST" action="{{ route('logout') }}" style="display:inline;">

@@ -39,6 +39,8 @@ class Appointment extends Model
         'prescription_follow_up_date',
         'prescription_follow_up_fee',
         'prescription_written_at',
+        'doctor_cut',
+        'hospital_cut',
     ];
 
     protected $casts = [
@@ -47,6 +49,8 @@ class Appointment extends Model
         'prescription_written_at' => 'datetime',
         'prescription_follow_up_date' => 'date',
         'prescription_follow_up_fee' => 'decimal:2',
+        'doctor_cut' => 'decimal:2',
+        'hospital_cut' => 'decimal:2',
     ];
 
     protected static function booted(): void
