@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="HelloMed — Your complete digital hospital platform for appointments, prescriptions, and pharmacy.">
     <title>{{ config('app.name', 'HelloMed') }}@hasSection('title') | @yield('title')@endif</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect width='26' height='26' rx='6' fill='%230d9488'/%3E%3Crect x='9' y='4' width='8' height='18' rx='2' fill='white'/%3E%3Crect x='4' y='9' width='18' height='8' rx='2' fill='white'/%3E%3C/svg%3E">
@@ -1036,6 +1037,9 @@
         </div>
         @stack('footer-extra')
     </footer>
+
+    {{-- AI Health Assistant Floating Widget --}}
+    @include('components.ai-chat-widget')
 
     <script>
         function toggleTheme() {
