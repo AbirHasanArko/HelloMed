@@ -120,7 +120,7 @@ class SiteMapBuilder
                 'label'       => 'Book Appointment',
                 'url'         => url('/appointments/create/{doctor-slug}'),
                 'auth'        => true,
-                'description' => 'Appointment booking form for a specific doctor. Choose online or offline, pick a date/time slot, fill in reason and payment info.',
+                'description' => 'Appointment booking form for a specific doctor. Find the doctor at /doctors, then click "Book Appointment" on their profile.',
             ],
             [
                 'label'       => 'My Appointments',

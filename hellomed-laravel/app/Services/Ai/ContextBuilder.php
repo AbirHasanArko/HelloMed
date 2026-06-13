@@ -107,7 +107,7 @@ class ContextBuilder
             return [];
         }
 
-        $query = Article::where('status', 'published');
+        $query = Article::where('is_published', true);
 
         $query->where(function ($q) use ($terms): void {
             foreach ($terms as $term) {
