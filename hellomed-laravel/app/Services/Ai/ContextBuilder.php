@@ -21,21 +21,16 @@ class ContextBuilder
 
     public function __construct()
     {
-        $this->maxDoctors  = config('ai.context.max_doctors', 5);
+        $this->maxDoctors  = config('ai.context.max_doctors', 10);
         $this->maxArticles = config('ai.context.max_articles', 4);
         $this->maxTests    = config('ai.context.max_tests', 4);
     }
 
     /**
      * Build the full context payload from the patient's message.
+     * (Legacy — kept as fallback. Main pipeline now uses buildForDepartments.)
      *
-     * @return array{
-     *   doctors: array,
-     *   articles: array,
-     *   tests: array,
-     *   departments: array,
-     *   keywords: array<string>,
-     * }
+     * @return array<string, mixed>
      */
     public function build(string $message): array
     {
@@ -44,7 +39,7 @@ class ContextBuilder
         $searchTerms = array_unique(array_merge($keywords, $tokens));
 
         return [
-            'doctors'     => $this->findDoctors($searchTerms),
+            'doctors'     => $this->getAllDoctors(),
             'articles'    => $this->findArticles($searchTerms),
             'tests'       => $this->findTests($searchTerms),
             'departments' => $this->getAllDepartments(),
@@ -53,46 +48,151 @@ class ContextBuilder
     }
 
     /**
-     * Find relevant doctors using keyword matching across name, specialty,
-     * bio, and department name. Ranked by featured status, experience, reviews.
+     * Return just the department names (for Stage 1 classification prompt).
+     *
+     * @return array<string>
+     */
+    public function getDepartmentNames(): array
+    {
+        return Department::where('is_active', true)
+            ->orderBy('name')
+            ->pluck('name')
+            ->toArray();
+    }
+
+    /**
+     * Stage 2 of the two-stage pipeline:
+     * Fetch doctors from specific departments chosen by the LLM in Stage 1,
+     * plus keyword-filtered articles and tests.
+     *
+     * @param  string         $message      Original patient message (for article/test search)
+     * @param  array<string>  $deptNames    Department names chosen by Stage 1 LLM
+     * @return array<string, mixed>
+     */
+    public function buildForDepartments(string $message, array $deptNames): array
+    {
+        $keywords    = SymptomMapper::extractKeywords($message);
+        $tokens      = SymptomMapper::tokenize($message);
+        $searchTerms = array_unique(array_merge($keywords, $tokens));
+
+        // If no valid departments were picked, fall back to all doctors
+        if (empty($deptNames)) {
+            $doctors = $this->getAllDoctors();
+        } else {
+            $doctors = Doctor::with('department')
+                ->where('is_active', true)
+                ->whereHas('department', fn ($q) => $q->whereIn('name', $deptNames))
+                ->orderByDesc('is_featured')
+                ->orderByDesc('experience_years')
+                ->get()
+                ->map(fn (Doctor $d) => $this->formatDoctor($d))
+                ->toArray();
+        }
+
+        return [
+            'doctors'     => $doctors,
+            'articles'    => $this->findArticles(array_merge($searchTerms, $this->deptTerms($deptNames))),
+            'tests'       => $this->findTests($searchTerms),
+            'departments' => $this->getAllDepartments(),
+        ];
+    }
+
+    /**
+     * Extract searchable terms from department names for article search broadening.
+     *
+     * @param  array<string>  $deptNames
+     * @return array<string>
+     */
+    private function deptTerms(array $deptNames): array
+    {
+        $terms = [];
+        foreach ($deptNames as $name) {
+            foreach (explode(' ', strtolower($name)) as $word) {
+                if (strlen($word) > 3 && ! in_array($word, ['and', 'the', 'for', 'with'], true)) {
+                    $terms[] = $word;
+                }
+            }
+        }
+        return $terms;
+    }
+
+    /**
+     * Build context for "What is X?" information queries.
+     * Searches tests and articles directly by message terms — no department needed.
+     *
+     * @return array<string, mixed>
+     */
+    public function buildForInfo(string $message): array
+    {
+        $tokens = SymptomMapper::tokenize($message);
+
+        // Also extract the quoted/proper noun from the message
+        // e.g. "what is Total IGE test?" → terms include 'ige', 'total', 'test'
+        preg_match_all('/\b[A-Z]{2,}\b/', $message, $acronyms);
+        $extraTerms = array_map('strtolower', $acronyms[0] ?? []);
+        $searchTerms = array_unique(array_merge($tokens, $extraTerms));
+
+        return [
+            'doctors'     => [],
+            'articles'    => $this->findArticles($searchTerms),
+            'tests'       => $this->findTestsForInfo($searchTerms, $message),
+            'departments' => [],
+        ];
+    }
+
+    /**
+     * Search tests for info queries — uses broader matching including the raw message.
      *
      * @param  array<string>  $terms
      * @return array<array<string, mixed>>
      */
-    private function findDoctors(array $terms): array
+    private function findTestsForInfo(array $terms, string $rawMessage): array
     {
         if (empty($terms)) {
-            return $this->getFeaturedDoctors();
+            return [];
         }
 
-        $query = Doctor::with('department')
-            ->where('is_active', true);
-
-        $query->where(function ($q) use ($terms): void {
+        $query = AvailableTest::where('is_active', true);
+        $query->where(function ($q) use ($terms, $rawMessage): void {
             foreach ($terms as $term) {
                 $like = "%{$term}%";
                 $q->orWhere('name', 'LIKE', $like)
-                  ->orWhere('specialty', 'LIKE', $like)
-                  ->orWhere('bio', 'LIKE', $like)
-                  ->orWhere('qualification', 'LIKE', $like)
-                  ->orWhereHas('department', fn ($d) => $d->where('name', 'LIKE', $like)
-                      ->orWhere('description', 'LIKE', $like)
-                      ->orWhere('service_scope', 'LIKE', $like));
+                  ->orWhere('description', 'LIKE', $like);
             }
+            // Also search with the full raw message (helps for acronyms like "IGE", "CBC")
+            $q->orWhere('name', 'LIKE', '%' . $rawMessage . '%');
         });
 
-        $doctors = $query
+        return $query
+            ->limit($this->maxTests * 2) // Allow more results for info queries
+            ->get()
+            ->map(fn (AvailableTest $t) => [
+                'id'          => $t->id,
+                'name'        => $t->name,
+                'description' => $t->description,
+                'fee'         => $t->fee_bdt,
+                'location'    => $t->location,
+                'room'        => $t->lab_room_number,
+                'url'         => url("/diagnostic-services/{$t->slug}"),
+            ])
+            ->toArray();
+    }
+
+    /**
+     * Returns ALL active doctors ordered by featured status.
+     * (Used as fallback when department classification returns nothing.)
+     *
+     * @return array<array<string, mixed>>
+     */
+    private function getAllDoctors(): array
+    {
+        return Doctor::with('department')
+            ->where('is_active', true)
             ->orderByDesc('is_featured')
             ->orderByDesc('experience_years')
-            ->limit($this->maxDoctors)
-            ->get();
-
-        // Fall back to featured doctors if nothing matched
-        if ($doctors->isEmpty()) {
-            return $this->getFeaturedDoctors();
-        }
-
-        return $doctors->map(fn (Doctor $d) => $this->formatDoctor($d))->toArray();
+            ->get()
+            ->map(fn (Doctor $d) => $this->formatDoctor($d))
+            ->toArray();
     }
 
     /**

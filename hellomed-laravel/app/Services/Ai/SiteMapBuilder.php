@@ -6,25 +6,47 @@ namespace App\Services\Ai;
  * Provides the AI with a complete, structured map of HelloMed's
  * patient-facing routes, navigation structure, and step-by-step
  * workflow guides — enabling the "Website Guide" chat mode.
+ *
+ * IMPORTANT: Steps are stored as structured arrays with real PHP url() calls,
+ * not plain strings. This ensures links are always correct — the LLM is never
+ * trusted to generate URLs.
  */
 class SiteMapBuilder
 {
     /**
      * Build the full site context payload for the AI system prompt.
      *
-     * @return array{
-     *   routes: array,
-     *   workflows: array,
-     *   navigation: array,
-     * }
+     * @return array{routes: array, workflows: array, navigation: array}
      */
     public function build(): array
     {
         return [
             'routes'     => $this->getPatientRoutes(),
-            'workflows'  => $this->getWorkflowGuides(),
+            'workflows'  => $this->summariseWorkflows(),  // summary only (no full steps) for prompt
             'navigation' => $this->getNavStructure(),
         ];
+    }
+
+    /**
+     * Find the best-matching workflow for a patient's message by checking trigger phrases.
+     * Returns the full workflow (with structured steps) or null if nothing matches.
+     *
+     * @return array{title: string, steps: array}|null
+     */
+    public function findWorkflow(string $message): ?array
+    {
+        $lower     = strtolower($message);
+        $workflows = $this->getWorkflowGuides();
+
+        foreach ($workflows as $workflow) {
+            foreach ($workflow['triggers'] as $trigger) {
+                if (str_contains($lower, $trigger)) {
+                    return $workflow;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -32,361 +54,270 @@ class SiteMapBuilder
      *
      * @return array<array{label: string, url: string, auth: bool, description: string}>
      */
-    private function getPatientRoutes(): array
+    public function getPatientRoutes(): array
     {
         return [
-            // ── Public (no login needed) ──────────────────────────────────────
-            [
-                'label'       => 'Home',
-                'url'         => url('/'),
-                'auth'        => false,
-                'description' => 'Landing page with featured doctors, departments, and articles.',
-            ],
-            [
-                'label'       => 'Browse Departments (Care)',
-                'url'         => url('/departments'),
-                'auth'        => false,
-                'description' => 'List of all hospital departments (Cardiology, Orthopedics, Dental, Psychiatry, etc.).',
-            ],
-            [
-                'label'       => 'Browse Doctors',
-                'url'         => url('/doctors'),
-                'auth'        => false,
-                'description' => 'Directory of all active doctors, filterable by department. Each card links to the doctor profile.',
-            ],
-            [
-                'label'       => 'Diagnostic Services',
-                'url'         => url('/diagnostic-services'),
-                'auth'        => false,
-                'description' => 'List of all lab tests and diagnostic services available at HelloMed with fees and locations.',
-            ],
-            [
-                'label'       => 'Health Articles',
-                'url'         => url('/articles'),
-                'auth'        => false,
-                'description' => 'Health blog written by HelloMed doctors. Browse by category or read individual articles.',
-            ],
-            [
-                'label'       => 'Q&A Forum',
-                'url'         => url('/qna'),
-                'auth'        => false,
-                'description' => 'Community health Q&A. Anyone can browse; login required to ask a question or post an answer.',
-            ],
-            [
-                'label'       => 'Medicine Shop',
-                'url'         => url('/medicines'),
-                'auth'        => false,
-                'description' => 'Browse and search medicines by name, group, or manufacturer. Add items to cart.',
-            ],
-            [
-                'label'       => 'Medicine Cart',
-                'url'         => url('/shop/cart'),
-                'auth'        => false,
-                'description' => 'Review cart contents, adjust quantities, and proceed to checkout.',
-            ],
-            [
-                'label'       => 'Request Ambulance',
-                'url'         => url('/ambulance'),
-                'auth'        => false,
-                'description' => 'Emergency ambulance request form. NO login required. Fill in name, phone, location, emergency details.',
-            ],
-            [
-                'label'       => 'About HelloMed',
-                'url'         => url('/about'),
-                'auth'        => false,
-                'description' => 'About the hospital, its mission, team, and facilities.',
-            ],
-            [
-                'label'       => 'Contact',
-                'url'         => url('/contact'),
-                'auth'        => false,
-                'description' => 'Contact form and hospital address/phone.',
-            ],
-            [
-                'label'       => 'Login',
-                'url'         => url('/login'),
-                'auth'        => false,
-                'description' => 'Patient login page.',
-            ],
-            [
-                'label'       => 'Register',
-                'url'         => url('/register'),
-                'auth'        => false,
-                'description' => 'Create a new patient account.',
-            ],
+            // ── Public ────────────────────────────────────────────────────────
+            ['label' => 'Home',                  'url' => url('/'),                       'auth' => false, 'description' => 'Landing page with featured doctors, departments, and articles.'],
+            ['label' => 'Browse Departments',    'url' => url('/departments'),            'auth' => false, 'description' => 'All hospital departments (Cardiology, Psychiatry, Nutrition, etc.).'],
+            ['label' => 'Browse Doctors',        'url' => url('/doctors'),               'auth' => false, 'description' => 'Directory of all active doctors, filterable by department.'],
+            ['label' => 'Diagnostic Services',   'url' => url('/diagnostic-services'),   'auth' => false, 'description' => 'Lab tests and diagnostic services with fees and room numbers.'],
+            ['label' => 'Health Articles',       'url' => url('/articles'),              'auth' => false, 'description' => 'Health blog written by HelloMed doctors.'],
+            ['label' => 'Q&A Forum',             'url' => url('/qna'),                   'auth' => false, 'description' => 'Community health Q&A. Login to ask or answer.'],
+            ['label' => 'Medicine Shop',         'url' => url('/medicines'),             'auth' => false, 'description' => 'Browse and search medicines, add to cart.'],
+            ['label' => 'Medicine Cart',         'url' => url('/shop/cart'),             'auth' => false, 'description' => 'Review cart, adjust quantities, proceed to checkout.'],
+            ['label' => 'Request Ambulance',     'url' => url('/ambulance'),             'auth' => false, 'description' => 'Emergency ambulance request — NO login required.'],
+            ['label' => 'About HelloMed',        'url' => url('/about'),                 'auth' => false, 'description' => 'About the hospital, its mission and facilities.'],
+            ['label' => 'Contact',               'url' => url('/contact'),               'auth' => false, 'description' => 'Contact form and hospital address/phone.'],
+            ['label' => 'Login',                 'url' => url('/login'),                 'auth' => false, 'description' => 'Patient login page.'],
+            ['label' => 'Register',              'url' => url('/register'),              'auth' => false, 'description' => 'Create a new patient account.'],
 
             // ── Patient authenticated ─────────────────────────────────────────
-            [
-                'label'       => 'Book Appointment',
-                'url'         => url('/appointments/create/{doctor-slug}'),
-                'auth'        => true,
-                'description' => 'Appointment booking form for a specific doctor. Find the doctor at /doctors, then click "Book Appointment" on their profile.',
-            ],
-            [
-                'label'       => 'My Appointments',
-                'url'         => url('/my/appointments'),
-                'auth'        => true,
-                'description' => 'List of all your booked appointments (pending, confirmed, completed, cancelled).',
-            ],
-            [
-                'label'       => 'Appointment Details',
-                'url'         => url('/my/appointments/{id}'),
-                'auth'        => true,
-                'description' => 'View a single appointment: status, doctor info, prescription, lab test results, chat with doctor.',
-            ],
-            [
-                'label'       => 'Download Prescription PDF',
-                'url'         => url('/my/appointments/{id}/prescription-pdf'),
-                'auth'        => true,
-                'description' => 'Download a printable PDF of the doctor\'s prescription for a completed appointment.',
-            ],
-            [
-                'label'       => 'Buy Prescribed Medicines',
-                'url'         => url('/my/appointments/{id}/buy-all-medicines'),
-                'auth'        => true,
-                'description' => 'Adds all medicines from a prescription directly to your cart in one click.',
-            ],
-            [
-                'label'       => 'My Profile (Medical Info)',
-                'url'         => url('/my/profile'),
-                'auth'        => true,
-                'description' => 'Update your medical profile: date of birth, gender, height, weight, allergies, known conditions, address.',
-            ],
-            [
-                'label'       => 'My Health Records',
-                'url'         => url('/my/records'),
-                'auth'        => true,
-                'description' => 'Overview of your health history: past appointments, prescriptions, and lab test results.',
-            ],
-            [
-                'label'       => 'My Medicine Orders',
-                'url'         => url('/my/medicine-orders'),
-                'auth'        => true,
-                'description' => 'Track all your medicine orders (pending, processing, delivered, cancelled).',
-            ],
-            [
-                'label'       => 'Medicine Order Details',
-                'url'         => url('/my/medicine-orders/{id}'),
-                'auth'        => true,
-                'description' => 'Details of a single medicine order including items, status, and payment info.',
-            ],
-            [
-                'label'       => 'Medicine Order Invoice',
-                'url'         => url('/my/medicine-orders/{id}/invoice'),
-                'auth'        => true,
-                'description' => 'Download a PDF invoice for a medicine order.',
-            ],
-            [
-                'label'       => 'Account Settings',
-                'url'         => url('/settings/profile'),
-                'auth'        => true,
-                'description' => 'Change your account name, email, and password.',
-            ],
+            ['label' => 'My Appointments',       'url' => url('/my/appointments'),       'auth' => true,  'description' => 'List of all your appointments (pending, confirmed, completed).'],
+            ['label' => 'My Profile',            'url' => url('/my/profile'),            'auth' => true,  'description' => 'Update medical profile: DOB, gender, height, weight, allergies.'],
+            ['label' => 'My Health Records',     'url' => url('/my/records'),            'auth' => true,  'description' => 'History of appointments, prescriptions, and lab results.'],
+            ['label' => 'My Medicine Orders',    'url' => url('/my/medicine-orders'),    'auth' => true,  'description' => 'Track all medicine orders (pending, processing, delivered).'],
+            ['label' => 'Account Settings',      'url' => url('/settings/profile'),      'auth' => true,  'description' => 'Change account name, email, and password.'],
         ];
     }
 
     /**
      * Step-by-step workflow guides for common patient tasks.
+     * Steps are structured arrays — links always come from url() helper, never from the LLM.
      *
-     * @return array<string, array{title: string, steps: array<string>}>
+     * @return array<string, array{title: string, triggers: array<string>, steps: array}>
      */
-    private function getWorkflowGuides(): array
+    public function getWorkflowGuides(): array
     {
         return [
 
             'book_appointment' => [
                 'title'    => 'How to book an appointment with a doctor',
-                'triggers' => ['book appointment', 'book a doctor', 'how do i book', 'schedule appointment', 'make appointment', 'consult a doctor'],
-                'steps'    => [
-                    'Log in to your HelloMed account. If you don\'t have one, click "Register" in the navigation bar.',
-                    'Click "Care" in the navigation bar to browse departments → ' . url('/departments'),
-                    'Or go directly to the Doctors directory to see all doctors → ' . url('/doctors'),
-                    'Use the department filter on the Doctors page to narrow down by specialty.',
-                    'Click on a doctor\'s name or card to open their profile.',
-                    'Review the doctor\'s specialty, fees (online/offline), available days and times.',
-                    'Click the "Book Appointment" button on the doctor\'s profile.',
-                    'Choose your consultation mode: Online (video) or Offline (in-person).',
-                    'Select an available date and time slot from the calendar.',
-                    'Fill in your name, phone number, and reason for visit.',
-                    'Choose a payment method (bKash or Nagad), enter your transaction ID and sender number.',
-                    'Click "Confirm Booking". You\'ll see a success message.',
-                    'Track your appointment status at "My appointments" → ' . url('/my/appointments'),
+                'triggers' => [
+                    'book appointment', 'book a doctor', 'how do i book', 'schedule appointment',
+                    'make appointment', 'consult a doctor', 'get appointment', 'book a consultation',
+                ],
+                'steps' => [
+                    ['instruction' => 'Log in to your HelloMed account. If you don\'t have one, register first — it\'s free.', 'link' => url('/login'), 'link_text' => 'Login / Register'],
+                    ['instruction' => 'Go to the Doctors directory to browse all available doctors.', 'link' => url('/doctors'), 'link_text' => 'Browse Doctors'],
+                    ['instruction' => 'Use the department filter on the Doctors page to narrow down by specialty (e.g. Cardiology, Psychiatry, Nutrition).', 'link' => url('/departments'), 'link_text' => 'Browse Departments'],
+                    ['instruction' => 'Click on a doctor\'s card to view their profile — specialty, fees (online/offline), and available days.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click the "Book Appointment" button on the doctor\'s profile page.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Choose your consultation mode: Online (video call) or Offline (in-person visit).', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Select an available date and time slot from the calendar.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Fill in your name, phone, and reason for visit. Choose payment method (bKash / Nagad), enter transaction ID, and submit.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Done! Track your appointment status here — it starts as "Pending" and becomes "Confirmed" once approved.', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
                 ],
             ],
 
             'buy_medicines' => [
                 'title'    => 'How to buy medicines from the pharmacy',
-                'triggers' => ['buy medicine', 'order medicine', 'pharmacy', 'medicine shop', 'how to order medicine'],
-                'steps'    => [
-                    'Click "Medicine shop" in the navigation bar → ' . url('/medicines'),
-                    'Browse medicines or use the search bar to search by name, group, or manufacturer.',
-                    'Click on a medicine to view its details (strength, dosage, price, stock).',
-                    'Click "Add to Cart" on the medicine you want.',
-                    'Go to your cart → ' . url('/shop/cart'),
-                    'Adjust quantities using the + / - buttons. Remove items you don\'t need.',
-                    'Click "Checkout" (you must be logged in).',
-                    'Enter your delivery address. You can share your current GPS location for accurate delivery.',
-                    'Choose a payment method (bKash or Nagad), enter transaction ID.',
-                    'Submit your order. You\'ll get a confirmation.',
-                    'Track your order at "My medicine orders" → ' . url('/my/medicine-orders'),
+                'triggers' => [
+                    'buy medicine', 'order medicine', 'pharmacy', 'medicine shop',
+                    'how to order medicine', 'purchase medicine', 'get medicine',
+                ],
+                'steps' => [
+                    ['instruction' => 'Click "Medicine shop" in the navigation bar to browse the full medicine catalog.', 'link' => url('/medicines'), 'link_text' => 'Medicine Shop'],
+                    ['instruction' => 'Search for medicines by name, group (e.g. antibiotics), or manufacturer using the search bar.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click on a medicine to view its details: strength, dosage, price, and stock availability.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Add to Cart" on any medicine you want to order.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Go to your cart to review items, adjust quantities, or remove medicines.', 'link' => url('/shop/cart'), 'link_text' => 'View Cart'],
+                    ['instruction' => 'Click "Checkout" (you must be logged in). Enter your delivery address — you can share your GPS location for accurate delivery.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Choose payment method (bKash / Nagad) and enter your transaction ID. Submit your order.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Track your delivery status here.', 'link' => url('/my/medicine-orders'), 'link_text' => 'My Medicine Orders'],
                 ],
             ],
 
             'view_prescription' => [
                 'title'    => 'How to see and download your prescription',
-                'triggers' => ['prescription', 'see prescription', 'download prescription', 'my prescription', 'doctor prescription'],
-                'steps'    => [
-                    'Go to "My appointments" → ' . url('/my/appointments'),
-                    'Find the appointment where the doctor issued a prescription (it should be marked "Completed").',
-                    'Click on that appointment to open its details.',
-                    'Scroll down to the "Prescription" section — you\'ll see the medicines, advice, and diagnosis.',
-                    'Click "Download Prescription PDF" to get a printable copy.',
-                    'If the prescription includes medicines, click "Buy all prescribed medicines" to add them all to your cart in one click.',
+                'triggers' => [
+                    'prescription', 'see prescription', 'download prescription',
+                    'my prescription', 'doctor prescription', 'view prescription',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to "My appointments" to see all your consultations.', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
+                    ['instruction' => 'Find the appointment where the doctor issued a prescription (usually marked "Completed").', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click on that appointment to open its full details page.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Scroll down to the "Prescription" section — you\'ll see the diagnosis, medicines, and doctor\'s advice.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Download Prescription PDF" to get a printable copy.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'If the prescription includes medicines, click "Buy all prescribed medicines" to add them all to your cart in one click.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'view_lab_results' => [
                 'title'    => 'How to view and download lab test results',
-                'triggers' => ['lab result', 'test result', 'lab test', 'diagnostic result', 'download result', 'see my test'],
-                'steps'    => [
-                    'Go to "My appointments" → ' . url('/my/appointments'),
-                    'Open the appointment where the doctor requested a lab test.',
-                    'Scroll down to the "Lab Tests" section.',
-                    'When hospital staff has processed and uploaded your results, a "Download" button will appear.',
-                    'Click "Download" to get the PDF report.',
-                    'Note: If the result hasn\'t been uploaded yet, the status will show "Pending" or "Processing".',
+                'triggers' => [
+                    'lab result', 'test result', 'lab test', 'diagnostic result',
+                    'download result', 'see my test', 'view test result',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to "My appointments".', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
+                    ['instruction' => 'Open the appointment where the doctor requested a lab test.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Scroll down to the "Lab Tests" section within the appointment details.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'When hospital staff has uploaded your results, a "Download" button will appear. Click it to get the PDF report.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Note: If the result hasn\'t been uploaded yet, the status will show "Pending" or "Processing" — check back later.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'request_ambulance' => [
                 'title'    => 'How to request an emergency ambulance',
-                'triggers' => ['ambulance', 'emergency', 'call ambulance', 'request ambulance', 'emergency service'],
-                'steps'    => [
-                    'No login is required for ambulance requests — anyone can use this.',
-                    'Click the red "🚑 Ambulance" button in the top navigation bar (visible on every page).',
-                    'Or go directly to → ' . url('/ambulance'),
-                    'Fill in your name, phone number, your current location, and describe the emergency.',
-                    'Click "Submit Request".',
-                    'Hospital staff will see your request immediately and dispatch a vehicle.',
-                    'You\'ll see the request status update on the page. Keep the page open or note down your request reference.',
+                'triggers' => [
+                    'ambulance', 'call ambulance', 'request ambulance',
+                    'emergency ambulance', 'emergency service', 'urgent help',
+                ],
+                'steps' => [
+                    ['instruction' => '🚨 No login is required — anyone can request an ambulance.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click the red "🚑 Ambulance" button in the top navigation bar (visible on every page), or go directly here:', 'link' => url('/ambulance'), 'link_text' => '🚑 Request Ambulance'],
+                    ['instruction' => 'Fill in your name, phone number, current location, and a brief description of the emergency.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Submit Request". Hospital staff sees this immediately and dispatches a vehicle.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Keep the page open to see real-time status updates as the ambulance is dispatched.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'use_qna' => [
                 'title'    => 'How to ask a health question in the Q&A forum',
-                'triggers' => ['ask question', 'q&a', 'qna', 'post question', 'health question', 'forum'],
-                'steps'    => [
-                    'Click "Q&A" in the navigation bar → ' . url('/qna'),
-                    'Browse existing questions — your question may already have been answered.',
-                    'To ask a new question, log in first (or register if you don\'t have an account).',
-                    'Click "Ask a Question" and fill in a clear title and detailed description.',
-                    'Submit your question — doctors and staff can see and respond to it.',
-                    'You can also answer other patients\' questions if you have relevant experience.',
+                'triggers' => [
+                    'ask question', 'q&a', 'qna', 'post question',
+                    'health question', 'forum', 'ask a question',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to the Q&A forum to browse existing questions — yours may already be answered.', 'link' => url('/qna'), 'link_text' => 'Q&A Forum'],
+                    ['instruction' => 'Log in to your account to ask a new question or post an answer.', 'link' => url('/login'), 'link_text' => 'Login'],
+                    ['instruction' => 'Click "Ask a Question" and write a clear title and detailed description of your question.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Submit your question — doctors and staff can respond. You\'ll see answers appear under your question.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'update_profile' => [
                 'title'    => 'How to update my medical profile',
-                'triggers' => ['update profile', 'my profile', 'medical info', 'health profile', 'edit profile', 'complete profile', 'date of birth', 'blood group'],
-                'steps'    => [
-                    'Log in and click "My profile" in the navigation bar → ' . url('/my/profile'),
-                    'Fill in or update: date of birth, gender, height, weight.',
-                    'Add any allergies (e.g., penicillin, peanuts).',
-                    'Add known medical conditions (e.g., diabetes, hypertension).',
-                    'Add your home address for medicine deliveries.',
-                    'Click "Save Profile" to update.',
-                    'A complete profile helps doctors during your consultation and ensures accurate medical records.',
-                    'Note: If your profile is incomplete, you\'ll see a yellow reminder banner on every page until it\'s complete.',
+                'triggers' => [
+                    'update profile', 'my profile', 'medical info', 'health profile',
+                    'edit profile', 'complete profile', 'date of birth', 'blood group',
+                    'medical profile',
+                ],
+                'steps' => [
+                    ['instruction' => 'Log in and click "My profile" in the navigation bar.', 'link' => url('/my/profile'), 'link_text' => 'My Profile'],
+                    ['instruction' => 'Fill in or update: date of birth, gender, height, and weight.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Add any known allergies (e.g. penicillin, peanuts) and medical conditions (e.g. diabetes, hypertension).', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Add your home address for medicine deliveries.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Save Profile". A complete profile helps doctors give you better care.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Tip: If your profile is incomplete, a yellow reminder banner will appear on every page until you complete it.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'leave_review' => [
                 'title'    => 'How to leave a review for a doctor',
-                'triggers' => ['review', 'rate doctor', 'feedback doctor', 'leave review', 'write review'],
-                'steps'    => [
-                    'Go to the doctor\'s profile page → ' . url('/doctors'),
-                    'Click on the doctor you visited.',
-                    'Scroll down to the "Reviews" section at the bottom of their profile.',
-                    'Select a star rating (1–5 stars).',
-                    'Write your comment about your experience.',
-                    'Click "Submit Review". You must be logged in.',
+                'triggers' => [
+                    'review', 'rate doctor', 'feedback doctor',
+                    'leave review', 'write review', 'doctor review',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to the Doctors directory and click on the doctor you want to review.', 'link' => url('/doctors'), 'link_text' => 'Browse Doctors'],
+                    ['instruction' => 'Scroll down to the "Reviews" section at the bottom of the doctor\'s profile.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Select a star rating (1–5 stars) and write your feedback about the consultation experience.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Submit Review" (you must be logged in).', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'chat_with_doctor' => [
-                'title'    => 'How to chat with my doctor during an appointment',
-                'triggers' => ['chat with doctor', 'message doctor', 'send message doctor', 'appointment chat', 'talk to doctor'],
-                'steps'    => [
-                    'Go to "My appointments" → ' . url('/my/appointments'),
-                    'Open a confirmed appointment.',
-                    'Scroll down to the "Chat" section at the bottom of the appointment page.',
-                    'Type your message in the text box.',
-                    'You can also attach files (images, PDFs, documents) using the attach button.',
-                    'Click "Send". The doctor will see your message in their panel.',
-                    'Note: Chat is only available for confirmed/active appointments, not pending ones.',
+                'title'    => 'How to chat with my doctor',
+                'triggers' => [
+                    'chat with doctor', 'message doctor', 'send message doctor',
+                    'appointment chat', 'talk to doctor', 'contact my doctor',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to "My appointments" and open a confirmed appointment.', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
+                    ['instruction' => 'Scroll down to the "Chat" section at the bottom of the appointment details page.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Type your message in the text box. You can also attach files (images, PDFs, documents) using the attach button.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Send". The doctor will see your message in their panel.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Note: Chat is only available for confirmed/active appointments, not pending ones.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'check_appointment_status' => [
                 'title'    => 'How to check my appointment status',
-                'triggers' => ['appointment status', 'check appointment', 'my appointment', 'is my appointment confirmed'],
-                'steps'    => [
-                    'Go to "My appointments" → ' . url('/my/appointments'),
-                    'Your appointments are listed with their current status:',
-                    '  • Pending — waiting for admin/staff to confirm',
-                    '  • Confirmed — approved, you can attend / join the online meeting',
-                    '  • Completed — consultation is done',
-                    '  • Cancelled — appointment was cancelled',
-                    'Click on any appointment to view full details including doctor info, meeting link (for online), and prescription.',
+                'triggers' => [
+                    'appointment status', 'check appointment', 'my appointment',
+                    'is my appointment confirmed', 'appointment confirmed',
+                ],
+                'steps' => [
+                    ['instruction' => 'Go to "My appointments" to see all your bookings with their current status.', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
+                    ['instruction' => 'Status meanings: Pending = waiting for staff to confirm. Confirmed = approved, attend or join the online meeting. Completed = consultation done. Cancelled = appointment cancelled.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click on any appointment to view full details including meeting link (for online), prescription, and lab tests.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'account_settings' => [
                 'title'    => 'How to change my account name, email, or password',
-                'triggers' => ['change password', 'change email', 'account settings', 'update account', 'settings'],
-                'steps'    => [
-                    'Click "Account Settings" in the navigation bar → ' . url('/settings/profile'),
-                    'Update your display name or email address.',
-                    'To change your password, enter your current password, then your new password twice.',
-                    'Click "Save Changes".',
+                'triggers' => [
+                    'change password', 'change email', 'account settings',
+                    'update account', 'settings', 'reset password',
+                ],
+                'steps' => [
+                    ['instruction' => 'Click "Account Settings" in the navigation bar.', 'link' => url('/settings/profile'), 'link_text' => 'Account Settings'],
+                    ['instruction' => 'Update your display name or email address in the form.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'To change your password: enter your current password, then your new password twice.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Click "Save Changes" to apply.', 'link' => null, 'link_text' => null],
                 ],
             ],
 
             'diagnostic_services' => [
                 'title'    => 'How to find and book diagnostic tests / lab services',
-                'triggers' => ['diagnostic', 'lab test', 'blood test', 'x-ray', 'diagnostic service', 'test booking', 'available tests'],
-                'steps'    => [
-                    'Click "Diagnostic Services" in the navigation bar → ' . url('/diagnostic-services'),
-                    'Browse the list of available tests (blood work, imaging, etc.).',
-                    'Click on a test to see: description, fee (in BDT), lab room number, and location.',
-                    'Note: Diagnostic tests are typically requested by your doctor during a consultation.',
-                    'Your doctor adds a test request to your appointment. Staff will contact you or you can walk into the lab room.',
-                    'After tests are done, results appear in your appointment details → ' . url('/my/appointments'),
+                'triggers' => [
+                    'diagnostic', 'lab test', 'blood test', 'x-ray',
+                    'diagnostic service', 'test booking', 'available tests',
+                    'where to do test', 'how to get test',
+                ],
+                'steps' => [
+                    ['instruction' => 'Click "Diagnostic Services" in the navigation bar to browse all available lab tests.', 'link' => url('/diagnostic-services'), 'link_text' => 'Diagnostic Services'],
+                    ['instruction' => 'Click on any test to see: description, fee (in BDT), lab room number, and location.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'Note: Diagnostic tests are usually requested by your doctor during a consultation. The doctor adds the test to your appointment record.', 'link' => null, 'link_text' => null],
+                    ['instruction' => 'After the test is done, results appear in your appointment details page.', 'link' => url('/my/appointments'), 'link_text' => 'My Appointments'],
                 ],
             ],
 
             'how_hellomed_works' => [
                 'title'    => 'What is HelloMed and how does it work?',
-                'triggers' => ['what is hellomed', 'how does hellomed work', 'explain hellomed', 'what can hellomed do', 'about hellomed'],
-                'steps'    => [
-                    'HelloMed is a comprehensive digital hospital platform that lets you manage your healthcare online.',
-                    'What you can do as a patient:',
-                    '  • Book doctor appointments (online video or offline in-person) → ' . url('/doctors'),
-                    '  • Order medicines from the integrated pharmacy → ' . url('/medicines'),
-                    '  • Request emergency ambulances (no login needed) → ' . url('/ambulance'),
-                    '  • Browse health articles written by doctors → ' . url('/articles'),
-                    '  • Ask health questions in the community Q&A → ' . url('/qna'),
-                    '  • Access lab/diagnostic services → ' . url('/diagnostic-services'),
-                    '  • Download digital prescriptions and lab results → ' . url('/my/appointments'),
-                    '  • Chat with your doctor during a consultation',
-                    'Register for free to get started → ' . url('/register'),
+                'triggers' => [
+                    'what is hellomed', 'how does hellomed work', 'explain hellomed',
+                    'what can hellomed do', 'about hellomed', 'what can i do',
+                    'what does this website', 'features of hellomed',
+                ],
+                'steps' => [
+                    ['instruction' => 'HelloMed is a comprehensive digital hospital platform for managing your healthcare online.', 'link' => url('/'), 'link_text' => 'Visit Home'],
+                    ['instruction' => 'Book doctor appointments (online video or offline in-person) — browse all doctors here:', 'link' => url('/doctors'), 'link_text' => 'Browse Doctors'],
+                    ['instruction' => 'Order medicines from the integrated e-pharmacy:', 'link' => url('/medicines'), 'link_text' => 'Medicine Shop'],
+                    ['instruction' => 'Request emergency ambulances — no login needed:', 'link' => url('/ambulance'), 'link_text' => '🚑 Ambulance'],
+                    ['instruction' => 'Read health articles written by doctors:', 'link' => url('/articles'), 'link_text' => 'Health Articles'],
+                    ['instruction' => 'Browse and book diagnostic lab tests:', 'link' => url('/diagnostic-services'), 'link_text' => 'Diagnostic Services'],
+                    ['instruction' => 'Ask health questions in the community forum:', 'link' => url('/qna'), 'link_text' => 'Q&A Forum'],
+                    ['instruction' => 'Register for free to get started:', 'link' => url('/register'), 'link_text' => 'Register Now'],
                 ],
             ],
+
         ];
     }
 
     /**
-     * The site's navigation bar structure, described for the AI.
+     * Returns a simplified summary of workflows (titles + triggers only) for the LLM system prompt.
+     * The full steps are never sent to the LLM — they're returned directly from PHP.
+     *
+     * @return array<string, array{title: string, triggers: array<string>}>
+     */
+    private function summariseWorkflows(): array
+    {
+        $guides = [];
+        foreach ($this->getWorkflowGuides() as $key => $workflow) {
+            $guides[$key] = [
+                'title'    => $workflow['title'],
+                'triggers' => $workflow['triggers'],
+            ];
+        }
+        return $guides;
+    }
+
+    /**
+     * The site's navigation bar structure.
      *
      * @return array<string, mixed>
      */
@@ -408,13 +339,13 @@ class SiteMapBuilder
                 'Register' => url('/register'),
             ],
             'patient_logged_in' => [
-                'My profile'          => url('/my/profile'),
-                'My appointments'     => url('/my/appointments'),
-                'My records'          => url('/my/records'),
-                'My medicine orders'  => url('/my/medicine-orders'),
-                'Account Settings'    => url('/settings/profile'),
-                '🔔 Notifications'    => 'Bell icon in top-right of navigation',
-                'Logout'              => 'Logout button',
+                'My profile'         => url('/my/profile'),
+                'My appointments'    => url('/my/appointments'),
+                'My records'         => url('/my/records'),
+                'My medicine orders' => url('/my/medicine-orders'),
+                'Account Settings'   => url('/settings/profile'),
+                '🔔 Notifications'   => 'Bell icon in top-right of navigation bar',
+                'Logout'             => 'Logout button in navigation bar',
             ],
         ];
     }

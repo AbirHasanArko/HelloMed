@@ -99,7 +99,62 @@ class SymptomMapper
         'ear pain'           => ['ent', 'otolaryngology'],
         'hearing'            => ['ent', 'otolaryngology'],
 
-        // ── Emergency ──────────────────────────────────────────
+        // ── Nutrition & Dietetics ───────────────────────────────────
+        'underweight'        => ['nutrition', 'dietetics', 'diet'],
+        'overweight'         => ['nutrition', 'dietetics', 'diet', 'endocrinology'],
+        'weight gain'        => ['nutrition', 'dietetics', 'diet'],
+        'weight loss'        => ['nutrition', 'dietetics', 'diet', 'endocrinology'],
+        'obesity'            => ['nutrition', 'dietetics', 'diet', 'endocrinology'],
+        'malnutrition'       => ['nutrition', 'dietetics', 'diet'],
+        'diet'               => ['nutrition', 'dietetics'],
+        'nutrition'          => ['nutrition', 'dietetics'],
+        'bmi'                => ['nutrition', 'dietetics'],
+        'vitamin deficiency' => ['nutrition', 'dietetics'],
+        'anemia'             => ['nutrition', 'dietetics', 'general'],
+        'cholesterol'        => ['nutrition', 'dietetics', 'cardiology'],
+        'fatty liver'        => ['nutrition', 'dietetics', 'gastroenterology'],
+        'eating habit'       => ['nutrition', 'dietetics'],
+        'meal plan'          => ['nutrition', 'dietetics'],
+
+        // ── Pediatrics ────────────────────────────────────────
+        'child'              => ['pediatrics', 'child health'],
+        'baby'               => ['pediatrics'],
+        'infant'             => ['pediatrics'],
+        'toddler'            => ['pediatrics'],
+        'kid'                => ['pediatrics'],
+        'vaccination'        => ['pediatrics'],
+        'growth delay'       => ['pediatrics', 'endocrinology'],
+
+        // ── Neurology ────────────────────────────────────────────
+        'seizure'            => ['neurology'],
+        'epilepsy'           => ['neurology'],
+        'numbness'           => ['neurology', 'orthopedics'],
+        'tremor'             => ['neurology'],
+        'memory loss'        => ['neurology', 'psychiatry'],
+        'dementia'           => ['neurology', 'psychiatry'],
+        'paralysis'          => ['neurology', 'emergency'],
+        'dizziness'          => ['neurology', 'general'],
+        'vertigo'            => ['neurology', 'ent'],
+
+        // ── Dermatology ───────────────────────────────────────
+        'acne'               => ['dermatology'],
+        'eczema'             => ['dermatology'],
+        'psoriasis'          => ['dermatology'],
+        'hair loss'          => ['dermatology'],
+        'itching'            => ['dermatology', 'allergy'],
+        'rash'               => ['dermatology'],
+        'hives'              => ['dermatology', 'allergy'],
+        'skin'               => ['dermatology'],
+
+        // ── Oncology ────────────────────────────────────────────
+        'cancer'             => ['oncology'],
+        'tumor'              => ['oncology'],
+        'chemotherapy'       => ['oncology'],
+        'lymphoma'           => ['oncology'],
+        'leukemia'           => ['oncology'],
+        'biopsy'             => ['oncology'],
+
+        // ── Emergency ────────────────────────────────────────────
         'emergency'          => ['emergency'],
         'accident'           => ['emergency', 'orthopedics'],
         'stroke'             => ['emergency', 'neurology'],
@@ -187,13 +242,42 @@ class SymptomMapper
             'change my', 'update my', 'edit my profile',
             'call ambulance', 'request ambulance',
             'upload', 'attach', 'submit', 'navigate',
-            'step by step', 'explain', 'guide me',
-            'what does this', 'what is the', 'tell me about the website',
+            'step by step', 'guide me',
+            'tell me about the website',
         ];
 
         foreach ($patterns as $pattern) {
             if (str_contains($lower, $pattern)) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Detects if the message is a general medical information query
+     * ("what is X?", "what does X mean?", "explain X") rather than a symptom report.
+     * These queries should search tests/articles by the term directly.
+     */
+    public static function isInfoQuery(string $message): bool
+    {
+        $lower = strtolower(trim($message));
+
+        $patterns = [
+            'what is a ', 'what is an ', 'what is the ', 'what is ',
+            'what are ', 'what does ', 'what do ',
+            'explain ', 'define ', 'tell me about ',
+            'what test', 'what kind of test', 'what type of test',
+            'what means', 'meaning of',
+        ];
+
+        foreach ($patterns as $pattern) {
+            if (str_starts_with($lower, $pattern) || str_contains($lower, $pattern)) {
+                // Extra check: not about the website
+                if (! self::isHowToQuery($message)) {
+                    return true;
+                }
             }
         }
 
