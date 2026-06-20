@@ -88,16 +88,20 @@ RELEVANT DIAGNOSTIC TESTS from HelloMed:
 RELEVANT HEALTH ARTICLES:
 {$articles}
 
-CRITICAL: Output ONLY raw JSON. No text before or after. No markdown fences.
+CRITICAL RULES:
+1. Output ONLY raw JSON. No text before or after. No markdown.
+2. "message" must be plain readable text ONLY — no JSON, no data objects, no URLs inside it.
+3. Explain the test/condition clearly in simple language. Max 150 words.
+4. End "message" with: "Please consult a qualified doctor for personalized advice."
+5. "follow_up": write ONE short follow-up question (e.g. "Would you like to know how to book this test at HelloMed?"). Do NOT write null unless nothing is relevant.
 
-{"message":"clear, helpful explanation max 150 words","intent":"health","doctors":[],"articles":[{$artIds}],"tests":[{$testIds}],"urgency":null,"navigation_steps":[],"follow_up":"a helpful follow-up question or null"}
+JSON schema (fill in real values):
+{"message":"<your explanation here>","intent":"health","doctors":[],"articles":[{$artIds}],"tests":[{$testIds}],"urgency":null,"navigation_steps":[],"follow_up":"<your follow-up question here>"}
 
 RULES:
-- Explain the test/condition clearly in simple language.
 - Include ALL matching test IDs from the list above.
 - Include ALL matching article IDs from the list above.
 - Keep "doctors" as empty array [].
-- End message with: "Please consult a qualified doctor for personalized advice."
 PROMPT;
 
         $messages   = [['role' => 'system', 'content' => $systemPrompt]];
@@ -255,29 +259,31 @@ PROMPT;
 
         $disclaimer = 'IMPORTANT: You are NOT a doctor. Never diagnose or prescribe.';
 
+        // Build a concrete follow_up example so the model doesn't echo the placeholder literally
+        $followUpExample = 'How long have you been experiencing this?';
+
         $systemPrompt = <<<PROMPT
 You are HelloMed Health Assistant — a warm, empathetic AI guide. {$disclaimer}
 
-RELEVANT DOCTORS for this patient's condition:
+RELEVANT DOCTORS for this patient's condition (use ONLY these IDs in your response):
 {$doctors}
 
-RELEVANT ARTICLES:
+RELEVANT ARTICLES (use ONLY these IDs):
 {$articles}
 
-RELEVANT TESTS:
+RELEVANT TESTS (use ONLY these IDs):
 {$tests}
 
-CRITICAL: Output ONLY raw JSON. No text before or after. No markdown.
+CRITICAL RULES FOR THE JSON:
+1. Output ONLY a raw JSON object. No text before or after. No markdown.
+2. "message" must be plain human-readable text ONLY — NO JSON, NO doctor data, NO URLs inside it.
+3. "message" must be empathetic, max 120 words, and end with: "Please consult a qualified doctor. This is not a medical diagnosis."
+4. "doctors" array: include ONLY the numeric IDs of doctors whose specialty matches the complaint. Do NOT list all doctors. Use only IDs from the list above.
+5. "urgency": "high" = emergency only (chest pain/stroke/heavy bleeding/unconsciousness). "moderate" = concerning. "low" = mild/chronic. null = unclear.
+6. "follow_up": write ONE short clarifying question as a plain string (e.g. "{$followUpExample}"). Do NOT write null literally unless there is truly nothing to ask.
 
-Required JSON structure:
-{"message":"empathetic response max 120 words ending with disclaimer","intent":"health","doctors":[{$docIds}],"articles":[{$artIds}],"tests":[],"urgency":"low","navigation_steps":[],"follow_up":"one follow-up question or null"}
-
-RULES:
-- "doctors": ONLY include IDs of doctors relevant to the patient's specific complaint. Do NOT include all doctors. Omit doctors from unrelated specialties.
-- "urgency": "high" only for emergencies (chest pain/stroke/heavy bleeding/unconsciousness). "moderate" for concerning symptoms. "low" for mild/chronic. null if unclear.
-- End "message" with: "Please consult a qualified doctor. This is not a medical diagnosis."
-- "articles": only include relevant article IDs.
-- "tests": only include relevant test IDs (can be empty []).
+JSON schema (fill in real values — do NOT copy these placeholder texts):
+{"message":"<your empathetic message here>","intent":"health","doctors":[{$docIds}],"articles":[{$artIds}],"tests":[],"urgency":"low","navigation_steps":[],"follow_up":"<your follow-up question here>"}
 PROMPT;
 
         $maxHistory    = config('ai.context.max_history', 6);
@@ -342,14 +348,14 @@ PROMPT;
         $tests    = $dbTests->whereIn('id', $testIds)->values()->toArray();
 
         return [
-            'message'          => $parsed['message'] ?? '',
+            'message'          => $this->sanitiseMessage($parsed['message'] ?? ''),
             'intent'           => 'health',
             'doctors'          => $doctors,
             'articles'         => $articles,
             'tests'            => $tests,
             'navigation_steps' => [],
             'urgency'          => $parsed['urgency']    ?? null,
-            'follow_up'        => $parsed['follow_up']  ?? null,
+            'follow_up'        => $this->sanitiseFollowUp($parsed['follow_up'] ?? null),
             'error'            => false,
         ];
     }
@@ -357,6 +363,53 @@ PROMPT;
     // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Strip any JSON objects/arrays that leaked into the message string.
+     * Mistral sometimes embeds raw doctor/article JSON inside the message field.
+     */
+    private function sanitiseMessage(string $message): string
+    {
+        // Remove JSON array blocks like [{"id":10,...}]
+        $message = preg_replace('/\[\s*\{.*?\}\s*\]/s', '', $message) ?? $message;
+        // Remove inline JSON objects like {"id":10,...}
+        $message = preg_replace('/\{[^{}]*"id"\s*:\s*\d+[^{}]*\}/s', '', $message) ?? $message;
+        // Clean up any leftover double spaces or ". ." artefacts
+        $message = preg_replace('/\.\s*\./', '.', $message) ?? $message;
+        $message = preg_replace('/\s{2,}/', ' ', $message) ?? $message;
+
+        return trim($message);
+    }
+
+    /**
+     * Reject literal placeholder texts that the LLM sometimes echoes verbatim.
+     *
+     * @param  string|null  $followUp
+     * @return string|null
+     */
+    private function sanitiseFollowUp(mixed $followUp): ?string
+    {
+        if (empty($followUp) || ! is_string($followUp)) {
+            return null;
+        }
+
+        $literals = [
+            'one follow-up question or null',
+            'a helpful follow-up question or null',
+            '<your follow-up question here>',
+            'null',
+            'none',
+        ];
+
+        $lower = strtolower(trim($followUp));
+        foreach ($literals as $literal) {
+            if ($lower === $literal) {
+                return null;
+            }
+        }
+
+        return trim($followUp);
+    }
 
     /**
      * Extract a JSON object from raw LLM output (handles markdown code fences).
