@@ -205,9 +205,12 @@ PROMPT;
     // ══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Stage 1: LLM picks relevant department names.
-     * Stage 2: PHP fetches doctors/articles/tests from those departments.
-     * Stage 3: LLM writes the empathetic response message.
+     * Stage 1: LLM picks relevant department names (tiny JSON array — reliable).
+     * Stage 2: PHP fetches doctors/articles/tests from those departments (live DB).
+     * Stage 3: LLM writes ONLY plain text message + follow-up. PHP assembles cards.
+     *
+     * This completely eliminates JSON-in-message corruption — the LLM never touches
+     * structured data in Stage 3.
      */
     private function handleHealth(string $message, array $history): array
     {
@@ -216,92 +219,80 @@ PROMPT;
         $deptList = implode(', ', $allDepts);
 
         $classifyPrompt = <<<PROMPT
-You are a medical triage assistant. Given a patient's message, identify which HelloMed hospital department(s) are most relevant.
+You are a medical triage assistant. Identify the most relevant hospital department(s) for the patient's message.
 
 Available departments: {$deptList}
 
 Patient message: "{$message}"
 
-Respond with ONLY a JSON array of department names from the list above that are relevant.
-Maximum 3 departments. Use exact names. Example: ["Nutrition and Dietetics","Cardiology"]
-If unsure, return the single most relevant department. Never return an empty array.
+Output ONLY a JSON array of department names. Max 3. Exact names only.
+Example: ["Psychiatry"]
 PROMPT;
 
-        $deptRaw  = $this->ollama->generate($classifyPrompt);
-        $deptPick = $this->extractJsonArray($deptRaw ?? '');
-
-        // Validate picked names against actual departments
-        $validDepts = array_filter(
+        $deptRaw    = $this->ollama->generate($classifyPrompt);
+        $deptPick   = $this->extractJsonArray($deptRaw ?? '');
+        $validDepts = array_values(array_filter(
             $deptPick,
-            fn (string $name): bool => in_array($name, $allDepts, true),
-        );
+            fn (string $n): bool => in_array($n, $allDepts, true),
+        ));
 
         Log::info('AI: Department classification', [
-            'message'   => $message,
-            'raw'       => $deptRaw,
-            'picked'    => $deptPick,
-            'valid'     => $validDepts,
+            'message' => $message,
+            'picked'  => $validDepts,
         ]);
 
         // ── Stage 2: DB context from validated departments ───────────────────
-        $dbContext = $this->context->buildForDepartments(
-            $message,
-            array_values($validDepts),
-        );
+        $dbContext = $this->context->buildForDepartments($message, $validDepts);
 
-        // ── Stage 3: LLM generates empathetic message ────────────────────────
-        $doctors  = json_encode($dbContext['doctors'],  JSON_UNESCAPED_SLASHES);
-        $articles = json_encode($dbContext['articles'], JSON_UNESCAPED_SLASHES);
-        $tests    = json_encode($dbContext['tests'],    JSON_UNESCAPED_SLASHES);
-        $docIds   = implode(', ', array_column($dbContext['doctors'],  'id'));
-        $artIds   = implode(', ', array_column($dbContext['articles'], 'id'));
-        $urgEmoji = '⚠️';
+        // Build a short doctor name list for the prompt (names only — no JSON)
+        $doctorNames = implode(', ', array_column($dbContext['doctors'], 'name'));
+        $deptNames   = implode(' / ', $validDepts ?: ['our departments']);
 
-        $disclaimer = 'IMPORTANT: You are NOT a doctor. Never diagnose or prescribe.';
-
-        // Build a concrete follow_up example so the model doesn't echo the placeholder literally
-        $followUpExample = 'How long have you been experiencing this?';
-
-        $systemPrompt = <<<PROMPT
-You are HelloMed Health Assistant — a warm, empathetic AI guide. {$disclaimer}
-
-RELEVANT DOCTORS for this patient's condition (use ONLY these IDs in your response):
-{$doctors}
-
-RELEVANT ARTICLES (use ONLY these IDs):
-{$articles}
-
-RELEVANT TESTS (use ONLY these IDs):
-{$tests}
-
-CRITICAL RULES FOR THE JSON:
-1. Output ONLY a raw JSON object. No text before or after. No markdown.
-2. "message" must be plain human-readable text ONLY — NO JSON, NO doctor data, NO URLs inside it.
-3. "message" must be empathetic, max 120 words, and end with: "Please consult a qualified doctor. This is not a medical diagnosis."
-4. "doctors" array: include ONLY the numeric IDs of doctors whose specialty matches the complaint. Do NOT list all doctors. Use only IDs from the list above.
-5. "urgency": "high" = emergency only (chest pain/stroke/heavy bleeding/unconsciousness). "moderate" = concerning. "low" = mild/chronic. null = unclear.
-6. "follow_up": write ONE short clarifying question as a plain string (e.g. "{$followUpExample}"). Do NOT write null literally unless there is truly nothing to ask.
-
-JSON schema (fill in real values — do NOT copy these placeholder texts):
-{"message":"<your empathetic message here>","intent":"health","doctors":[{$docIds}],"articles":[{$artIds}],"tests":[],"urgency":"low","navigation_steps":[],"follow_up":"<your follow-up question here>"}
-PROMPT;
-
+        // ── Stage 3: LLM writes ONLY plain text (no JSON, no IDs, no URLs) ──
         $maxHistory    = config('ai.context.max_history', 6);
         $recentHistory = array_slice($history, -$maxHistory);
 
-        $messages = [['role' => 'system', 'content' => $systemPrompt]];
+        $historyText = '';
         foreach ($recentHistory as $turn) {
-            $messages[] = ['role' => $turn['role'], 'content' => $turn['content']];
+            $role         = $turn['role'] === 'user' ? 'Patient' : 'Assistant';
+            $historyText .= "{$role}: {$turn['content']}\n";
         }
-        $messages[] = ['role' => 'user', 'content' => $message];
 
-        $raw = $this->ollama->chat($messages);
+        $plainPrompt = <<<PROMPT
+You are HelloMed Health Assistant — warm, empathetic, and supportive.
+
+{$historyText}Patient: {$message}
+
+Write a caring, empathetic response (max 100 words) for a patient who has the above concern.
+Available specialists at HelloMed: {$doctorNames} ({$deptNames}).
+
+FORMAT — output exactly 2 lines, nothing else:
+MESSAGE: <your empathetic message ending with "Please consult a qualified doctor. This is not a medical diagnosis.">
+FOLLOWUP: <one short follow-up question to better understand the patient, or NONE>
+
+Do NOT include doctor names, links, JSON, or data in the MESSAGE line.
+PROMPT;
+
+        $raw = $this->ollama->generate($plainPrompt);
 
         if (empty($raw)) {
             return $this->errorResponse();
         }
 
-        return $this->parseHealthResponse($raw, $dbContext);
+        // ── Assemble response from plain-text output + DB data ───────────────
+        [$msgText, $followUp] = $this->parsePlainResponse($raw);
+
+        return [
+            'message'          => $msgText,
+            'intent'           => 'health',
+            'doctors'          => $dbContext['doctors'],   // All dept-filtered doctors as cards
+            'articles'         => $dbContext['articles'],
+            'tests'            => $dbContext['tests'],
+            'navigation_steps' => [],
+            'urgency'          => $this->detectUrgency($message),
+            'follow_up'        => $followUp,
+            'error'            => false,
+        ];
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -363,6 +354,82 @@ PROMPT;
     // ══════════════════════════════════════════════════════════════════════════
     // Helpers
     // ══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Parse the LLM's plain-text Stage 3 response (LINE: prefix format).
+     * Returns [messageText, followUp|null].
+     *
+     * Expected format:
+     *   MESSAGE: <empathetic text>
+     *   FOLLOWUP: <question> or NONE
+     *
+     * @return array{0: string, 1: string|null}
+     */
+    private function parsePlainResponse(string $raw): array
+    {
+        $lines   = array_map('trim', explode("\n", $raw));
+        $message = '';
+        $followUp = null;
+
+        foreach ($lines as $line) {
+            if (str_starts_with(strtoupper($line), 'MESSAGE:')) {
+                $message = trim(substr($line, 8));
+            } elseif (str_starts_with(strtoupper($line), 'FOLLOWUP:')) {
+                $candidate = trim(substr($line, 9));
+                $lower     = strtolower($candidate);
+                if ($lower !== 'none' && $lower !== 'null' && $lower !== '') {
+                    $followUp = $candidate;
+                }
+            }
+        }
+
+        // Fallback: if the LLM ignored the format, just use the whole raw text as the message
+        if (empty($message)) {
+            $message = trim(strip_tags($raw));
+        }
+
+        // Ensure disclaimer is present
+        if (! str_contains($message, 'consult a qualified doctor')) {
+            $message = rtrim($message, '.') . '. Please consult a qualified doctor. This is not a medical diagnosis.';
+        }
+
+        return [$message, $followUp];
+    }
+
+    /**
+     * Detect urgency level from the patient message using keyword matching.
+     * This is done in PHP so we don't rely on the LLM for structured output.
+     *
+     * @return 'high'|'moderate'|'low'|null
+     */
+    private function detectUrgency(string $message): ?string
+    {
+        $lower = strtolower($message);
+
+        $high = [
+            'chest pain', 'can\'t breathe', 'difficulty breathing', 'not breathing',
+            'stroke', 'unconscious', 'collapsed', 'heavy bleeding', 'severe bleeding',
+            'heart attack', 'cardiac arrest', 'emergency', 'ambulance',
+        ];
+        foreach ($high as $kw) {
+            if (str_contains($lower, $kw)) {
+                return 'high';
+            }
+        }
+
+        $moderate = [
+            'severe', 'unbearable', 'very bad', 'intense pain', 'high fever',
+            'vomiting blood', 'cannot eat', 'cannot sleep', 'suicidal',
+            'shortness of breath', 'passing out', 'fainting',
+        ];
+        foreach ($moderate as $kw) {
+            if (str_contains($lower, $kw)) {
+                return 'moderate';
+            }
+        }
+
+        return 'low';
+    }
 
     /**
      * Strip any JSON objects/arrays that leaked into the message string.
