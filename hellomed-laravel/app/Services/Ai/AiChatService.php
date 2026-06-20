@@ -245,8 +245,18 @@ PROMPT;
         $dbContext = $this->context->buildForDepartments($message, $validDepts);
 
         // Build a short doctor name list for the prompt (names only — no JSON)
-        $doctorNames = implode(', ', array_column($dbContext['doctors'], 'name'));
-        $deptNames   = implode(' / ', $validDepts ?: ['our departments']);
+        // Build a human-readable doctor summary for the LLM (plain text — no JSON)
+        $doctorSummary = '';
+        foreach ($dbContext['doctors'] as $doc) {
+            $fee  = ! empty($doc['online_fee'])  ? '৳' . $doc['online_fee'] . ' online'
+                  : (! empty($doc['offline_fee']) ? '৳' . $doc['offline_fee'] . ' offline' : '');
+            $exp  = ! empty($doc['experience_years']) ? $doc['experience_years'] . ' yrs exp.' : '';
+            $line = "- {$doc['name']} — {$doc['specialty']}";
+            if ($exp)  { $line .= ", {$exp}"; }
+            if ($fee)  { $line .= ", {$fee}"; }
+            $doctorSummary .= $line . "\n";
+        }
+        $deptNames = implode(' / ', $validDepts ?: ['our departments']);
 
         // ── Stage 3: LLM writes ONLY plain text (no JSON, no IDs, no URLs) ──
         $maxHistory    = config('ai.context.max_history', 6);
@@ -263,14 +273,17 @@ You are HelloMed Health Assistant — warm, empathetic, and supportive.
 
 {$historyText}Patient: {$message}
 
-Write a caring, empathetic response (max 100 words) for a patient who has the above concern.
-Available specialists at HelloMed: {$doctorNames} ({$deptNames}).
+Available HelloMed specialists for this concern:
+{$doctorSummary}
+Write a caring, empathetic response (max 120 words):
+- Acknowledge the patient's concern with empathy.
+- Naturally mention the specialist(s) by name and specialty (e.g. "Dr. Nazmul Huda, a Psychiatrist with 11 years of experience, is available to help.").
+- End with: "Please consult a qualified doctor. This is not a medical diagnosis."
+- Do NOT include links, URLs, IDs, or raw data.
 
 FORMAT — output exactly 2 lines, nothing else:
-MESSAGE: <your empathetic message ending with "Please consult a qualified doctor. This is not a medical diagnosis.">
+MESSAGE: <your empathetic message>
 FOLLOWUP: <one short follow-up question to better understand the patient, or NONE>
-
-Do NOT include doctor names, links, JSON, or data in the MESSAGE line.
 PROMPT;
 
         $raw = $this->ollama->generate($plainPrompt);
