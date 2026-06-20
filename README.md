@@ -1,389 +1,471 @@
 <div align="center">
   <img src="hellomed-laravel/public/logo.svg" alt="HelloMed Logo" width="120" />
   <h1>HelloMed</h1>
-  <p><b>A Comprehensive Hospital Management & Digital Health Platform</b></p>
+  <p><b>A Comprehensive, State-of-the-Art Hospital Management & Digital Health Platform</b></p>
 
   [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
   [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
   [![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
+  [![Ollama](https://img.shields.io/badge/AI-Ollama%20%2B%20Mistral-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com)
   [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](LICENSE)
 </div>
 
 <br/>
 
+## 📑 Table of Contents
+
+- [About HelloMed](#-about-hellomed)
+  - [Vision \& Mission](#vision--mission)
+  - [The Aesthetic](#the-aesthetic)
+- [State-of-the-Art Features](#-state-of-the-art-features)
+  - [AI Health Assistant](#-ai-health-assistant)
+  - [Automated Financial Payout Engine](#-automated-financial-payout-engine)
+  - [Advanced E-Pharmacy \& Geolocation](#-advanced-e-pharmacy--geolocation)
+  - [Real-time Emergency Dispatch](#-real-time-emergency-dispatch)
+  - [Comprehensive Notification System](#-comprehensive-notification-system)
+  - [Automated Prescriptions \& Lab Results](#-automated-prescriptions--lab-results)
+- [AI Integration Deep Dive](#-ai-integration-deep-dive)
+  - [Query Modes](#query-modes)
+  - [System Architecture](#system-architecture)
+  - [The Three-Stage RAG Pipeline](#the-three-stage-rag-pipeline)
+  - [Model Recommendations](#model-recommendations)
+- [Role-Based Workflows](#-role-based-workflows)
+  - [Role-Based Access Control (RBAC) Matrix](#-role-based-access-control-rbac-matrix)
+- [Architecture \& Design Patterns](#-architecture--design-patterns)
+- [Technology Stack](#-technology-stack)
+- [Database Schema \& Relations](#️-database-schema--relations)
+- [Module Integrations](#-module-integrations)
+- [Security \& Industry Standards](#️-security--industry-standards)
+- [Getting Started (Local Setup)](#-getting-started-local-setup)
+  - [Prerequisites](#prerequisites)
+  - [Installation Steps](#installation-steps)
+  - [Ollama AI Setup](#ollama-ai-setup)
+- [Seeded Data Overview](#-seeded-data-overview)
+- [API Documentation \& Links](#-api-documentation--links)
+- [Developer Info \& License](#-developer-info--license)
+
+---
+
 ## 🏥 About HelloMed
 
-HelloMed is a modern, full-stack hospital management system and digital health platform designed to bridge the gap between patients and healthcare providers. It provides a seamless experience for patients to book appointments (both online and offline), order medicines, request emergency ambulances, and read health articles, all while giving hospital staff, doctors, and administrators powerful tools to manage daily operations.
+### Vision & Mission
+HelloMed is a modern, full-stack hospital management system and digital health platform designed to bridge the gap between patients and healthcare providers. At the heart of this experience is a **Local, Privacy-First AI Health Assistant** that intelligently guides patients through symptom checking, provides step-by-step website navigation, and surfaces relevant doctors and articles. Beyond AI-driven guidance, HelloMed provides a seamless experience for patients to book appointments (both online and offline), order medicines, request emergency ambulances, and read health articles. Simultaneously, it gives hospital staff, doctors, and administrators powerful, centralized tools to manage daily operations, financials, and inventory.
 
-Developed with a clean, premium teal-and-white aesthetic, HelloMed focuses on user experience, performance, and accessibility.
-
----
-
-## ✨ Key Features
-
-- **Multi-Role Authentication & Authorization (RBAC)**
-  - Five distinct user roles: `Admin`, `Staff`, `Doctor`, `Pharmacist`, and `Patient`.
-- **Advanced Appointment System**
-  - **Online Consultations:** Book online slots with automated meeting link generation.
-  - **Offline/Walk-in:** Dedicated staff panel to instantly register walk-in patients and book physical appointments.
-- **Emergency Ambulance Dispatch**
-  - Public facing emergency request form with real-time staff dispatch tracking, location sharing, and status updates.
-- **Digital E-Pharmacy**
-  - Integrated medicine catalog with cart system, digital prescriptions verification, and seamless checkout.
-- **Health Knowledge Base & Blog**
-  - A fully featured CMS for health articles written by doctors, complete with a commenting system.
-- **Dynamic Homepage & Featured Entities**
-  - Admin controls to flag specific doctors, departments, and articles as "Featured" to dynamically rearrange the public homepage.
-- **Review & Feedback System**
-  - Patients can rate and leave feedback on doctor profiles after consultations.
-- **Patient-Doctor Chat**
-  - Patient-doctor appointment chat with read status and secure file attachment support.
-- **Lab Test Management Workflow**
-  - Doctors can request lab tests directly from the consultation panel.
-  - Staff process offline payments and securely upload PDF test results.
-  - Patients and doctors can securely download completed lab results from the platform.
-- **Comprehensive Admin Dashboard**
-  - Statistical overviews, CMS management, doctor scheduling, and system-wide audit logging.
-- **In-Website Notification System**
-  - Role-based notifications for Patients, Doctors, Pharmacists, Staff, and Admins.
-  - Async polling for unread badges and clickable notification cards with severity indicators (Red/Yellow/Green).
-  - Automated alerts for appointment updates, new chat messages, lab results, prescriptions, ambulance dispatch, medicine orders, and low stock warnings.
-- **Online Payment Integrations**
-  - Support for manual payment verification (bKash & Nagad) including sender number and transaction ID tracking during appointments and medicine purchases.
-- **Enhanced E-Pharmacy Workflow**
-  - Geolocation support allowing patients to share their current location, providing pharmacists with direct Google Maps links for delivery.
-  - Ability for pharmacists to explicitly override default order and payment statuses.
+### The Aesthetic
+Developed with a clean, premium teal-and-white aesthetic, HelloMed focuses heavily on user experience, performance, accessibility, and cutting-edge local AI integration. Custom CSS variables and strict layout consistency ensure a responsive, native-app feel across all devices.
 
 ---
 
-## 🛠 Tech Stack
+## ✨ State-of-the-Art Features
 
-HelloMed is built on a robust, modern technology stack ensuring scalability and ease of maintenance.
+HelloMed goes significantly beyond standard CRUD operations, implementing advanced, industry-grade workflows:
+
+### 🤖 AI Health Assistant
+A floating chat widget powered by a locally hosted Mistral LLM via Ollama. No data leaves the server, ensuring strict patient data privacy. Patients often don't know which specific medical department to visit for their symptoms - this AI elegantly solves that issue by analyzing their natural language symptoms and automatically routing them to the correct specialist department, all while maintaining strict medical safety and explicitly avoiding self-diagnosis. Features three distinct modes: symptom checking, general health info, and complete site navigation walkthroughs.
+
+### 💰 Automated Financial Payout Engine
+A centralized financial sync command (`app:sync-financials`) dynamically calculates Doctor commission cuts (e.g., 95% online, 85% offline) and Hospital profit cuts instantly upon appointment completion. It features smart reopening logic for employee payouts if salaries are adjusted mid-cycle.
+
+### 💊 Advanced E-Pharmacy & Geolocation
+An integrated medicine catalog with a cart system, digital prescription verification (allowing restricted medicines to be sold only with uploaded proof), and patient geolocation sharing for precise Google Maps delivery routing. Patients can seamlessly add all necessary prescribed medicines to their cart directly from their appointment page or prescription pdf with a single click.
+
+### 🚑 Real-time Emergency Dispatch
+A public-facing emergency ambulance request form with live staff dispatch tracking, status updates, GPS location sharing for precise pinpointing, and zero login barriers for critical situations.
+
+### 🔔 Comprehensive Notification System
+Role-based notifications for Patients, Doctors, Pharmacists, Staff, and Admins. Features async polling for unread badges and clickable notification cards with severity indicators (Red/Yellow/Green) for appointments, chats, lab results, prescriptions, and stock warnings.
+
+### 📄 Automated Prescriptions & Lab Results
+Doctors can digitally write structured prescriptions and request diagnostic tests directly from the consultation panel. The system automatically generates a formatted PDF prescription for the patient, while staff can securely process lab payments and upload diagnostic PDF results directly to the patient's portal for seamless digital delivery.
+
+---
+
+## 🧠 AI Integration Deep Dive
+
+The AI Assistant in HelloMed is designed with privacy, accuracy, and absolute determinism at its core. Instead of standard vector-based RAG, it uses a highly controlled architecture to prevent LLM hallucinations and JSON corruption.
+
+### Query Modes
+1. **Health Mode**: Patient describes symptoms → AI classifies department → PHP fetches live doctors/articles → AI responds empathetically mentioning them by name.
+2. **Info Mode**: "What is X?" queries → direct exact-match search against diagnostic tests and health articles.
+3. **How-To / Navigation Mode**: Pre-built step-by-step workflow guides (book appointment, order medicine, view prescription) with real, PHP-generated clickable links.
+
+### System Architecture
+
+```mermaid
+graph TB
+    subgraph "Browser (Patient)"
+        A["💬 AI Chat Widget<br/>Floating bubble on all pages"]
+        A -->|"POST /api/ai/chat"| B
+    end
+
+    subgraph "Laravel Backend"
+        B["AiChatController"] --> C["AiChatService"]
+        C --> D["Context Builder<br/>(queries DB for doctors, articles, tests)"]
+        C --> S["SiteMap Builder<br/>(generates route map + workflow guides)"]
+        C --> E["Ollama HTTP Client<br/>localhost:11434"]
+        D --> F[(MySQL DB<br/>doctors, articles,<br/>departments, tests)]
+        S --> R["Route Registry<br/>(named routes → URLs + descriptions)"]
+        C --> G["Response Parser<br/>(extracts suggestions + links)"]
+    end
+
+    subgraph "Ollama (Local)"
+        E -->|"POST /api/generate"| H["🤖 Mistral 7B"]
+        H -->|"Streaming JSON"| E
+    end
+
+    G --> A
+```
+
+### The Three-Stage RAG Pipeline
+
+```mermaid
+sequenceDiagram
+    participant P as 🧑 Patient
+    participant W as 💬 Chat Widget
+    participant L as 🛠 Laravel
+    participant DB as 🗃 MySQL
+    participant O as 🤖 Ollama
+
+    P->>W: "I have severe chest pain" OR "How do I book an appointment?"
+    W->>L: POST /api/ai/chat {message, history}
+    
+    Note over L: Step 1: Classify Intent
+    L->>L: Is this a health question<br/>or a website how-to question?
+    
+    alt Health Question
+        Note over L: Step 2a: Build Medical Context
+        L->>DB: Query departments, doctors, articles, tests
+        DB-->>L: Matching medical data
+    else Website How-To
+        Note over L: Step 2b: Build Site Context  
+        L->>L: Load SiteMap with routes,<br/>workflow guides, nav structure
+    end
+    
+    Note over L: Step 3: Construct Prompt
+    L->>L: Build system prompt with:<br/>- Medical data OR site map<br/>- Workflow guides<br/>- Link templates
+    
+    Note over L: Step 4: Generate Response
+    L->>O: POST /api/generate {model, prompt, context}
+    O-->>L: Streamed response
+    
+    Note over L: Step 5: Parse & Assemble UI
+    L->>L: Assemble PHP Doctor Cards<br/>(Zero LLM JSON generation risk)
+    
+    L-->>W: JSON {message, doctors[], articles[],<br/>navigation_steps[]}
+    W-->>P: Rendered cards OR step-by-step<br/>guide with clickable links
+```
+
+### Model Recommendations
+For optimal performance on local hardware, **Mistral 7B** is recommended (~4.1GB VRAM, ~3s latency), while **Phi3:Mini** is supported as an ultra-lightweight fallback for lower-end machines.
+
+---
+
+
+## 🔄 Role-Based Workflows
+
+The platform supports comprehensive, end-to-end workflows tailored for each specific user role.
+
+### 👤 1. Patient Workflow
+- **Onboarding:** Register a new account or browse the platform as a guest. (Ambulance requests and AI Chat are available without login).
+- **Profile Management:** Update personal medical history, allergies, height, weight, and contact information. Incomplete profiles trigger a site-wide reminder banner.
+- **Booking Consultations:** Filter doctors by department and specialty. Select between online or offline modes. Choose an available date/time slot, proceed to checkout, and verify payment via bKash/Nagad.
+- **Online Consultation & Chat:** Access the secure meeting link at the scheduled time. Use the integrated appointment chat to message the doctor or upload past medical documents (PDF/JPG) before the session.
+- **Post-Consultation:** Download the digital prescription PDF generated by the doctor. Click the auto-generated "Buy Medicines" link to instantly add prescribed items to the pharmacy cart.
+- **E-Pharmacy Shopping:** Browse the medicine catalog, add items to the cart, provide a delivery address (with Google Maps geolocation), and complete the purchase. Track order status in real-time.
+- **Diagnostics & Results:** View requested lab tests. Once staff uploads the results, download the PDF reports securely.
+- **Engagement:** Rate doctors and leave feedback after completed appointments. Ask health questions in the public Q&A forum.
+
+### 👨‍⚕️ 2. Doctor Workflow
+- **Profile & Schedule Management:** Log into the Doctor Dashboard. Update availability schedules (working days, online vs. offline hours, slot durations) and consultation fees.
+- **Appointment Management:** View upcoming appointments. Confirm or cancel bookings. Start online consultations by providing a meeting link.
+- **Patient Interaction:** Chat directly with patients within the appointment panel. Review uploaded patient documents prior to the meeting.
+- **Clinical Operations:** 
+  - **Prescriptions:** Write structured digital prescriptions (Diagnosis, Advice, Follow-up date) and add specific medicines with precise dosages.
+  - **Lab Tests:** Request specific diagnostic tests for the patient directly from the consultation panel.
+- **Financial Tracking:** View automated commission cuts for every completed appointment in real-time.
+- **Outreach & Authority:** Write and publish health articles to the public blog to establish authority and attract patients. Answer patient questions in the public Q&A forum.
+
+### 👔 3. Admin Workflow
+- **System Oversight:** Monitor the high-level `/analytics` dashboard containing dynamic Chart.js graphs for Hospital Net Profit, Monthly Income vs. Expense, and Payout distributions.
+- **Curation & CMS:** Manage Departments, Doctors, and Articles. Toggle `is_featured` flags to dynamically curate and reorganize the public homepage.
+- **User Management:** Register and manage new hospital staff members, doctors, and pharmacists. Handle role assignments.
+- **Financial & Payout Management:** Monitor the `employee_payouts` ledger. Settle pending payouts for doctors and staff. Review detailed audit logs for sensitive financial or status changes.
+- **Inventory Oversight:** Add new medicines, update pricing, and manage global inventory (including uploading medicine imagery).
+
+### 🚑 4. Staff Workflow
+- **Walk-in Management:** Register new patients arriving at the hospital. Book offline physical appointments on their behalf bypassing the standard patient checkout flow.
+- **Emergency Dispatch:** Monitor a live feed of incoming emergency ambulance requests. Dispatch vehicles and update real-time statuses for the patient.
+- **Diagnostic/Lab Processing:** Monitor lab tests requested by doctors. Process physical payments from patients at the counter, conduct the tests, and securely upload the resulting PDF reports to the patient's file.
+- **Content Moderation:** Review and moderate public article comments and Q&A forum entries to maintain community standards.
+
+### 💊 5. Pharmacist Workflow
+- **Inventory Management:** Actively monitor medicine stock levels. Update stock quantities, adjust prices, and categorize medicines by group and strength.
+- **Order Fulfillment:** Review incoming patient E-Pharmacy orders.
+- **Prescription Verification:** For restricted medicines, open the automatically attached digital prescription PDF to verify the doctor's authorization before approving the sale.
+- **Status Management:** Explicitly override default order and payment statuses to manage the physical dispatch and delivery lifecycle. Update orders to "Processing", "Dispatched", or "Delivered".
+
+### 🌍 6. Guest Workflow
+- **Exploration:** Browse all departments, doctor profiles, and public health articles.
+- **AI Assistance:** Chat with the floating AI Assistant to check symptoms, find doctors, or get site navigation help.
+- **Emergency:** Use the 1-click Ambulance Request form without needing to create an account.
+- **E-Pharmacy Browsing:** Search the medicine catalog and view prices (checkout requires login).
+
+### 🔐 Role-Based Access Control (RBAC) Matrix
+
+HelloMed employs a strict multi-role system, securing routes, sidebar navigation, and data visibility based on the authenticated user session.
+
+| Feature / Module | Patient | Doctor | Pharmacist | Staff | Admin | Guest |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Browse Doctors & Articles | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Use AI Assistant | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Request Ambulance | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Book Appointments | ✅ | ❌ | ❌ | ✅ (Walk-ins) | ❌ | ❌ |
+| View Own Prescriptions | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Order Medicines | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Manage Schedule & Slots | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Write Prescriptions | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Process Lab Tests | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Fulfill Medicine Orders | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| View Hospital Analytics | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Manage System Users | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+
+---
+
+## 🏗 Architecture & Design Patterns
+
+The platform follows a monolithic **Model-View-Controller (MVC)** architecture, greatly enhanced by modern Laravel ecosystem patterns. 
+
+Below is a diagram illustrating the typical request lifecycle and how the layers interact:
+
+```mermaid
+flowchart TD
+    Client([🌐 Browser / Client]) -->|HTTP Request| Routes[🛣️ routes/web.php]
+    Routes --> Middleware{🔒 Auth / Role<br>Middleware}
+    Middleware -->|Pass| Controller[🎮 Skinny Controller]
+    Middleware -->|Fail| Abort([403 Forbidden])
+    
+    Controller -->|1. Validates Data| FormRequest[📋 Form Request]
+    FormRequest -.->|Clean Data| Controller
+    
+    Controller -->|2. Delegates Business Logic| Service[⚙️ Service Class<br>e.g., AiChatService]
+    
+    Service -->|3. Queries / Mutates| Model[📦 Eloquent Model]
+    Model <--> DB[(🗃️ MySQL Database)]
+    
+    Service -.->|4. Returns Data| Controller
+    Controller -->|5. Passes Data| View[🎨 Blade View / JSON]
+    View -->|HTML / API Response| Client
+```
+
+1. **Service Repository Pattern**: Core business logic (e.g., `AiChatService`, `AppointmentSlotService`, `FinancialSyncService`) is abstracted away from controllers, ensuring controllers remain "skinny" and focused solely on HTTP request/response lifecycles.
+2. **Form Requests**: Deep validation logic, authorization checks, and data sanitization are offloaded to dedicated Form Request classes.
+3. **Idempotent Migrations**: Schema updates utilize defensive checks (`Schema::hasColumn`) to ensure safe, repeatable migrations in production environments.
+4. **State Management**: Handled natively via Blade components, keeping JavaScript dependencies to an absolute minimum. Auto-submitting forms manage SSR state filtering.
+
+---
+
+## 💻 Technology Stack
 
 ### Backend
 - **Framework:** Laravel 11.x
 - **Language:** PHP 8.2+
-- **Database:** MySQL (Relational, robust, standard for production environments)
-- **Security:** Laravel Sanctum (for any future API needs), built-in CSRF & XSS protection.
+- **Database:** MySQL (Relational, ACID-compliant, standard for health data)
+- **Security:** Laravel Sanctum, built-in CSRF & XSS protection, Password Hashing.
 
 ### Frontend
-- **Templating:** Laravel Blade (Server-side rendering for optimal SEO and performance)
-- **Styling:** Custom Vanilla CSS with CSS Variables (No external CSS frameworks required, completely bespoke premium design system)
+- **Templating:** Laravel Blade (Server-side rendering for optimal SEO, accessibility, and TTFB performance)
+- **Styling:** Custom Vanilla CSS with CSS Variables (No external frameworks; bespoke premium design system)
 - **Build Tool:** Vite (for rapid HMR and asset bundling)
-- **Interactivity:** Vanilla JavaScript (Lightweight DOM manipulation, dynamic filter submission)
+- **Interactivity:** Vanilla JavaScript (Lightweight DOM manipulation, dynamic filter submission, SSE streaming)
+
+### AI / LLM
+- **Runtime:** [Ollama](https://ollama.com) - Local LLM inference, completely bypassing cloud APIs
+- **Model:** `mistral` (7B) - runs entirely on the host machine
+- **Architecture:** Three-stage deterministic pipeline
+- **Privacy:** All patient queries stay on-device; HIPAA-compliant concept by default.
 
 ---
 
-## 🏗 Architecture
+## 🗄️ Database Schema & Relations
 
-The platform follows a classic **Monolithic MVC (Model-View-Controller)** architecture, enhanced with Laravel's powerful ecosystem.
+The database is highly relational, utilizing Eloquent ORM. Below is a macro-level Entity-Relationship (ER) diagram representing core connections.
 
-### Core Architectural Pillars
-1. **Routing & Middleware:** 
-   - Strict route grouping based on authentication and role checks (`role:admin,staff`, `role:doctor`, etc.).
-2. **Controllers & Form Requests:**
-   - Controllers are kept "skinny" by offloading validation to dedicated Form Request classes.
-3. **Database Relationships:**
-   - Deeply relational MySQL schema utilizing Eloquent ORM. 
-   - Notable relations: `User hasOne DoctorProfile`, `Appointment belongsTo Patient & Doctor`, `Article belongsTo Category & Author`.
-4. **State Management & UI:**
-   - Blade components and global layouts handle the UI state.
-   - Dynamic UI elements (like the Featured Doctors filter) use auto-submitting forms for SSR filtering.
-5. **Idempotent Migrations:**
-   - Schema updates (like adding `is_featured` columns) use `Schema::hasColumn` checks to ensure migrations can be re-run safely in MySQL environments.
-
----
-
-## 🔄 User Workflows
-
-### 👤 1. Patient Workflow
-1. **Onboarding:** Registers an account or browses the public directory as a guest. Ambulance calling does not require login.
-2. **Booking:** Filters doctors by department, selects an online or offline slot, and confirms the booking.
-3. **Consultation:** Accesses the online meeting link at the scheduled time or visits the hospital.
-4. **Post-Consultation:** Receives a digital prescription (PDF downloadable), medicine buying links are automatically added to the prescription. Buys prescribed medicines directly from the platform, and leaves a doctor review. Views and downloads any prescribed lab test results.
-
-### 👨‍⚕️ 2. Doctor Workflow
-1. **Management:** Logs into the Doctor Dashboard.
-2. **Schedule:** Updates availability (days, times, slot durations).
-3. **Appointments:** Views upcoming appointments, provides meeting links for online consults, requests lab tests, and writes digital prescriptions.
-4. **Outreach:** Authors and publishes health articles to the public blog.
-
-### 👔 3. Admin Workflow
-1. **Oversight:** Monitors total system statistics (patients, revenue, appointments).
-2. **Curation:** Manages Departments, Doctors, and Articles. Toggles the `is_featured` flags to curate the public homepage.
-3. **Staffing:** Registers new staff members, doctors, and pharmacists.
-
-### 🚑 4. Staff Workflow
-1. **Walk-ins:** Registers new patients on the spot and books offline appointments directly via the internal staff panel.
-2. **Lab Tests:** Monitors doctor-requested lab tests, conducts them, and securely uploads the results to the patient's appointment record.
-3. **Ambulance:** Monitors incoming emergency ambulance requests and dispatches vehicles, updating the status in real-time.
-
-### 💊 5. Pharmacist Workflow
-1. **Inventory:** Manages medicine stock, prices, and categorization.
-2. **Fulfillment:** Reviews patient orders, checks attached digital prescriptions for restricted medicines, and updates order fulfillment statuses.
+```mermaid
+erDiagram
+    USER ||--o| PATIENT_PROFILE : has
+    USER ||--o| DOCTOR : has
+    DEPARTMENT ||--o{ DOCTOR : employs
+    PATIENT_PROFILE ||--o{ APPOINTMENT : books
+    DOCTOR ||--o{ APPOINTMENT : attends
+    APPOINTMENT ||--o{ APPOINTMENT_PRESCRIPTION_ITEM : contains
+    APPOINTMENT ||--o{ LAB_TEST_REQUEST : requests
+    PATIENT_PROFILE ||--o{ MEDICINE_ORDER : places
+    MEDICINE_ORDER ||--o{ MEDICINE_ORDER_ITEM : contains
+    MEDICINE ||--o{ MEDICINE_ORDER_ITEM : included_in
+    USER ||--o{ ARTICLE : authors
+    ARTICLE_CATEGORY ||--o{ ARTICLE : categorizes
+```
 
 ---
 
-## 🚀 Getting Started
+## 🔌 Module Integrations
 
-Follow these steps to run HelloMed locally on your machine.
+HelloMed features tight workflow integration across its core modules. Data and financials naturally flow from the consultation room into the rest of the hospital's ecosystem:
+
+```mermaid
+flowchart LR
+    Consultation([🩺 Consultation]) -->|Writes Prescription| Pharmacy([💊 E-Pharmacy])
+    Consultation -->|Requests Tests| Labs([🔬 Diagnostics / Labs])
+    Pharmacy -->|Medicine Sales| Financials([💰 Financial Payouts])
+    Labs -->|Test Fees| Financials
+    Consultation -->|Consultation Fees| Financials
+    Financials -->|Calculates Splits| Admin([👔 HR / Admin Ledger])
+```
+
+- **Consultation ➡️ Pharmacy**: Doctors write digital prescriptions inside the appointment panel. Patients download the resulting PDF and directly click to order those specific medicines. The Pharmacist verifies the attached prescription PDF during order fulfillment.
+
+  ```mermaid
+  sequenceDiagram
+      participant D as 👨‍⚕️ Doctor
+      participant S as ⚙️ System
+      participant P as 🧑 Patient
+      participant Rx as 💊 Pharmacist
+
+      D->>S: Writes Digital Prescription
+      S-->>P: Generates PDF & 'Buy Medicines' link
+      P->>S: Clicks Buy -> Adds to Cart -> Checkout
+      S-->>Rx: Notifies Pharmacist of New Order
+      Rx->>S: Opens Order & Views attached PDF
+      Rx->>Rx: Verifies Doctor's signature & validity
+      Rx->>S: Approves & Dispatches Order
+      S-->>P: Status updated to 'Dispatched'
+  ```
+
+- **Consultation ➡️ Labs**: Doctors request specific diagnostic tests. Hospital Staff process the payment and upload the PDF results. Both Patient and Doctor receive notifications and can download the results securely.
+- **Financials ➡️ HR/Admin**: Paid appointments and medicine sales trigger the `sync-financials` job, calculating exact hospital profit cuts and logging amounts into the `employee_payouts` ledger automatically for payroll processing.
+
+  ```mermaid
+  sequenceDiagram
+      participant P as 🧑 Patient
+      participant DB as 🗃️ Database
+      participant Cron as 🔄 sync-financials
+      participant A as 👔 Admin
+
+      P->>DB: Pays ৳1000 for Online Appointment
+      DB->>DB: Status -> 'completed'
+      Cron->>DB: Scans for unsynced completed appts
+      Note over Cron: Applies 95% Doctor Cut
+      Cron->>DB: Logs ৳950 to Employee Payouts
+      Cron->>DB: Logs ৳50 to Hospital Net Profit
+      Cron->>DB: Marks Appt as 'financials_synced'
+      A->>DB: Views Analytics Dashboard & Payouts Ledger
+  ```
+
+---
+
+## 🛡️ Security & Industry Standards
+
+- **Authentication & Authorization**: Built-in Laravel Auth coupled with strict Route Middleware checks (`role:admin,staff`, etc.).
+- **Data Integrity**: Deep relational database constraints, cascading deletes where appropriate, and strict PHP-backed status enums.
+- **Audit Logging**: Sensitive operations (financial adjustments, status overrides, user role changes) are securely logged in the `audit_logs` table for admin review and compliance.
+- **Payment Lifecycle Security**: Inventory commit/release safeguards ensure medicine stock isn't permanently depleted until a payment is fully verified.
+- **Protected File Uploads**: Prescriptions and lab results are stored securely in protected storage directories and served strictly via authenticated routes.
+
+---
+
+## 🚀 Getting Started (Local Setup)
 
 ### Prerequisites
 - PHP 8.2 or higher
 - Composer
 - Node.js & NPM
+- MySQL Server
 
-### Installation
+### Installation Steps
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/hellomed.git
-   cd hellomed
+   git clone https://github.com/AbirHasanArko/HelloMed.git
+   cd hellomed/hellomed-laravel
    ```
 
-2. **Install PHP Dependencies**
+2. **Install Dependencies**
    ```bash
    composer install
-   ```
-
-3. **Install Frontend Dependencies**
-   ```bash
    npm install
    ```
 
-4. **Environment Setup**
+3. **Environment & Keys**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-5. **Database Configuration**
-   HelloMed uses MySQL. Create a database named `hellomed` in your MySQL server (e.g., via XAMPP phpMyAdmin) and ensure your `.env` has the correct `DB_CONNECTION=mysql` settings.
+4. **Database Setup**
+   Create an empty database named `hellomed` in your MySQL instance. Ensure `.env` has `DB_CONNECTION=mysql`.
    ```bash
-   php artisan migrate --seed
-   ```
-   *(Note: The seeder populates the database with departments, professional male doctors, articles, and medicines).*
-
-6. **Storage Link**
-   Link the public storage directory to serve images properly:
-   ```bash
+   # Migrate tables and seed the database with demo data
+   php artisan migrate:fresh --seed
+   
+   # Link storage for image uploads
    php artisan storage:link
    ```
 
-7. **Run the Application**
-   Open two terminals to run the backend and frontend simultaneously:
-   
-   *Terminal 1:*
+5. **Run the Application**
+   Open two terminal windows:
    ```bash
+   # Terminal 1: Boot backend server
    php artisan serve
-   ```
-   
-   *Terminal 2:*
-   ```bash
+
+   # Terminal 2: Compile frontend assets
    npm run dev
    ```
 
-8. **Visit `http://localhost:8000`** in your browser!
-
-## Local Setup
-
-Run all commands from inside `hellomed-laravel/`.
-
-1. Install dependencies
-
+### Ollama AI Setup
+The AI assistant requires [Ollama](https://ollama.com) running locally.
 ```bash
-composer install
+# Pull the model
+ollama pull mistral
+
+# Start the Ollama server (runs on localhost:11434 by default)
+ollama serve          
 ```
-
-2. Create environment file
-
-```bash
-cp .env.example .env
-```
-
-On Windows PowerShell, use:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-3. Generate key
-
-```bash
-php artisan key:generate
-```
-
-4. Prepare database and seed data
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-5. Create storage symlink (for uploads)
-
-```bash
-php artisan storage:link
-```
-
-6. Start app
-
-```bash
-php artisan serve
-```
-
-Open: `http://127.0.0.1:8000`
-
-## One-Command Bootstrap
-
-`composer.json` includes a setup script:
-
-```bash
-composer run setup
-```
-
-This installs dependencies, prepares `.env`, generates app key, migrates DB, and builds frontend assets.
-
-## Development Commands
-
-Run full dev stack with server, queue listener, log tailing, and Vite:
-
-```bash
-composer run dev
-```
-
-Run tests:
-
-```bash
-php artisan test
-```
-
-or:
-
-```bash
-composer run test
-```
-
-## Operational Jobs
-
-### Scheduler
-
-Appointment reminders and scheduled tasks should run via scheduler:
-
-```bash
-php artisan schedule:run
-```
-
-Production cron:
-
-```cron
-* * * * * cd /path/to/hellomed-laravel && php artisan schedule:run >> /dev/null 2>&1
-```
-
-### Queue Worker
-
-For background notifications and retry flows, run a queue worker/listener:
-
-```bash
-php artisan queue:listen --tries=1 --timeout=0
-```
-
-### Reminder Command
-
-Manual reminder run:
-
-```bash
-php artisan appointments:send-reminders
-```
-
-## Seeded Accounts (Common Local Defaults)
-
-- Admin: `admin@hellomed.test` / `password123`
-- Staff: `staff@hellomed.test` / `password123`
-- Pharmacist: `pharmacist@hellomed.test` / `password123`
-- Patient: `patient@hellomed.test` / `password123`
-- Doctor: `doctor@hellomed.test` / `password123`
-
-Register patient accounts from the public register page.
-
-## Demo Flow Suggestions
-
-1. Register as patient and book an appointment
-2. Confirm appointment from admin/staff panel
-3. Open appointment from doctor panel, add meeting link and prescription
-4. Login as patient, open appointment details, download PDF, buy medicines
-5. Login as pharmacist, review order and open prescription attachment
-6. Review audit logs from admin panel
-
-## Deployment Notes
-
-### Recommended (free, closest to production)
-
-- Oracle Cloud Always Free VPS + free subdomain (DuckDNS/No-IP)
-
-### Works for demo only
-
-- InfinityFree + free subdomain
-
-### Not recommended for this full backend
-
-- Vercel-only deployment (serverless mismatch for persistent Laravel workflows)
-- Cloudflare-only hosting (good as DNS/CDN/proxy, not a full Laravel host)
-
-## Security and Integrity Notes
-
-- Role middleware protects admin/staff/doctor/pharmacist/patient areas
-- Appointment and order updates apply status/payment constraints
-- Inventory commit/release safeguards exist for payment lifecycle
-- Audit logs capture sensitive operational changes
-- Auth includes failed login and lockout-related event handling
-
-## Known Constraints
-
-- Payment providers are mock/test flows in current implementation
-- Chat uses polling, not WebSocket realtime
-- Some advanced workflows require scheduler/queue processes to be running
-- Free shared hosting may not support reliable queues/scheduler behavior
-
-## Troubleshooting
-
-### Prescriptions or uploads not opening
-
-- Run `php artisan storage:link`
-- Confirm `storage` and `bootstrap/cache` are writable
-- Use route-based secure file endpoints where configured (for pharmacist order prescriptions)
-
-### Route/config changes not reflected
-
-```bash
-php artisan optimize:clear
-```
-
-### Database issues after schema updates
-
-```bash
-php artisan migrate:fresh --seed
-```
-
-## Recent Updates
-
-- **Medicines Seeding & Image Assignment:** Added `app:import-medicines-csv` to seed medicines from a CSV file and `app:assign-medicine-images` to automatically map generated placeholder images to existing inventory based on type.
-- **E-Pharmacy Enhancements:** Implemented a new search panel allowing patients to search medicines by name or filter by group. Fixed pagination layout to use a completely custom, pure vanilla CSS and HTML design instead of default Tailwind.
-- **Inventory Management:** Upgraded the pharmacist and admin medicine forms to support multipart file uploads for custom medicine images, complete with image previews.
-- **Pharmacy Financial Tracking:** Added `buying_price` to the `medicines` table to track wholesale inventory costs. Implemented the `app:seed-buying-prices` command to calculate approximate buying prices based on typical industry profit margins (e.g., generics, branded, OTC). The pharmacy management dashboard now features an Income/Expense/Profit overview to track total inventory expenses, sales income, and net profit.
-
-## License
-
-Copyright (c) 2026 Abir Hasan Arko. All rights reserved.
-
-This source code and all associated files are proprietary and confidential. Please see the [LICENSE](LICENSE) file for more details.
+*(If Ollama is not running, the platform gracefully disables the chat widget with a friendly offline message).*
 
 ---
+
+## 👥 Seeded Data Overview
+
+Running the `DatabaseSeeder` populates a complete, demo-ready environment instantly:
+
+**Roles & Accounts (Password: `password123`)**
+- Admin: `admin@hellomed.test`
+- Staff: `staff@hellomed.test`
+- Pharmacist: `pharmacist@hellomed.test`
+- Doctor: `doctor@hellomed.test` (plus specific doctors like `nazmul@hellomed.test`)
+- Patient: `patient@hellomed.test`
+
+**Initial Data Sandbox Includes:**
+- **8 Departments** (Cardiology, Orthopedics, Dental, Psychiatry, Neurology, Pediatrics, Dermatology, Oncology).
+- **8 Specialist Doctors** with detailed bios, varying consultation fees, and online/offline availability schedules.
+- **3 Article Categories** containing pre-written, published health articles.
+- **10+ Verified Medicines** spanning tablets, capsules, and syrups with simulated stock, prices, and placeholder imagery.
+- **Diagnostic Tests Catalog** (via `AvailableTestSeeder`).
+- **Pre-populated Workflows**: Fully booked appointments, written prescriptions, lab tests, and Q&A entries to instantly demonstrate functionality without needing manual data entry.
+
+---
+
+## 🔗 API Documentation & Links
+
+- **Detailed API Documentation**: Check out the [API_DOCUMENTATION.md](API_DOCUMENTATION.md) file for comprehensive details on the AI Health Assistant JSON endpoints, including exact Request/Response schemas and authentication methods.
+- **Web Routes**: All user-facing and backend SSR routes are organized logically in `routes/web.php` grouped by applied middleware.
+- **License**: See the [LICENSE](LICENSE) file for proprietary usage restrictions and guidelines.
+
 ---
 
 <div align="center">
   <p><b>Developed with ❤️ for the future of digital healthcare.</b></p>
-  <p><i>Developed by Abir Hasan Arko</i></p>
+  <p><i>Developed by <a href="https://github.com/AbirHasanArko">Abir Hasan Arko</a></i></p>
 </div>
 
----
 ---
