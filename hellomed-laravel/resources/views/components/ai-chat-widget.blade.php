@@ -58,6 +58,51 @@
     transform: translateY(0) scale(1);
     pointer-events: all;
 }
+.ai-panel.resizing {
+    transition: none;
+    user-select: none;
+}
+
+/* ── Resize Handle ───────────────────────────────────── */
+.ai-resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    cursor: nw-resize;
+    z-index: 10000;
+    border-radius: 24px 0 6px 0;
+    display: grid;
+    place-items: center;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.35s ease, background 0.2s ease;
+}
+.ai-resize-handle.visible {
+    opacity: 1;
+}
+.ai-panel.resizing .ai-resize-handle {
+    opacity: 1;
+    background: rgba(255,255,255,0.3);
+}
+.ai-resize-handle:hover {
+    background: rgba(255,255,255,0.32);
+}
+.ai-resize-icon {
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+    width: 18px;
+    height: 18px;
+}
+.ai-resize-icon svg {
+    width: 18px;
+    height: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+
 
 /* Panel header */
 .ai-header {
@@ -365,6 +410,20 @@
 {{-- Chat Panel --}}
 <div class="ai-panel" id="aiPanel" role="dialog" aria-label="AI Health Assistant">
 
+    {{-- Resize Handle --}}
+    <div class="ai-resize-handle" id="aiResizeHandle" title="Drag to resize">
+        <div class="ai-resize-icon">
+            <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Top-left arrow -->
+                <path d="M2 2 L8 2 M2 2 L2 8" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Bottom-right arrow -->
+                <path d="M16 16 L10 16 M16 16 L16 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Diagonal line connecting them -->
+                <line x1="3" y1="3" x2="15" y2="15" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2.5 2"/>
+            </svg>
+        </div>
+    </div>
+
     {{-- Header --}}
     <div class="ai-header">
         <div class="ai-header-avatar">🤖</div>
@@ -408,6 +467,7 @@
     const SESSION_KEY  = 'hm_ai_session';
     const HISTORY_KEY  = 'hm_ai_history';
     const OPEN_KEY     = 'hm_ai_open';
+    const SIZE_KEY     = 'hm_ai_size';
     const CSRF         = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
     let sessionId   = localStorage.getItem(SESSION_KEY) || crypto.randomUUID();
@@ -418,15 +478,97 @@
     localStorage.setItem(SESSION_KEY, sessionId);
 
     /* ── Elements ─────────────────────────────────────────────── */
-    const fab       = document.getElementById('aiFab');
-    const panel     = document.getElementById('aiPanel');
-    const closeBtn  = document.getElementById('aiClose');
-    const messages  = document.getElementById('aiMessages');
-    const input     = document.getElementById('aiInput');
-    const sendBtn   = document.getElementById('aiSend');
-    const statusDot = document.getElementById('aiStatusDot');
-    const statusLbl = document.getElementById('aiStatusLabel');
-    const urgency   = document.getElementById('aiUrgency');
+    const fab          = document.getElementById('aiFab');
+    const panel        = document.getElementById('aiPanel');
+    const closeBtn     = document.getElementById('aiClose');
+    const messages     = document.getElementById('aiMessages');
+    const input        = document.getElementById('aiInput');
+    const sendBtn      = document.getElementById('aiSend');
+    const statusDot    = document.getElementById('aiStatusDot');
+    const statusLbl    = document.getElementById('aiStatusLabel');
+    const urgency      = document.getElementById('aiUrgency');
+    const resizeHandle = document.getElementById('aiResizeHandle');
+
+    /* ── Resize Logic ─────────────────────────────────────────── */
+    const MIN_W = 300, MAX_W = 900;
+    const MIN_H = 380, MAX_H = Math.round(window.innerHeight * 0.9);
+
+    // Restore saved size
+    const savedSize = JSON.parse(localStorage.getItem(SIZE_KEY) || 'null');
+    if (savedSize) {
+        panel.style.width  = savedSize.w + 'px';
+        panel.style.height = savedSize.h + 'px';
+    }
+
+    // Idle-auto-hide: show handle on panel mousemove, hide after 2.5s of inactivity
+    let hideHandleTimer = null;
+    function showHandle() {
+        resizeHandle.classList.add('visible');
+        clearTimeout(hideHandleTimer);
+        hideHandleTimer = setTimeout(() => {
+            if (!panel.classList.contains('resizing')) {
+                resizeHandle.classList.remove('visible');
+            }
+        }, 2500);
+    }
+    panel.addEventListener('mousemove', showHandle);
+    panel.addEventListener('mouseenter', showHandle);
+    panel.addEventListener('mouseleave', () => {
+        clearTimeout(hideHandleTimer);
+        if (!panel.classList.contains('resizing')) {
+            resizeHandle.classList.remove('visible');
+        }
+    });
+
+    resizeHandle.addEventListener('mousedown', startResize);
+    resizeHandle.addEventListener('touchstart', startResize, { passive: false });
+
+    function startResize(e) {
+        e.preventDefault();
+        const isTouch   = e.type === 'touchstart';
+        const startX    = isTouch ? e.touches[0].clientX : e.clientX;
+        const startY    = isTouch ? e.touches[0].clientY : e.clientY;
+        const startW    = panel.offsetWidth;
+        const startH    = panel.offsetHeight;
+        const panelRect = panel.getBoundingClientRect();
+        // Anchor: panel right & bottom edges stay fixed (panel is anchored bottom-right)
+        const anchorRight  = window.innerWidth  - panelRect.right;
+        const anchorBottom = window.innerHeight - panelRect.bottom;
+
+        panel.classList.add('resizing');
+        document.body.style.cursor = 'nw-resize';
+        document.body.style.userSelect = 'none';
+
+        function onMove(ev) {
+            const cx = isTouch ? ev.touches[0].clientX : ev.clientX;
+            const cy = isTouch ? ev.touches[0].clientY : ev.clientY;
+            const dx = startX - cx; // dragging left grows width
+            const dy = startY - cy; // dragging up grows height
+            const newW = Math.min(MAX_W, Math.max(MIN_W, startW + dx));
+            const newH = Math.min(window.innerHeight - anchorBottom - 20, Math.max(MIN_H, startH + dy));
+            panel.style.width  = newW + 'px';
+            panel.style.height = newH + 'px';
+        }
+
+        function onUp() {
+            panel.classList.remove('resizing');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            localStorage.setItem(SIZE_KEY, JSON.stringify({
+                w: panel.offsetWidth,
+                h: panel.offsetHeight,
+            }));
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup',   onUp);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend',  onUp);
+        }
+
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup',   onUp);
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend',  onUp);
+    }
 
     /* ── Open / close ─────────────────────────────────────────── */
     function openPanel() {
