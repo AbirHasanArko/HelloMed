@@ -156,7 +156,7 @@ class AppointmentController extends Controller
                 'New Appointment Needs Approval',
                 "{$appointment->patient_name} requested an appointment with {$appointment->doctor->name}.",
                 'normal',
-                route($staff->role . '.appointments.index')
+                route('admin.appointments.index')
             ));
         }
 
