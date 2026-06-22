@@ -18,6 +18,21 @@
                 </div>
             </div>
             <div class="card">
+                {{-- Prominent "Already have an account" banner --}}
+                <a href="{{ route('login') }}" style="
+                    display:flex; align-items:center; justify-content:space-between;
+                    gap:12px; padding:14px 18px; border-radius:12px; margin-bottom:24px;
+                    background: linear-gradient(135deg, var(--primary-light), var(--accent));
+                    border: 1px solid var(--accent-strong); text-decoration:none;
+                    transition: box-shadow 0.2s, transform 0.2s;
+                " onmouseover="this.style.boxShadow='var(--shadow-glow)';this.style.transform='translateY(-1px)'"
+                   onmouseout="this.style.boxShadow='none';this.style.transform='none'">
+                    <div>
+                        <div style="font-weight:700; font-size:14px; color:var(--primary-strong);">Already have an account?</div>
+                        <div style="font-size:12px; color:var(--primary); margin-top:2px;">Sign in to continue →</div>
+                    </div>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;opacity:0.8;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                </a>
                 <h2 style="margin-bottom:24px;">Create account</h2>
                 <form method="POST" action="{{ route('register.store') }}">
                     @csrf
@@ -38,8 +53,9 @@
                         <input type="password" name="password_confirmation" required>
                     </label>
                     <button class="button" type="submit" style="width:100%;justify-content:center;">Create account</button>
-                    <p class="muted" style="margin-top: 16px; text-align:center;">Already have an account? <a href="{{ route('login') }}">Login</a>.</p>
+                    <p class="muted" style="margin-top: 16px; text-align:center;">Already have an account? <a href="{{ route('login') }}" style="font-weight:600;color:var(--primary);">Log In</a></p>
                 </form>
+
             </div>
         </div>
     </section>
