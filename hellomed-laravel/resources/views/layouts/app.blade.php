@@ -37,7 +37,7 @@
             --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
             --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.08), 0 8px 20px rgba(15, 23, 42, 0.04);
             --shadow-glow: 0 0 20px rgba(13, 148, 136, 0.15);
-            --nav-bg: rgba(240, 245, 244, 0.85);
+            --nav-bg: rgba(240, 245, 244, 0.96);
             --overlay-gradient: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 100%);
             --notice-bg: #ecfdf5;
             --notice-text: #065f46;
@@ -78,7 +78,7 @@
             --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
             --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.4);
             --shadow-glow: 0 0 20px rgba(45, 212, 191, 0.15);
-            --nav-bg: rgba(13, 17, 23, 0.85);
+            --nav-bg: rgba(13, 17, 23, 0.96);
             --overlay-gradient: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.75) 100%);
             --notice-bg: #042f2e;
             --notice-text: #5eead4;
@@ -121,28 +121,30 @@
             backdrop-filter: blur(20px) saturate(1.6);
             -webkit-backdrop-filter: blur(20px) saturate(1.6);
             border-bottom: 1px solid var(--border-light);
-            z-index: 100;
+            z-index: 500;
             transition: background 0.3s ease, border-color 0.3s ease;
         }
         .nav-inner {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            padding: 14px 0;
+            gap: 8px;
+            padding: 0;
+            height: 56px;
         }
         .brand {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-weight: 800;
             letter-spacing: 0.2px;
             text-decoration: none;
+            flex-shrink: 0;
         }
         .brand-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
             display: grid;
             place-items: center;
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
@@ -158,17 +160,13 @@
         .brand-text small {
             display: block;
             font-weight: 400;
-            font-size: 11px;
+            font-size: 10px;
             color: var(--muted);
             letter-spacing: 0;
         }
-        .nav-links {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
-        .nav-links a, .pill, .ghost-button {
+
+        /* ===== GHOST BUTTON (used throughout app) ===== */
+        .pill, .ghost-button {
             padding: 8px 14px;
             border-radius: 999px;
             border: 1px solid var(--border);
@@ -180,7 +178,7 @@
             cursor: pointer;
             white-space: nowrap;
         }
-        .nav-links a:hover, .ghost-button:hover {
+        .ghost-button:hover {
             border-color: var(--primary);
             color: var(--primary);
             background: var(--surface);
@@ -207,11 +205,261 @@
         }
         .button:active { transform: translateY(0); }
 
+        /* ===== MEGA NAV ===== */
+        .mega-nav {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            height: 100%;
+            flex: 1;
+            justify-content: center;
+        }
+        .mega-nav-item {
+            position: static;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .mega-nav-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0 13px;
+            height: 100%;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+        .mega-nav-trigger::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 13px;
+            right: 13px;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
+            transform: scaleX(0);
+            transition: transform 0.22s ease;
+        }
+        .mega-nav-item:hover .mega-nav-trigger,
+        .mega-nav-item.open .mega-nav-trigger {
+            color: var(--primary);
+        }
+        .mega-nav-item:hover .mega-nav-trigger::after,
+        .mega-nav-item.open .mega-nav-trigger::after {
+            transform: scaleX(1);
+        }
+        .mega-nav-trigger svg { flex-shrink: 0; }
+        .mega-nav-trigger .chev {
+            transition: transform 0.22s ease;
+            opacity: 0.55;
+        }
+        .mega-nav-item:hover .mega-nav-trigger .chev,
+        .mega-nav-item.open .mega-nav-trigger .chev {
+            transform: rotate(180deg);
+            opacity: 1;
+        }
+        /* Ambulance special */
+        .mega-nav-trigger.nav-ambulance {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: white;
+            border-radius: 999px;
+            padding: 6px 14px;
+            height: auto;
+            margin: 0 6px;
+            box-shadow: 0 2px 8px rgba(239,68,68,0.35);
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .mega-nav-trigger.nav-ambulance:hover {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: white;
+            box-shadow: 0 4px 14px rgba(239,68,68,0.45);
+            transform: translateY(-1px);
+        }
+        .mega-nav-trigger.nav-ambulance::after { display: none; }
+
+        /* ===== DROPDOWN PANEL ===== */
+        .mega-dropdown {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            backdrop-filter: blur(28px) saturate(2);
+            -webkit-backdrop-filter: blur(28px) saturate(2);
+            border-bottom: 1px solid var(--border-light);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+            z-index: 490;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-8px);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+        .mega-nav-item:hover .mega-dropdown,
+        .mega-nav-item.open .mega-dropdown {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+        }
+        .mega-dropdown-inner {
+            width: min(1160px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 22px 0;
+        }
+        .mega-dropdown-grid {
+            display: grid;
+            gap: 6px;
+        }
+        .mega-dropdown-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .mega-dropdown-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .mega-dropdown-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .mega-dropdown-grid.cols-1 { grid-template-columns: 1fr; }
+        /* Multi-column sectioned layout */
+        .mega-dropdown-sections {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0 24px;
+        }
+        .mega-dropdown-section-col { display: flex; flex-direction: column; gap: 2px; }
+        .mega-dropdown-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            padding: 6px 12px 4px;
+            margin-top: 8px;
+        }
+        .mega-dropdown-section-title:first-child { margin-top: 0; }
+        .mega-dropdown-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 10px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
+            white-space: nowrap;
+        }
+        .mega-dropdown-link:hover {
+            background: var(--accent);
+            color: var(--primary-strong);
+        }
+        [data-theme="dark"] .mega-dropdown-link:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .mega-dropdown-link svg {
+            flex-shrink: 0;
+            opacity: 0.6;
+            transition: opacity 0.15s ease;
+        }
+        .mega-dropdown-link:hover svg { opacity: 1; }
+        .mega-dropdown-link-desc {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 400;
+            line-height: 1.3;
+            margin-top: 1px;
+        }
+        .mega-dropdown-link-text { display: flex; flex-direction: column; }
+        /* Logout form inside dropdown */
+        .mega-dropdown-link-form { display: contents; }
+        .mega-dropdown-link-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 10px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.15s ease, color 0.15s ease;
+            font-family: inherit;
+        }
+        .mega-dropdown-link-btn:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        [data-theme="dark"] .mega-dropdown-link-btn:hover {
+            background: #450a0a;
+            color: #fca5a5;
+        }
+        .mega-dropdown-link-btn svg { flex-shrink: 0; opacity: 0.6; transition: opacity 0.15s ease; }
+        .mega-dropdown-link-btn:hover svg { opacity: 1; }
+        /* Separator line in dropdown */
+        .mega-dropdown-sep {
+            height: 1px;
+            background: var(--border-light);
+            margin: 8px 12px;
+        }
+
+        /* ===== NAV UTILITIES (right side) ===== */
+        .nav-utils {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .nav-icon-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--muted);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+        .nav-icon-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: var(--shadow-glow);
+            background: var(--surface);
+        }
+        /* Mobile AI Chat Button */
+        .mobile-ai-chat-btn {
+            display: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            place-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .mobile-ai-chat-btn:active {
+            transform: scale(0.95);
+        }
         /* Theme Toggle */
         .theme-toggle {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: var(--surface);
             color: var(--muted);
@@ -219,7 +467,6 @@
             place-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 18px;
             flex-shrink: 0;
         }
         .theme-toggle:hover {
@@ -227,22 +474,199 @@
             color: var(--primary);
             box-shadow: var(--shadow-glow);
         }
-        .theme-toggle .icon-sun, .theme-toggle .icon-moon { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .theme-toggle .icon-sun, .theme-toggle .icon-moon { transition: opacity 0.3s ease, transform 0.3s ease; display: flex; align-items: center; }
         [data-theme="light"] .theme-toggle .icon-moon { display: none; }
         [data-theme="dark"] .theme-toggle .icon-sun { display: none; }
 
-        /* Mobile nav toggle */
-        .nav-toggle {
+        /* ===== HAMBURGER (mobile only) ===== */
+        .nav-hamburger {
             display: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            place-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .nav-hamburger:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* ===== MOBILE FULL-SCREEN NAV OVERLAY ===== */
+        .mobile-nav-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 600;
+            display: flex;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.28s ease;
+        }
+        .mobile-nav-overlay.open {
+            pointer-events: auto;
+            opacity: 1;
+        }
+        .mobile-nav-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .mobile-nav-panel {
+            position: relative;
+            width: min(340px, 92vw);
+            height: 100%;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.30s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 4px 0 40px rgba(0,0,0,0.18);
+        }
+        .mobile-nav-overlay.open .mobile-nav-panel {
+            transform: translateX(0);
+        }
+        .mobile-nav-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0;
+        }
+        .mobile-nav-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: var(--surface);
             color: var(--muted);
+            display: grid;
             place-items: center;
             cursor: pointer;
-            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+        .mobile-nav-close:hover { border-color: var(--primary); color: var(--primary); }
+        .mobile-nav-body { flex: 1; padding: 8px 0 24px; overflow-y: auto; }
+        /* Mobile direct links */
+        .mobile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .mobile-nav-link:hover { background: var(--surface-hover); color: var(--primary); }
+        .mobile-nav-link svg { flex-shrink: 0; opacity: 0.55; }
+        .mobile-nav-link:hover svg { opacity: 1; }
+        /* Ambulance special */
+        .mobile-nav-link.ambulance {
+            background: linear-gradient(135deg,rgba(239,68,68,0.08),rgba(185,28,28,0.05));
+            color: #dc2626;
+            border-radius: 10px;
+            margin: 4px 12px;
+        }
+        .mobile-nav-link.ambulance svg { opacity: 1; }
+        /* Mobile section accordion */
+        .mobile-nav-accordion {
+            border: none;
+            background: none;
+        }
+        .mobile-nav-acc-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            text-align: left;
+            transition: color 0.15s ease;
+        }
+        .mobile-nav-acc-trigger:hover { color: var(--primary); }
+        .mobile-nav-acc-trigger-inner { display: flex; align-items: center; gap: 12px; }
+        .mobile-nav-acc-trigger-inner svg { flex-shrink: 0; opacity: 0.55; }
+        .mobile-nav-acc-chev {
+            transition: transform 0.22s ease;
+            opacity: 0.5;
+            flex-shrink: 0;
+        }
+        .mobile-nav-accordion.open .mobile-nav-acc-chev { transform: rotate(180deg); opacity: 1; }
+        .mobile-nav-accordion.open .mobile-nav-acc-trigger { color: var(--primary); }
+        .mobile-nav-accordion.open .mobile-nav-acc-trigger svg { opacity: 1; }
+        .mobile-nav-acc-body {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.28s cubic-bezier(0.4,0,0.2,1);
+        }
+        .mobile-nav-accordion.open .mobile-nav-acc-body { max-height: 800px; }
+        .mobile-nav-sub-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px 10px 44px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .mobile-nav-sub-link:hover { background: var(--surface-hover); color: var(--primary); }
+        .mobile-nav-sub-link svg { flex-shrink: 0; opacity: 0.5; }
+        .mobile-nav-sub-link:hover svg { opacity: 1; }
+        .mobile-nav-sub-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            padding: 8px 20px 2px 44px;
+            opacity: 0.7;
+        }
+        .mobile-nav-sub-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 10px 20px 10px 44px;
+            background: none;
+            border: none;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .mobile-nav-sub-btn:hover { background: var(--surface-hover); color: #991b1b; }
+        .mobile-nav-divider {
+            height: 1px;
+            background: var(--border-light);
+            margin: 8px 0;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 960px) {
+            .mega-nav { display: none; }
+            .nav-hamburger { display: grid; }
+            .mobile-ai-chat-btn { display: grid; }
+        }
+        @media (min-width: 961px) {
+            .mobile-nav-overlay { display: none !important; }
         }
 
         /* ===== HERO ===== */
@@ -901,66 +1325,283 @@
     </style>
 </head>
 <body>
+
+    {{-- ===== MAIN NAV ===== --}}
+
     <div class="nav">
         <div class="container nav-inner">
             <a class="brand" href="{{ route('home') }}">
                 <span class="brand-logo">
-                    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="24" height="24" viewBox="0 0 26 26" fill="none">
                         <rect x="9" y="3" width="8" height="20" rx="2" fill="white"/>
                         <rect x="3" y="9" width="20" height="8" rx="2" fill="white"/>
                         <path d="M7 13 L10 10 L12 12.5 L15 8 L18 13" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.7"/>
                     </svg>
                 </span>
                 <span class="brand-text">
-                    <div style="font-size:16px;">HelloMed</div>
-                    <small>Hospital & Care Platform</small>
+                    <div style="font-size:15px;">HelloMed</div>
+                    <small>Hospital &amp; Care Platform</small>
                 </span>
             </a>
-            <div class="nav-links">
-                <a href="{{ route('ambulance.create') }}" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border:none; padding: 6px 14px; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); margin-right: 8px;">
-                    🚑 Ambulance
-                </a>
-                <a href="{{ route('home') }}">Home</a>
-                <a href="{{ route('departments.index') }}">Care</a>
-                <a href="{{ route('available-tests.index') }}">Diagnostics Services</a>
-                <a href="{{ route('qna.index') }}">Q&amp;A</a>
-                <a href="{{ route('about') }}">About</a>
-                <a href="{{ route('medicines.index') }}">Medicine shop</a>
+
+            {{-- Desktop Mega Nav --}}
+            <nav class="mega-nav" aria-label="Main navigation">
+
+                {{-- Ambulance --}}
+                <div class="mega-nav-item">
+                    <a href="{{ route('ambulance.create') }}" class="mega-nav-trigger nav-ambulance">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><path d="M5 10h4M7 8v4"/></svg>
+                        Ambulance
+                    </a>
+                </div>
+
+                {{-- Home --}}
+                <div class="mega-nav-item">
+                    <a href="{{ route('home') }}" class="mega-nav-trigger">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Home
+                    </a>
+                </div>
+
+                {{-- Care --}}
+                <div class="mega-nav-item">
+                    <button class="mega-nav-trigger">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        Care
+                        <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-inner">
+                            <div class="mega-dropdown-grid cols-4">
+                                <a href="{{ route('departments.index') }}" class="mega-dropdown-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+                                    <div class="mega-dropdown-link-text"><span>Visit Departments</span><span class="mega-dropdown-link-desc">Browse all hospital departments</span></div>
+                                </a>
+                                <a href="{{ route('doctors.index') }}" class="mega-dropdown-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    <div class="mega-dropdown-link-text"><span>Doctors for Appointments</span><span class="mega-dropdown-link-desc">Find &amp; book a specialist</span></div>
+                                </a>
+                                <a href="{{ route('available-tests.index') }}" class="mega-dropdown-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8M5 8h14"/></svg>
+                                    <div class="mega-dropdown-link-text"><span>Diagnostics Services</span><span class="mega-dropdown-link-desc">Lab tests &amp; diagnostics</span></div>
+                                </a>
+                                <a href="{{ route('medicines.index') }}" class="mega-dropdown-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                                    <div class="mega-dropdown-link-text"><span>Medicine Shop</span><span class="mega-dropdown-link-desc">Order medicines online</span></div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Role-based Dashboard --}}
                 @auth
-                    @if (auth()->user()->role === 'patient')
-                        <a href="{{ route('patient.profile') }}" class="ghost-button">My profile</a>
-                        <a href="{{ route('patient.appointments') }}" class="ghost-button">My appointments</a>
-                        <a href="{{ route('patient.records') }}" class="ghost-button">My records</a>
-                        <a href="{{ route('patient.medicine-orders') }}" class="ghost-button">My medicine orders</a>
+                    @if(auth()->user()->isAdmin())
+                        <div class="mega-nav-item">
+                            <button class="mega-nav-trigger">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                Admin Dashboard
+                                <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="mega-dropdown">
+                                <div class="mega-dropdown-inner">
+                                    <div class="mega-dropdown-sections">
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Overview</div>
+                                            <a href="{{ route('admin.dashboard') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Admin Panel</a>
+                                            <a href="{{ route('admin.audit-logs.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Audit Log</a>
+                                            <div class="mega-dropdown-section-title">Finances</div>
+                                            <a href="{{ route('admin.payouts.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Payouts</a>
+                                            <a href="{{ route('analytics.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Analytics</a>
+                                        </div>
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Backoffice</div>
+                                            <a href="{{ route('admin.departments.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg> Departments</a>
+                                            <a href="{{ route('admin.available-tests.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Available Tests</a>
+                                            <a href="{{ route('admin.medicines.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> Pharmacy</a>
+                                            <a href="{{ route('admin.ambulance.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Ambulance</a>
+                                            <a href="{{ route('admin.doctors.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Doctors</a>
+                                            <a href="{{ route('admin.staff.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Staff</a>
+                                            <a href="{{ route('admin.pharmacists.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Pharmacists</a>
+                                        </div>
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Patient Management</div>
+                                            <a href="{{ route('admin.patients.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Patients</a>
+                                            <a href="{{ route('admin.appointments.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Appointments</a>
+                                            <div class="mega-dropdown-section-title">Others</div>
+                                            <a href="{{ route('admin.articles.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Articles</a>
+                                            <a href="{{ route('admin.comments.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments</a>
+                                            <a href="{{ route('admin.qna.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Q&amp;A</a>
+                                        </div>
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Account</div>
+                                            <a href="{{ route('settings.profile') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Account Settings</a>
+                                            <div class="mega-dropdown-sep"></div>
+                                            <form method="POST" action="{{ route('logout') }}" class="mega-dropdown-link-form">@csrf
+                                                <button type="submit" class="mega-dropdown-link-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    @elseif(auth()->user()->isDoctor())
+                        <div class="mega-nav-item">
+                            <button class="mega-nav-trigger">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Doctor Dashboard
+                                <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="mega-dropdown">
+                                <div class="mega-dropdown-inner">
+                                    <div class="mega-dropdown-grid cols-2" style="max-width:520px;">
+                                        <a href="{{ route('doctor.dashboard') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><div class="mega-dropdown-link-text"><span>Doctor Panel</span><span class="mega-dropdown-link-desc">Dashboard overview &amp; schedule</span></div></a>
+                                        <a href="{{ route('doctor.dashboard') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div class="mega-dropdown-link-text"><span>Appointments</span><span class="mega-dropdown-link-desc">View &amp; manage appointments</span></div></a>
+                                        <a href="{{ route('doctor.articles.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="mega-dropdown-link-text"><span>My Articles</span><span class="mega-dropdown-link-desc">Published &amp; draft articles</span></div></a>
+                                        <a href="{{ route('doctor.articles.create') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><div class="mega-dropdown-link-text"><span>Write Article</span><span class="mega-dropdown-link-desc">Publish a new health article</span></div></a>
+                                        <a href="{{ route('analytics.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><div class="mega-dropdown-link-text"><span>Analytics</span><span class="mega-dropdown-link-desc">Performance &amp; payout stats</span></div></a>
+                                        <a href="{{ route('settings.profile') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg><div class="mega-dropdown-link-text"><span>Account Settings</span></div></a>
+                                    </div>
+                                    <div class="mega-dropdown-sep"></div>
+                                    <form method="POST" action="{{ route('logout') }}" class="mega-dropdown-link-form">@csrf
+                                        <button type="submit" class="mega-dropdown-link-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    @elseif(auth()->user()->isStaff())
+                        <div class="mega-nav-item">
+                            <button class="mega-nav-trigger">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Staff Dashboard
+                                <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="mega-dropdown">
+                                <div class="mega-dropdown-inner">
+                                    <div class="mega-dropdown-sections" style="grid-template-columns: repeat(3,1fr);">
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Operations</div>
+                                            <a href="{{ route('staff.dashboard') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Staff Panel</a>
+                                            <a href="{{ route('staff.ambulance.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Ambulance Dispatch</a>
+                                            <a href="{{ route('admin.appointments.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Manage Appointments</a>
+                                            <a href="{{ route('staff.offline-appointments.create') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="20"/><line x1="9" y1="17" x2="15" y2="17"/></svg> Book Offline Appointment</a>
+                                            <a href="{{ route('staff.diagnostic-services.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Diagnostics Services</a>
+                                        </div>
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Others</div>
+                                            <a href="{{ route('staff.patients.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Patients</a>
+                                            <a href="{{ route('admin.doctors.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Doctors</a>
+                                            <a href="{{ route('staff.articles.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Articles</a>
+                                            <a href="{{ route('staff.comments.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments</a>
+                                            <a href="{{ route('staff.qna.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Q&amp;A</a>
+                                        </div>
+                                        <div class="mega-dropdown-section-col">
+                                            <div class="mega-dropdown-section-title">Account</div>
+                                            <form method="POST" action="{{ route('logout') }}" class="mega-dropdown-link-form">@csrf
+                                                <button type="submit" class="mega-dropdown-link-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    @elseif(auth()->user()->isPharmacist())
+                        <div class="mega-nav-item">
+                            <button class="mega-nav-trigger">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8M5 8h14"/></svg>
+                                Pharmacist Dashboard
+                                <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="mega-dropdown">
+                                <div class="mega-dropdown-inner">
+                                    <div class="mega-dropdown-grid cols-2" style="max-width:480px;">
+                                        <a href="{{ route('pharmacist.dashboard') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg><div class="mega-dropdown-link-text"><span>Pharmacist Panel</span><span class="mega-dropdown-link-desc">Dashboard &amp; inventory</span></div></a>
+                                        <a href="{{ route('pharmacist.medicines.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg><div class="mega-dropdown-link-text"><span>Manage Medicines</span><span class="mega-dropdown-link-desc">Stock, prices &amp; catalogue</span></div></a>
+                                        <a href="{{ route('pharmacist.orders.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><div class="mega-dropdown-link-text"><span>Manage Orders</span><span class="mega-dropdown-link-desc">Process &amp; track orders</span></div></a>
+                                    </div>
+                                    <div class="mega-dropdown-sep"></div>
+                                    <form method="POST" action="{{ route('logout') }}" class="mega-dropdown-link-form">@csrf
+                                        <button type="submit" class="mega-dropdown-link-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    @else
+                        {{-- Patient --}}
+                        <div class="mega-nav-item">
+                            <button class="mega-nav-trigger">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                My Dashboard
+                                <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="mega-dropdown">
+                                <div class="mega-dropdown-inner">
+                                    <div class="mega-dropdown-grid cols-2" style="max-width:520px;">
+                                        <a href="{{ route('patient.profile') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div class="mega-dropdown-link-text"><span>My Profile</span><span class="mega-dropdown-link-desc">Medical profile &amp; personal info</span></div></a>
+                                        <a href="{{ route('patient.appointments') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div class="mega-dropdown-link-text"><span>My Appointments</span><span class="mega-dropdown-link-desc">Track &amp; manage appointments</span></div></a>
+                                        <a href="{{ route('patient.records') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><div class="mega-dropdown-link-text"><span>My Records</span><span class="mega-dropdown-link-desc">Lab results &amp; prescriptions</span></div></a>
+                                        <a href="{{ route('patient.medicine-orders') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><div class="mega-dropdown-link-text"><span>My Medicine Orders</span><span class="mega-dropdown-link-desc">Order history &amp; tracking</span></div></a>
+                                        <a href="{{ route('settings.profile') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg><div class="mega-dropdown-link-text"><span>Account Settings</span></div></a>
+                                    </div>
+                                    <div class="mega-dropdown-sep"></div>
+                                    <form method="POST" action="{{ route('logout') }}" class="mega-dropdown-link-form">@csrf
+                                        <button type="submit" class="mega-dropdown-link-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     @endif
-                    @if (auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="ghost-button">Backoffice</a>
-                        <a href="{{ route('admin.payouts.index') }}" class="ghost-button">Payouts</a>
-                    @elseif (auth()->user()->isStaff())
-                        <a href="{{ route('staff.dashboard') }}" class="ghost-button">Staff dashboard</a>
-                    @elseif (auth()->user()->isDoctor())
-                        <a href="{{ route('doctor.dashboard') }}" class="ghost-button">Doctor panel</a>
-                    @elseif (auth()->user()->isPharmacist())
-                        <a href="{{ route('pharmacist.dashboard') }}" class="ghost-button">Pharmacy</a>
-                    @endif
-                    @if (auth()->user()->role !== 'patient')
-                        <a href="{{ route('analytics.index') }}" class="ghost-button">Analytics</a>
-                    @endif
-                    <a href="{{ route('settings.profile') }}" class="ghost-button">Account Settings</a>
-                    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                        @csrf
-                        <button class="ghost-button" type="submit">Logout</button>
-                    </form>
-                @else
-                    <a href="{{ route('login') }}" class="ghost-button">Login</a>
-                    <a href="{{ route('register') }}" class="button">Register</a>
                 @endauth
-                <a href="{{ route('contact') }}">Contact</a>
-                
+
+                {{-- Support --}}
+                <div class="mega-nav-item">
+                    <button class="mega-nav-trigger">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        Support
+                        <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-inner">
+                            <div class="mega-dropdown-grid cols-3" style="max-width:560px;">
+                                <a href="{{ route('about') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="mega-dropdown-link-text"><span>About</span><span class="mega-dropdown-link-desc">Our mission &amp; team</span></div></a>
+                                <a href="{{ route('qna.index') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="mega-dropdown-link-text"><span>FAQ &amp; Q&amp;A</span><span class="mega-dropdown-link-desc">Community health questions</span></div></a>
+                                <a href="{{ route('contact') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><div class="mega-dropdown-link-text"><span>Contact</span><span class="mega-dropdown-link-desc">Get in touch with us</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Register (guest only) --}}
+                @guest
+                <div class="mega-nav-item">
+                    <button class="mega-nav-trigger">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        Register
+                        <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mega-dropdown">
+                        <div class="mega-dropdown-inner">
+                            <div class="mega-dropdown-grid cols-2" style="max-width:480px;">
+                                <a href="{{ route('register') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg><div class="mega-dropdown-link-text"><span>Create a New Account</span><span class="mega-dropdown-link-desc">Register as a patient today</span></div></a>
+                                <a href="{{ route('login') }}" class="mega-dropdown-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><div class="mega-dropdown-link-text"><span>Log In</span><span class="mega-dropdown-link-desc">Sign in to your account</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endguest
+
+            </nav>
+
+            {{-- Nav Utilities --}}
+            <div class="nav-utils">
                 @auth
                 <div class="notification-toggle-wrapper" id="notificationWrapper">
                     <button class="notification-toggle" id="notificationToggle" aria-label="Notifications">
-                        🔔
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                         <div class="notification-badge" id="notificationBadge" style="display: none;">0</div>
                     </button>
                     <div class="notification-dropdown" id="notificationDropdown">
@@ -976,9 +1617,199 @@
                 @endauth
 
                 <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
-                    <span class="icon-sun">☀️</span>
-                    <span class="icon-moon">🌙</span>
+                    <span class="icon-sun"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></span>
+                    <span class="icon-moon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
                 </button>
+
+                {{-- Mobile AI Chat Toggle (Hidden on desktop) --}}
+                <button class="mobile-ai-chat-btn" onclick="window.toggleAiChat && window.toggleAiChat()" title="Chat with AI" aria-label="Open AI chat">
+                    🩺
+                </button>
+
+                <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MOBILE FULL-SCREEN NAV OVERLAY ===== --}}
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" aria-modal="true" role="dialog" aria-label="Navigation menu">
+
+        <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+        <div class="mobile-nav-panel">
+            <div class="mobile-nav-header">
+                <a class="brand" href="{{ route('home') }}" style="gap:8px;">
+                    <span class="brand-logo" style="width:32px;height:32px;border-radius:10px;">
+                        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect x="9" y="3" width="8" height="20" rx="2" fill="white"/><rect x="3" y="9" width="20" height="8" rx="2" fill="white"/></svg>
+                    </span>
+                    <span style="font-size:14px;font-weight:800;">HelloMed</span>
+                </a>
+                <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close navigation">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="mobile-nav-body">
+                {{-- Ambulance --}}
+                <a href="{{ route('ambulance.create') }}" class="mobile-nav-link ambulance">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><path d="M5 10h4M7 8v4"/></svg>
+                    Emergency Ambulance
+                </a>
+                {{-- Home --}}
+                <a href="{{ route('home') }}" class="mobile-nav-link">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    Home
+                </a>
+                <div class="mobile-nav-divider"></div>
+                {{-- Care accordion --}}
+                <div class="mobile-nav-accordion" id="mAcc-care">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-care')">
+                        <span class="mobile-nav-acc-trigger-inner">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                            Care
+                        </span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('departments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 3v18M15 9h6"/></svg> Visit Departments</a>
+                        <a href="{{ route('doctors.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Doctors for Appointments</a>
+                        <a href="{{ route('available-tests.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8M5 8h14"/></svg> Diagnostics Services</a>
+                        <a href="{{ route('medicines.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20H4a2 2 0 0 1-2-2V5c0-1.1.9-2 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H20a2 2 0 0 1 2 2v3"/><circle cx="18" cy="18" r="3"/></svg> Medicine Shop</a>
+                    </div>
+                </div>
+
+                {{-- Role-based dashboard accordion --}}
+                @auth
+                <div class="mobile-nav-divider"></div>
+                @if(auth()->user()->isAdmin())
+                <div class="mobile-nav-accordion" id="mAcc-dashboard">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-dashboard')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Admin Dashboard</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('admin.dashboard') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Admin Panel</a>
+                        <div class="mobile-nav-sub-label">Finances</div>
+                        <a href="{{ route('admin.payouts.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Payouts</a>
+                        <a href="{{ route('analytics.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Analytics</a>
+                        <div class="mobile-nav-sub-label">Backoffice</div>
+                        <a href="{{ route('admin.departments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Departments</a>
+                        <a href="{{ route('admin.available-tests.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Available Tests</a>
+                        <a href="{{ route('admin.medicines.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> Pharmacy</a>
+                        <a href="{{ route('admin.ambulance.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Ambulance</a>
+                        <a href="{{ route('admin.doctors.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Doctors</a>
+                        <a href="{{ route('admin.staff.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Staff</a>
+                        <a href="{{ route('admin.pharmacists.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Pharmacists</a>
+                        <div class="mobile-nav-sub-label">Patient Management</div>
+                        <a href="{{ route('admin.patients.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Patients</a>
+                        <a href="{{ route('admin.appointments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Appointments</a>
+                        <div class="mobile-nav-sub-label">Others</div>
+                        <a href="{{ route('admin.articles.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> Articles</a>
+                        <a href="{{ route('admin.comments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments</a>
+                        <a href="{{ route('admin.qna.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Q&amp;A</a>
+                        <a href="{{ route('admin.audit-logs.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Audit Log</a>
+                        <div class="mobile-nav-sub-label">Account</div>
+                        <a href="{{ route('settings.profile') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg> Account Settings</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="mobile-nav-sub-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></form>
+                    </div>
+                </div>
+                @elseif(auth()->user()->isDoctor())
+                <div class="mobile-nav-accordion" id="mAcc-dashboard">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-dashboard')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Doctor Dashboard</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('doctor.dashboard') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Doctor Panel</a>
+                        <a href="{{ route('doctor.dashboard') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Appointments</a>
+                        <a href="{{ route('doctor.articles.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> My Articles</a>
+                        <a href="{{ route('doctor.articles.create') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Write Article</a>
+                        <a href="{{ route('analytics.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Analytics</a>
+                        <a href="{{ route('settings.profile') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg> Account Settings</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="mobile-nav-sub-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></form>
+                    </div>
+                </div>
+                @elseif(auth()->user()->isStaff())
+                <div class="mobile-nav-accordion" id="mAcc-dashboard">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-dashboard')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Staff Dashboard</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('staff.dashboard') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Staff Panel</a>
+                        <a href="{{ route('staff.ambulance.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 4v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Ambulance Dispatch</a>
+                        <a href="{{ route('admin.appointments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Manage Appointments</a>
+                        <a href="{{ route('staff.offline-appointments.create') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/></svg> Book Offline Appointment</a>
+                        <a href="{{ route('staff.diagnostic-services.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Diagnostics Services</a>
+                        <div class="mobile-nav-sub-label">Others</div>
+                        <a href="{{ route('staff.patients.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Patients</a>
+                        <a href="{{ route('admin.doctors.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Doctors</a>
+                        <a href="{{ route('staff.articles.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> Articles</a>
+                        <a href="{{ route('staff.comments.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Comments</a>
+                        <a href="{{ route('staff.qna.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Q&amp;A</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="mobile-nav-sub-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></form>
+                    </div>
+                </div>
+                @elseif(auth()->user()->isPharmacist())
+                <div class="mobile-nav-accordion" id="mAcc-dashboard">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-dashboard')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8M5 8h14"/></svg> Pharmacist Dashboard</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('pharmacist.dashboard') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg> Pharmacist Panel</a>
+                        <a href="{{ route('pharmacist.medicines.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v6l-2 3.5a1 1 0 0 0 .85 1.5h10.3A1 1 0 0 0 16 11.5L14 8V2"/><path d="M6 2h8"/></svg> Manage Medicines</a>
+                        <a href="{{ route('pharmacist.orders.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg> Manage Orders</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="mobile-nav-sub-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></form>
+                    </div>
+                </div>
+                @else
+                {{-- Patient --}}
+                <div class="mobile-nav-accordion" id="mAcc-dashboard">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-dashboard')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> My Dashboard</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('patient.profile') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> My Profile</a>
+                        <a href="{{ route('patient.appointments') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg> My Appointments</a>
+                        <a href="{{ route('patient.records') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> My Records</a>
+                        <a href="{{ route('patient.medicine-orders') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg> My Medicine Orders</a>
+                        <a href="{{ route('settings.profile') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg> Account Settings</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="mobile-nav-sub-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</button></form>
+                    </div>
+                </div>
+                @endif
+                @endauth
+
+                {{-- Support accordion --}}
+                <div class="mobile-nav-divider"></div>
+                <div class="mobile-nav-accordion" id="mAcc-support">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-support')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Support</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('about') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> About</a>
+                        <a href="{{ route('qna.index') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> FAQ &amp; Q&amp;A</a>
+                        <a href="{{ route('contact') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Contact</a>
+                    </div>
+                </div>
+
+                {{-- Register accordion (guest only) --}}
+                @guest
+                <div class="mobile-nav-divider"></div>
+                <div class="mobile-nav-accordion" id="mAcc-register">
+                    <button class="mobile-nav-acc-trigger" onclick="toggleMobileAcc('mAcc-register')">
+                        <span class="mobile-nav-acc-trigger-inner"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Register</span>
+                        <svg class="mobile-nav-acc-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="mobile-nav-acc-body">
+                        <a href="{{ route('register') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> Create a New Account</a>
+                        <a href="{{ route('login') }}" class="mobile-nav-sub-link"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Log In</a>
+                    </div>
+                </div>
+                @endguest
             </div>
         </div>
     </div>
@@ -1042,7 +1873,44 @@
     @include('components.ai-chat-widget')
 
     <script>
+        // ===== MOBILE NAV =====
+        (function() {
+            const hamburger = document.getElementById('navHamburger');
+            const overlay   = document.getElementById('mobileNavOverlay');
+            const closeBtn  = document.getElementById('mobileNavClose');
+            const backdrop  = document.getElementById('mobileNavBackdrop');
+
+            function openNav() {
+                overlay.classList.add('open');
+                hamburger.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeNav() {
+                overlay.classList.remove('open');
+                hamburger.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            if (hamburger) hamburger.addEventListener('click', openNav);
+            if (closeBtn)  closeBtn.addEventListener('click', closeNav);
+            if (backdrop)  backdrop.addEventListener('click', closeNav);
+
+            // Close on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+                    closeNav();
+                }
+            });
+        })();
+
+        function toggleMobileAcc(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.toggle('open');
+        }
+
         function toggleTheme() {
+
             const current = document.documentElement.getAttribute('data-theme') || 'light';
             const next = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', next);

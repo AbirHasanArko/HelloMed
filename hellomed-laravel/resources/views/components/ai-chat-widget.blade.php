@@ -397,8 +397,24 @@
 
 /* Mobile */
 @media (max-width: 480px) {
-    .ai-panel { right: 12px; left: 12px; width: auto; bottom: 88px; border-radius: 20px; }
-    .ai-fab   { bottom: 20px; right: 20px; }
+    .ai-panel {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 0 !important;
+        border: none !important;
+        transform: translateY(100%);
+    }
+    .ai-panel.open {
+        transform: translateY(0);
+    }
+    .ai-fab { display: none !important; }
+    .ai-resize-handle { display: none !important; }
 }
 </style>
 
@@ -571,6 +587,14 @@
     }
 
     /* ── Open / close ─────────────────────────────────────────── */
+    window.toggleAiChat = function() {
+        if (panel.classList.contains('open')) {
+            closePanel();
+        } else {
+            openPanel();
+        }
+    };
+
     function openPanel() {
         panel.classList.add('open');
         fab.classList.add('open');
@@ -585,7 +609,7 @@
         fab.innerHTML = '🩺';
         localStorage.removeItem(OPEN_KEY);
     }
-    fab.addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
+    fab.addEventListener('click', window.toggleAiChat);
     closeBtn.addEventListener('click', closePanel);
 
     // Restore open state
