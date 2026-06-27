@@ -79,24 +79,46 @@
         <div class="card">
             <h3>Patient ratings and comments</h3>
             @auth
-                @if (auth()->user()->role === 'patient')
+                @if ($canReview)
                     <form method="POST" action="{{ route('doctors.reviews.store', $doctor) }}" style="margin-bottom:20px;padding:20px;background:var(--surface-hover);border-radius:14px;">
                         @csrf
-                        <label>
-                            Rating
-                            <select name="rating" required>
-                                @foreach ([5,4,3,2,1] as $score)
-                                    <option value="{{ $score }}">{{ $score }} / 5</option>
-                                @endforeach
-                            </select>
-                        </label>
+
+                        {{-- Hidden input that holds the actual value --}}
+                        <input type="hidden" name="rating" id="rating-value" value="0" required>
+
+                        <div style="margin-bottom:16px;">
+                            <div style="font-size:0.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Your Rating</div>
+                            <div class="star-picker" id="star-picker" style="display:flex;gap:6px;align-items:center;">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <button type="button"
+                                        class="star-btn"
+                                        data-value="{{ $i }}"
+                                        aria-label="{{ $i }} star{{ $i > 1 ? 's' : '' }}"
+                                        style="background:none;border:none;padding:2px;cursor:pointer;line-height:1;transition:transform .15s;">
+                                        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="star-svg" style="color:#d1d5db;transition:color .15s,fill .15s;">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    </button>
+                                @endfor
+                                <span id="star-label" style="font-size:0.9rem;color:var(--muted);margin-left:8px;">Select a rating</span>
+                            </div>
+                        </div>
+
                         <label>
                             Comment
-                            <textarea name="comment"></textarea>
+                            <textarea name="comment" placeholder="Share your experience (optional)..."></textarea>
                         </label>
-                        <button class="button" type="submit">Submit review</button>
+                        <button class="button" type="submit" id="review-submit-btn" disabled style="opacity:.5;cursor:not-allowed;">Submit review</button>
                     </form>
+                @elseif (auth()->user()->role === 'patient')
+                    <p class="muted" style="margin-bottom:16px;padding:14px 18px;background:var(--surface-hover);border-radius:10px;font-size:0.95rem;">
+                        ⚠️ You can only leave a review after completing an appointment with this doctor.
+                    </p>
                 @endif
+            @else
+                <p class="muted" style="margin-bottom:16px;padding:14px 18px;background:var(--surface-hover);border-radius:10px;font-size:0.95rem;">
+                    <a href="{{ route('login') }}">Log in</a> as a patient to leave a review.
+                </p>
             @endauth
 
             <div class="list">
@@ -106,8 +128,17 @@
                             {{ strtoupper(substr($review->user?->name ?? '?', 0, 1)) }}
                         </div>
                         <div>
-                            <strong>{{ $review->user?->name }} · {{ $review->rating }}/5</strong>
-                            <p style="margin-bottom:0;">{{ $review->comment ?: 'No comment.' }}</p>
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px;">
+                                <strong>{{ $review->user?->name }}</strong>
+                                <span style="display:flex;gap:2px;">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="{{ $i <= $review->rating ? '#f59e0b' : 'none' }}" stroke="{{ $i <= $review->rating ? '#f59e0b' : '#d1d5db' }}" stroke-width="1.8">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                                        </svg>
+                                    @endfor
+                                </span>
+                            </div>
+                            <p style="margin-bottom:0;color:var(--muted);font-size:0.93rem;">{{ $review->comment ?: 'No comment.' }}</p>
                         </div>
                     </div>
                 @empty
@@ -116,4 +147,59 @@
             </div>
         </div>
     </section>
+
+    <style>
+        .star-btn:hover svg, .star-btn:focus svg { transform: scale(1.18); }
+        .star-btn svg.filled { color: #f59e0b; fill: #f59e0b; }
+        .star-btn svg.hovered { color: #fbbf24; fill: #fbbf24; }
+    </style>
+
+    <script>
+        (function () {
+            const picker   = document.getElementById('star-picker');
+            if (!picker) return;
+
+            const input    = document.getElementById('rating-value');
+            const label    = document.getElementById('star-label');
+            const submitBtn = document.getElementById('review-submit-btn');
+            const btns     = Array.from(picker.querySelectorAll('.star-btn'));
+            const labels   = ['Terrible', 'Poor', 'Okay', 'Good', 'Excellent'];
+
+            let selected = 0;
+
+            function paint(hovered) {
+                btns.forEach((btn, idx) => {
+                    const svg = btn.querySelector('svg');
+                    const filled = idx < selected;
+                    const highlight = hovered !== null && idx <= hovered;
+                    svg.classList.toggle('filled',  !hovered && filled);
+                    svg.classList.toggle('hovered', highlight);
+                    if (!highlight) {
+                        svg.style.color = filled ? '#f59e0b' : '#d1d5db';
+                        svg.style.fill  = filled ? '#f59e0b' : 'none';
+                    }
+                });
+            }
+
+            btns.forEach((btn, idx) => {
+                btn.addEventListener('mouseenter', () => {
+                    paint(idx);
+                    label.textContent = (idx + 1) + ' - ' + labels[idx];
+                });
+                btn.addEventListener('mouseleave', () => {
+                    paint(null);
+                    label.textContent = selected ? selected + ' — ' + labels[selected - 1] : 'Select a rating';
+                });
+                btn.addEventListener('click', () => {
+                    selected = idx + 1;
+                    input.value = selected;
+                    paint(null);
+                    label.textContent = selected + ' — ' + labels[selected - 1];
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                });
+            });
+        })();
+    </script>
 @endsection

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,16 @@ class DoctorController extends Controller
 
         $averageRating = round((float) $doctor->reviews()->avg('rating'), 1);
 
-        return view('doctors.show', compact('doctor', 'averageRating'));
+        // A patient may only review a doctor if they have at least one completed appointment.
+        $canReview = false;
+        $user = auth()->user();
+        if ($user && $user->role === 'patient') {
+            $canReview = Appointment::where('doctor_id', $doctor->id)
+                ->where('user_id', $user->id)
+                ->where('status', 'completed')
+                ->exists();
+        }
+
+        return view('doctors.show', compact('doctor', 'averageRating', 'canReview'));
     }
 }

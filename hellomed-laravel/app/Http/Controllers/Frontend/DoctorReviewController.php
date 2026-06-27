@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Support\AuditLogger;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,14 @@ class DoctorReviewController extends Controller
     public function store(Request $request, Doctor $doctor): RedirectResponse
     {
         abort_unless($request->user()?->role === 'patient', 403);
+
+        // Ensure the patient has at least one completed appointment with this doctor.
+        $hasCompleted = Appointment::where('doctor_id', $doctor->id)
+            ->where('user_id', $request->user()->id)
+            ->where('status', 'completed')
+            ->exists();
+
+        abort_unless($hasCompleted, 403, 'You can only review doctors you have had a completed appointment with.');
 
         $validated = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
