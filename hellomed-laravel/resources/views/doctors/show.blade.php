@@ -188,7 +188,7 @@
                 });
                 btn.addEventListener('mouseleave', () => {
                     paint(null);
-                    label.textContent = selected ? selected + ' — ' + labels[selected - 1] : 'Select a rating';
+                    label.textContent = selected ? selected + ' - ' + labels[selected - 1] : 'Select a rating';
                 });
                 btn.addEventListener('click', () => {
                     selected = idx + 1;

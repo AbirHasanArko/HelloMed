@@ -1841,33 +1841,196 @@
         @yield('content')
     </main>
 
-    <footer class="footer">
-        <div class="container footer-inner">
-            <div>
-                <strong style="font-size: 16px;">HelloMed</strong>
-                <p class="muted" style="font-size: 13px;">Online and offline hospital services with central appointment booking.</p>
+    <footer class="site-footer">
+        <div class="container">
+
+            {{-- ── Top grid ── --}}
+            <div class="sf-grid">
+
+                {{-- Brand column --}}
+                <div class="sf-brand">
+                    <a href="{{ route('home') }}" class="sf-logo">
+                        <span class="sf-logo-mark">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        </span>
+                        <span class="sf-logo-text">HelloMed</span>
+                    </a>
+                    <p class="sf-tagline">Online &amp; offline hospital services with central appointment booking.</p>
+                    <div class="sf-social">
+                        <a href="https://github.com/AbirHasanArko" target="_blank" rel="noopener" aria-label="GitHub" class="sf-social-link">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                        <a href="https://www.linkedin.com/in/abirhasanarko/" target="_blank" rel="noopener" aria-label="LinkedIn" class="sf-social-link">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        <a href="mailto:abirhasanarko2004@gmail.com" aria-label="Email" class="sf-social-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- Care column (always visible) --}}
+                <div class="sf-col">
+                    <div class="sf-col-title">Care</div>
+                    <a href="{{ route('departments.index') }}" class="sf-link">Departments</a>
+                    <a href="{{ route('doctors.index') }}" class="sf-link">Find a Doctor</a>
+                    <a href="{{ route('available-tests.index') }}" class="sf-link">Diagnostics &amp; Tests</a>
+                    <a href="{{ route('medicines.index') }}" class="sf-link">Medicine Shop</a>
+                    <a href="{{ route('ambulance.create') }}" class="sf-link sf-link-urgent">🚑 Request Ambulance</a>
+                </div>
+
+                {{-- Learn column (always visible) --}}
+                <div class="sf-col">
+                    <div class="sf-col-title">Learn</div>
+                    <a href="{{ route('articles.index') }}" class="sf-link">Health Articles</a>
+                    <a href="{{ route('qna.index') }}" class="sf-link">Q&amp;A Community</a>
+                </div>
+
+                {{-- Role-sensitive Dashboard column --}}
+                <div class="sf-col">
+                    @auth
+                        @if(auth()->user()->isAdmin())
+                            <div class="sf-col-title">Admin Panel</div>
+                            <a href="{{ route('admin.dashboard') }}" class="sf-link">Dashboard</a>
+                            <a href="{{ route('admin.appointments.index') }}" class="sf-link">Appointments</a>
+                            <a href="{{ route('admin.doctors.index') }}" class="sf-link">Doctors</a>
+                            <a href="{{ route('admin.patients.index') }}" class="sf-link">Patients</a>
+                            <a href="{{ route('admin.staff.index') }}" class="sf-link">Staff</a>
+                            <a href="{{ route('admin.departments.index') }}" class="sf-link">Departments</a>
+                            <a href="{{ route('admin.medicines.index') }}" class="sf-link">Pharmacy</a>
+                            <a href="{{ route('admin.ambulance.index') }}" class="sf-link">Ambulance</a>
+                            <a href="{{ route('admin.payouts.index') }}" class="sf-link">Payouts</a>
+                            <a href="{{ route('analytics.index') }}" class="sf-link">Analytics</a>
+                            <a href="{{ route('admin.audit-logs.index') }}" class="sf-link">Audit Log</a>
+                            <a href="{{ route('admin.articles.index') }}" class="sf-link">Articles</a>
+                            <a href="{{ route('admin.qna.index') }}" class="sf-link">Q&amp;A</a>
+                            <a href="{{ route('settings.profile') }}" class="sf-link">Account Settings</a>
+
+                        @elseif(auth()->user()->isDoctor())
+                            <div class="sf-col-title">Doctor Panel</div>
+                            <a href="{{ route('doctor.dashboard') }}" class="sf-link">Dashboard</a>
+                            <a href="{{ route('doctor.articles.index') }}" class="sf-link">My Articles</a>
+                            <a href="{{ route('doctor.articles.create') }}" class="sf-link">Write Article</a>
+                            <a href="{{ route('analytics.index') }}" class="sf-link">Analytics</a>
+                            <a href="{{ route('settings.profile') }}" class="sf-link">Account Settings</a>
+
+                        @elseif(auth()->user()->isStaff())
+                            <div class="sf-col-title">Staff Panel</div>
+                            <a href="{{ route('staff.dashboard') }}" class="sf-link">Dashboard</a>
+                            <a href="{{ route('admin.appointments.index') }}" class="sf-link">Appointments</a>
+                            <a href="{{ route('staff.offline-appointments.create') }}" class="sf-link">Book Offline Appt.</a>
+                            <a href="{{ route('staff.ambulance.index') }}" class="sf-link">Ambulance Dispatch</a>
+                            <a href="{{ route('staff.diagnostic-services.index') }}" class="sf-link">Diagnostics</a>
+                            <a href="{{ route('staff.patients.index') }}" class="sf-link">Patients</a>
+                            <a href="{{ route('admin.doctors.index') }}" class="sf-link">Doctors</a>
+                            <a href="{{ route('staff.articles.index') }}" class="sf-link">Articles</a>
+                            <a href="{{ route('staff.qna.index') }}" class="sf-link">Q&amp;A</a>
+
+                        @elseif(auth()->user()->isPharmacist())
+                            <div class="sf-col-title">Pharmacist Panel</div>
+                            <a href="{{ route('pharmacist.dashboard') }}" class="sf-link">Dashboard</a>
+                            <a href="{{ route('pharmacist.medicines.index') }}" class="sf-link">Manage Medicines</a>
+                            <a href="{{ route('pharmacist.orders.index') }}" class="sf-link">Manage Orders</a>
+                            <a href="{{ route('settings.profile') }}" class="sf-link">Account Settings</a>
+
+                        @else
+                            {{-- Patient --}}
+                            <div class="sf-col-title">My Dashboard</div>
+                            <a href="{{ route('patient.profile') }}" class="sf-link">My Profile</a>
+                            <a href="{{ route('patient.appointments') }}" class="sf-link">My Appointments</a>
+                            <a href="{{ route('patient.records') }}" class="sf-link">My Records</a>
+                            <a href="{{ route('patient.medicine-orders') }}" class="sf-link">Medicine Orders</a>
+                            <a href="{{ route('settings.profile') }}" class="sf-link">Account Settings</a>
+                        @endif
+                    @else
+                        <div class="sf-col-title">Account</div>
+                        <a href="{{ route('login') }}" class="sf-link">Sign In</a>
+                        <a href="{{ route('register') }}" class="sf-link">Create Account</a>
+                    @endauth
+                </div>
+
+                {{-- Contact / Company column --}}
+                <div class="sf-col">
+                    <div class="sf-col-title">Company</div>
+                    <a href="#" class="sf-link">About Us</a>
+                    <a href="{{ route('contact') }}" class="sf-link">Contact Us</a>
+                </div>
+
+            </div>{{-- /sf-grid --}}
+
+            {{-- ── Bottom bar ── --}}
+            <div class="sf-bottom">
+                <span class="sf-copy">© {{ date('Y') }} HelloMed · Built with Laravel</span>
+                <span class="sf-dev">Developed by <strong>Abir Hasan Arko</strong></span>
             </div>
-            <div class="muted" style="font-size: 13px;">Built with Laravel · © {{ date('Y') }} HelloMed</div>
-        </div>
-        <div class="dev-footer" style="border-top: 1px solid var(--border); margin-top: 24px; padding-top: 24px;">
-            <div class="container dev-footer-inner">
-                <span>Developed by <strong>Abir Hasan Arko</strong></span>
-                <a href="mailto:abirhasanarko2004@gmail.com" title="Email">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    abirhasanarko2004@gmail.com
-                </a>
-                <a href="https://github.com/AbirHasanArko" target="_blank" rel="noopener" title="GitHub">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                    GitHub
-                </a>
-                <a href="https://www.linkedin.com/in/abirhasanarko/" target="_blank" rel="noopener" title="LinkedIn">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-                    LinkedIn
-                </a>
-            </div>
+
         </div>
         @stack('footer-extra')
     </footer>
+
+    <style>
+        /* ── Fat Footer ─────────────────────────────────────────── */
+        .site-footer {
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 56px 0 0;
+            margin-top: 0;
+        }
+        .site-footer .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+        .sf-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 40px 32px;
+        }
+        @media (max-width: 1024px) {
+            .sf-grid { grid-template-columns: 1fr 1fr 1fr; }
+            .sf-brand { grid-column: 1 / -1; }
+        }
+        @media (max-width: 640px) {
+            .sf-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 420px) {
+            .sf-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Brand */
+        .sf-brand { display: flex; flex-direction: column; gap: 14px; }
+        .sf-logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-weight: 700; font-size: 1.1rem; width: fit-content; }
+        .sf-logo-mark { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end)); display: grid; place-items: center; color: #fff; flex-shrink: 0; }
+        .sf-logo:hover .sf-logo-mark { opacity: .85; }
+        .sf-tagline { font-size: 0.88rem; color: var(--muted); line-height: 1.6; max-width: 280px; margin: 0; }
+        .sf-social { display: flex; gap: 10px; flex-wrap: wrap; }
+        .sf-social-link { width: 34px; height: 34px; border-radius: 8px; background: var(--surface-hover); border: 1px solid var(--border); display: grid; place-items: center; color: var(--muted); text-decoration: none; transition: background .18s, color .18s, border-color .18s; }
+        .sf-social-link svg { width: 15px; height: 15px; }
+        .sf-social-link:hover { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+        /* Columns */
+        .sf-col { display: flex; flex-direction: column; gap: 6px; }
+        .sf-col-title { font-size: 0.7rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; margin-top: 2px; }
+        .sf-link { font-size: 0.875rem; color: var(--text-secondary, var(--muted)); text-decoration: none; padding: 2px 0; transition: color .15s; cursor: pointer; }
+        .sf-link:hover { color: var(--primary); }
+        .sf-link-urgent { color: #ef4444 !important; font-weight: 600; }
+        .sf-link-urgent:hover { color: #dc2626 !important; }
+        .sf-link-muted { color: var(--muted); font-size: 0.82rem; cursor: default; }
+        .sf-link-muted:hover { color: var(--muted); }
+
+        /* Bottom bar */
+        .sf-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+            margin-top: 48px;
+            padding: 20px 0 24px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .sf-dev strong { color: var(--text); }
+    </style>
+
 
     {{-- AI Health Assistant Floating Widget --}}
     @include('components.ai-chat-widget')
