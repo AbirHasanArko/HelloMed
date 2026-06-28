@@ -332,11 +332,16 @@ class AppointmentController extends Controller
 
         $adminStaff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
         foreach ($adminStaff as $staff) {
+            $routeName = $staff->role . '.diagnostic-services.index';
+            $url = \Illuminate\Support\Facades\Route::has($routeName) 
+                ? route($routeName) 
+                : route($staff->role . '.dashboard');
+
             $staff->notify(new \App\Notifications\SystemNotification(
                 'New Diagnostic Test Request',
                 "Dr. {$doctor->user->name} prescribed lab tests for {$appointment->patient_name}.",
                 'moderate',
-                route($staff->role . '.diagnostic-services.index')
+                $url
             ));
         }
 

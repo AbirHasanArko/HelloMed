@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminPharmacistController;
 use App\Http\Controllers\Admin\AdminStaffController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\AvailableTestController as AdminAvailableTestController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AdminPayoutController;
 use App\Http\Controllers\AuthController;
@@ -40,6 +41,7 @@ use App\Http\Controllers\Pharmacist\DashboardController as PharmacistDashboardCo
 use App\Http\Controllers\Pharmacist\MedicineController as PharmacistMedicineController;
 use App\Http\Controllers\Pharmacist\OrderController as PharmacistOrderController;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\ContactMessageController as StaffContactMessageController;
 use App\Http\Controllers\Staff\LabTestController as StaffLabTestController;
 use App\Http\Controllers\LabTestDownloadController;
 use App\Http\Controllers\Frontend\AiChatController;
@@ -61,7 +63,8 @@ Route::get('/medicines', [MedicineController::class, 'index'])->name('medicines.
 Route::get('/medicines/{medicine:slug}', [MedicineController::class, 'show'])->name('medicines.show');
 Route::get('/appointments/create/{doctor:slug}', [AppointmentController::class, 'create'])->middleware('auth')->name('appointments.create');
 Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('auth')->name('appointments.store');
-Route::get('/contact', ContactController::class)->name('contact');
+Route::get('/contact', [ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('auth')->name('contact.store');
 Route::get('/shop/cart', [MedicineCartController::class, 'index'])->name('shop.cart');
 Route::post('/shop/cart/{medicine}', [MedicineCartController::class, 'add'])->name('shop.cart.add');
 Route::patch('/shop/cart/{medicine}', [MedicineCartController::class, 'update'])->name('shop.cart.update');
@@ -209,6 +212,7 @@ Route::prefix('staff')
         Route::patch('/diagnostic-services/{labTest}/mark-paid', [StaffLabTestController::class, 'markAsPaid'])->name('diagnostic-services.mark-paid');
         Route::post('/diagnostic-services/{labTest}/upload', [StaffLabTestController::class, 'upload'])->name('diagnostic-services.upload');
         Route::delete('/diagnostic-services/{labTest}/remove-result', [StaffLabTestController::class, 'removeResult'])->name('diagnostic-services.remove-result');
+        Route::get('/contact-messages', [StaffContactMessageController::class, 'index'])->name('contact-messages.index');
         Route::resource('patients', \App\Http\Controllers\Staff\StaffPatientController::class)->parameters(['patients' => 'patient']);
     });
 
@@ -239,6 +243,7 @@ Route::prefix('admin')
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/appointments', [AdminAppointmentController::class, 'index'])->name('appointments.index');
         Route::patch('/appointments/{appointment}', [AdminAppointmentController::class, 'update'])->name('appointments.update');
+        Route::get('/contact-messages', [AdminContactMessageController::class, 'index'])->name('contact-messages.index');
         Route::resource('patients', \App\Http\Controllers\Admin\AdminPatientController::class)->parameters(['patients' => 'patient']);
         Route::resource('medicines', \App\Http\Controllers\Admin\AdminMedicineController::class)->parameters(['medicines' => 'medicine']);
         Route::resource('ambulance', \App\Http\Controllers\Admin\AdminAmbulanceController::class)->parameters(['ambulance' => 'ambulance']);

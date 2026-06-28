@@ -3,7 +3,7 @@
   <h1>HelloMed</h1>
   <p><b>A Comprehensive, State-of-the-Art Hospital Management & Digital Health Platform</b></p>
 
-  [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+  [![Laravel](https://img.shields.io/badge/Laravel-13.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
   [![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
   [![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
   [![Ollama](https://img.shields.io/badge/AI-Ollama%20%2B%20Mistral-000000?style=for-the-badge&logo=ollama&logoColor=white)](https://ollama.com)
@@ -267,7 +267,7 @@ flowchart TD
 ## 💻 Technology Stack
 
 ### Backend
-- **Framework:** Laravel 11.x
+- **Framework:** Laravel 13.x
 - **Language:** PHP 8.2+
 - **Database:** MySQL (Relational, ACID-compliant, standard for health data)
 - **Security:** Laravel Sanctum, built-in CSRF & XSS protection, Password Hashing.

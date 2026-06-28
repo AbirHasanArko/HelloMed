@@ -46,11 +46,16 @@ class AmbulanceController extends Controller
 
         $adminStaff = \App\Models\User::whereIn('role', ['admin', 'staff'])->get();
         foreach ($adminStaff as $staff) {
+            $routeName = $staff->role . '.ambulance.index';
+            $url = \Illuminate\Support\Facades\Route::has($routeName) 
+                ? route($routeName) 
+                : route($staff->role . '.dashboard');
+
             $staff->notify(new \App\Notifications\SystemNotification(
                 'New Ambulance Request',
                 "{$request->patient_name} requested an ambulance at {$request->address}.",
                 'important',
-                route($staff->role . '.ambulance.index')
+                $url
             ));
         }
 
