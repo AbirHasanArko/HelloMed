@@ -3,7 +3,7 @@
 @section('content')
     <section class="section">
         <h1>Edit article</h1>
-        <div class="card" style="max-width: 600px;">
+        <div class="card" style="max-width: 800px; overflow: visible;">
             <form method="POST" action="{{ route($routePrefix . '.articles.update', $article) }}" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -23,10 +23,10 @@
                     Excerpt
                     <textarea name="excerpt" required>{{ $article->excerpt }}</textarea>
                 </label>
-                <label>
-                    Body
-                    <textarea name="body" required>{{ $article->body }}</textarea>
-                </label>
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500;">Body</label>
+                    <x-wysiwyg name="body" :value="old('body', $article->body)" />
+                </div>
                 <label>
                     Article image
                     <input type="file" name="cover_image" accept="image/*">

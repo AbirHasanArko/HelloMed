@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminAppointmentController;
+use App\Http\Controllers\Admin\AdminArticleCategoryController;
 use App\Http\Controllers\Admin\AdminArticleController;
 use App\Http\Controllers\Admin\AdminDepartmentController;
 use App\Http\Controllers\Admin\AdminDoctorController;
@@ -257,6 +258,8 @@ Route::prefix('admin')
         Route::delete('/departments/{department}', [AdminDepartmentController::class, 'destroy'])->name('departments.destroy');
 
         Route::resource('available-tests', AdminAvailableTestController::class)->except(['show']);
+        
+        Route::resource('article-categories', AdminArticleCategoryController::class)->except(['show']);
 
         Route::get('/articles', [AdminArticleController::class, 'index'])->name('articles.index');
         Route::get('/articles/create', [AdminArticleController::class, 'create'])->name('articles.create');

@@ -157,6 +157,30 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
+        $catNutrition = ArticleCategory::query()->updateOrCreate([
+            'slug' => 'nutrition',
+        ], [
+            'name' => 'Nutrition',
+            'description' => 'Diet, healthy eating, and nutrition guides.',
+            'is_active' => true,
+        ]);
+        
+        $catSurgery = ArticleCategory::query()->updateOrCreate([
+            'slug' => 'surgery',
+        ], [
+            'name' => 'Surgery',
+            'description' => 'Information regarding surgical procedures and recovery.',
+            'is_active' => true,
+        ]);
+        
+        $catWellness = ArticleCategory::query()->updateOrCreate([
+            'slug' => 'wellness',
+        ], [
+            'name' => 'Wellness',
+            'description' => 'General wellness and lifestyle tips.',
+            'is_active' => true,
+        ]);
+
         $cardiology = Department::query()->where('slug', 'cardiology')->first();
         $orthopedics = Department::query()->where('slug', 'orthopedics')->first();
         $neurology = Department::query()->where('slug', 'neurology')->first();
